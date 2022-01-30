@@ -55,7 +55,7 @@ print(doc._.sentiment_prob)
 
 These pipelines can also easily be applied to multiple documents using the `nlp.pipe` as one would expect from a spaCy component:
 
-```
+```python
 docs = nlp.pipe(
     [
         "I hate wrapping my own models",
