@@ -1,3 +1,3 @@
 [run]
-omit = 
-        dacy-wrap/tests/*
+omit =
+        spacy_wrap/tests/*
