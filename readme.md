@@ -12,6 +12,10 @@
 <!-- [![pip downloads](https://img.shields.io/pypi/dm/spacy_wrap.svg)](https://pypi.org/project/spacy_wrap/) -->
 
 
+spaCy-wrap is minimal library intended for wrapping fine-tuned transformers from the [Huggingface model hub](https://huggingface.co/models?pipeline_tag=text-classification&sort=downloads) in your spaCy pipeline allowing inclusion of existing models within [SpaCy](https://spacy.io) workflows. 
+
+As for as possible it follows a similar API as [spacy-transformers](https://github.com/explosion/spacy-transformers).
+
 ## Installation
 
 Installing spacy-wrap is simple using pip:
