@@ -4,8 +4,8 @@ SpaCy-wrap
 .. image:: https://img.shields.io/github/stars/kennethenevoldsen/spacy-wrap.svg?style=social&label=Star&maxAge=2592000
    :target: https://github.com/kennethenevoldsen/spacy-wrap
 
-spaCy-wrap is a wrapper library for `spaCy <https://spacy.io>`__ for including pre-trained (and typically finetuned)
-transformers from Huggingface in your spaCy pipeline hereby allowing you to combine finetuned models within your SpaCy workflow.
+spaCy-wrap is a wrapper library for `spaCy <https://spacy.io>`__ for including fine-tuned
+transformers from Huggingface in your spaCy pipeline allowing inclusion of existing models within SpaCy workflows.
 
 
 Contents
