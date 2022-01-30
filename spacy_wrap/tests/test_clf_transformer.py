@@ -1,6 +1,7 @@
 import spacy
 import spacy_wrap
 
+
 def test_clf_trf():
     nlp = spacy.blank("da")
 
@@ -17,7 +18,7 @@ def test_clf_trf():
     transformer.model.initialize()
 
     doc = nlp("Senile gamle idiot")
-    
+
     doc._.clf_trf_data
     assert doc._.hate_speech == "Hate speech"
     assert isinstance(doc._.hate_speech_prob, dict)

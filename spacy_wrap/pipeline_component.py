@@ -60,7 +60,7 @@ def make_classification_transformer(
     pipeline. One or more subsequent spaCy components can use the transformer
     outputs as features in its model, with gradients backpropagated to the single
     shared weights.
-    
+
     Args:
         model (Model[List[Doc], FullTransformerBatch]): A thinc Model object wrapping
             the transformer. Usually you will want to use the ClassificationTransformer

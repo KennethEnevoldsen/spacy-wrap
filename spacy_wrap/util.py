@@ -1,4 +1,3 @@
-
 from typing import List
 import torch
 from transformers.file_utils import ModelOutput
@@ -8,6 +7,7 @@ from spacy_transformers.data_classes import TransformerData
 from spacy_transformers.align import get_token_positions
 
 import numpy as np
+
 
 def split_by_doc(self) -> List[TransformerData]:
     """
@@ -56,6 +56,7 @@ def split_by_doc(self) -> List[TransformerData]:
         prev_tokens += doc_tokens.input_ids.size
         start += len(doc_spans)
     return outputs
+
 
 def softmax(x):
     return np.exp(x) / sum(np.exp(x))
