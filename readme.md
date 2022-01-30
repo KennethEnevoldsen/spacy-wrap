@@ -1,4 +1,4 @@
-<a href="https://github.com/kennethenevoldsen/spacy-wrap"><img src="https://raw.githubusercontent.com/KennethEnevoldsen/spacy-wrap/main/docs/_static/icon.png" width="200" align="right" /></a>
+<a href="https://github.com/kennethenevoldsen/spacy-wrap"><img src="https://raw.githubusercontent.com/KennethEnevoldsen/spacy-wrap/main/docs/_static/icon.png" width="300" align="right" /></a>
 # spaCy-wrap: For Wrapping fine-tuned transformers in spaCy pipelines
 
 
