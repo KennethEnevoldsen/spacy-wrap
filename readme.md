@@ -7,7 +7,7 @@
 [![Code style: black](https://img.shields.io/badge/Code%20Style-Black-black)](https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html)
 [![github actions pytest](https://github.com/kennethenevoldsen/spacy-wrap/actions/workflows/pytest-cov-comment.yml/badge.svg)](https://github.com/kennethenevoldsen/spacy-wrap/actions)
 [![github actions docs](https://github.com/kennethenevoldsen/spacy-wrap/actions/workflows/documentation.yml/badge.svg)](https://kennethenevoldsen.github.io/spacy-wrap/)
-![github coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/KennethEnevoldsen/95471fd640b6c1c09717c5f88e2e9fae/raw/badge-spacy-wrap-pytest-coverage.json)
+![github coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/KennethEnevoldsen/33fb85a2c440013df494c1fce884633c/raw/5b4c0725d8bd63c8d76bb40c0d08a46077fa9d4e/badge-spacy-wrap-coverage.json)
 [![CodeFactor](https://www.codefactor.io/repository/github/kennethenevoldsen/spacy-wrap/badge)](https://www.codefactor.io/repository/github/kennethenevoldsen/spacy-wrap)
 <!-- [![pip downloads](https://img.shields.io/pypi/dm/spacy_wrap.svg)](https://pypi.org/project/spacy_wrap/) -->
 
