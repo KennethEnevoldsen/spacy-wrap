@@ -1,4 +1,4 @@
-<a href="https://github.com/kennethenevoldsen/spacy-wrap"><img src="https://github.com/KennethEnevoldsen/spacy-wrap/blob/main/docs/img/logo_black_font.png?raw=true" width="300" align="right" /></a>
+<a href="https://github.com/kennethenevoldsen/spacy-wrap"><img src="https://raw.githubusercontent.com/KennethEnevoldsen/spacy-wrap/main/docs/_static/icon.png" width="200" align="right" /></a>
 # spaCy-wrap: For Wrapping fine-tuned transformers in spaCy pipelines
 
 
@@ -57,11 +57,11 @@ doc._.hate_speech_prob
 
 # 📖 Documentation
 
-| Documentation              |                                                                           |
-| -------------------------- | ------------------------------------------------------------------------- |
-| 🔧 **[Installation]**       | Installation instructions for spacy-wrap                                       |
-| 📚 **[Usage Guides]**       | Guides and instructions on how to use spacy-wrap and its features.             |
-| 📰 **[News and changelog]** | New additions, changes and version history.                               |
+| Documentation              |                                                                               |
+| -------------------------- | ----------------------------------------------------------------------------- |
+| 🔧 **[Installation]**       | Installation instructions for spacy-wrap                                      |
+| 📚 **[Usage Guides]**       | Guides and instructions on how to use spacy-wrap and its features.            |
+| 📰 **[News and changelog]** | New additions, changes and version history.                                   |
 | 🎛 **[Documentation]**      | The detailed reference for spacy-wrap's API. Including function documentation |
 
 [Documentation]: https://kennethenevoldsen.github.io/spacy-wrap/index.html
