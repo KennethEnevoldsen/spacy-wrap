@@ -1,0 +1,12 @@
+# Python
+__pycache__/*
+*.pyc
+
+# MacOS
+.DS_store
+
+# VS code
+.vscode/*
+
+# docs
+docs/_build/*

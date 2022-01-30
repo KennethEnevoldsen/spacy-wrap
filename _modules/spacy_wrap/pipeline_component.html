@@ -1,0 +1,443 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
+
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/><meta name="generator" content="sphinx-4.4.0, furo 2022.01.02"/>
+        <title>spacy_wrap.pipeline_component - spacy-wrap 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=df49af52631e7917044a9c21a57f7b83170a6dd0" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.59c74d8c95b765a7fd995ac71d459ebe.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=fade93df149f7c5fedb3ff897f799dc7d283b420" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  --color-brand-primary: #ff5454;
+  --color-brand-content: #ff7575;
+  
+  }
+  body[data-theme="dark"] {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #ff8f8f;
+  --color-brand-content: #ff8f8f;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    body:not([data-theme="light"]) {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #ff8f8f;
+  --color-brand-content: #ff8f8f;
+  
+    }
+  }
+</style></head>
+  <body>
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" />
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">spacy-wrap 0.0.1 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../../_static/icon.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../../_static/icon_dark.png" alt="Dark Logo"/>
+  </div>
+  
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently asked questions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">News</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../news.html">News and Changelog</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API references</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../wrap.architectures.html">Architectures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../wrap.layers.html">Layers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../wrap.pipeline_component.html">pipeline Components</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">GitHub</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/kennethenevoldsen/spacy-wrap">GitHub Repository</a></li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <h1>Source code for spacy_wrap.pipeline_component</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">spacy.language</span> <span class="kn">import</span> <span class="n">Language</span>
+<span class="kn">from</span> <span class="nn">spacy.tokens</span> <span class="kn">import</span> <span class="n">Doc</span>
+<span class="kn">from</span> <span class="nn">spacy.vocab</span> <span class="kn">import</span> <span class="n">Vocab</span>
+
+<span class="kn">from</span> <span class="nn">spacy_transformers.data_classes</span> <span class="kn">import</span> <span class="n">FullTransformerBatch</span>
+<span class="kn">from</span> <span class="nn">spacy_transformers.pipeline_component</span> <span class="kn">import</span> <span class="n">Transformer</span>
+<span class="kn">from</span> <span class="nn">spacy_transformers.layers</span> <span class="kn">import</span> <span class="n">TransformerListener</span>
+<span class="kn">from</span> <span class="nn">spacy_transformers.annotation_setters</span> <span class="kn">import</span> <span class="n">null_annotation_setter</span>
+<span class="kn">from</span> <span class="nn">thinc.api</span> <span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">Model</span>
+
+<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">split_by_doc</span><span class="p">,</span> <span class="n">softmax</span>
+
+
+<span class="n">DEFAULT_CONFIG_STR</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">[classification_transformer]</span>
+<span class="s2">max_batch_items = 4096</span>
+<span class="s2">doc_extension_trf_data = "clf_trf_data"</span>
+<span class="s2">doc_extension_prediction = "classification"</span>
+<span class="s2">labels = ["positive", negative"]</span>
+
+<span class="s2">[classification_transformer.set_extra_annotations]</span>
+<span class="s2">@annotation_setters = "spacy-transformers.null_annotation_setter.v1"</span>
+
+<span class="s2">[classification_transformer.model]</span>
+<span class="s2">@architectures = "spacy-wrap.ClassificationTransformerModel.v1"</span>
+<span class="s2">name = "roberta-base"</span>
+<span class="s2">tokenizer_config = {"use_fast": true}</span>
+<span class="s2">transformer_config = </span><span class="si">{}</span><span class="s2"></span>
+<span class="s2">mixed_precision = false</span>
+<span class="s2">grad_scaler_config = </span><span class="si">{}</span><span class="s2"></span>
+
+<span class="s2">[classification_transformer.model.get_spans]</span>
+<span class="s2">@span_getters = "spacy-transformers.strided_spans.v1"</span>
+<span class="s2">window = 128</span>
+<span class="s2">stride = 96</span>
+<span class="s2">"""</span>
+
+<span class="n">DEFAULT_CONFIG</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="n">DEFAULT_CONFIG_STR</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="make_classification_transformer"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component.make_classification_transformer">[docs]</a><span class="nd">@Language</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span>
+    <span class="s2">"classification_transformer"</span><span class="p">,</span>
+    <span class="n">default_config</span><span class="o">=</span><span class="n">DEFAULT_CONFIG</span><span class="p">[</span><span class="s2">"classification_transformer"</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">make_classification_transformer</span><span class="p">(</span>
+    <span class="n">nlp</span><span class="p">:</span> <span class="n">Language</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Doc</span><span class="p">],</span> <span class="n">FullTransformerBatch</span><span class="p">],</span>
+    <span class="n">set_extra_annotations</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">List</span><span class="p">[</span><span class="n">Doc</span><span class="p">],</span> <span class="n">FullTransformerBatch</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span>
+    <span class="n">max_batch_items</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">doc_extension_trf_data</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">doc_extension_prediction</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">labels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">):</span>
+    <span class="sd">"""Construct a ClassificationTransformer component, which lets you plug a model from the</span>
+<span class="sd">    Huggingface transformers library into spaCy so you can use it in your</span>
+<span class="sd">    pipeline. One or more subsequent spaCy components can use the transformer</span>
+<span class="sd">    outputs as features in its model, with gradients backpropagated to the single</span>
+<span class="sd">    shared weights.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model (Model[List[Doc], FullTransformerBatch]): A thinc Model object wrapping</span>
+<span class="sd">            the transformer. Usually you will want to use the ClassificationTransformer</span>
+<span class="sd">            layer for this.</span>
+<span class="sd">        set_extra_annotations (Callable[[List[Doc], FullTransformerBatch], None]): A</span>
+<span class="sd">            callback to set additional information onto the batch of `Doc` objects.</span>
+<span class="sd">            The doc._.{doc_extension_trf_data} attribute is set prior to calling the callback</span>
+<span class="sd">            as well as doc._.{doc_extension_prediction} and doc._.{doc_extension_prediction}_prob.</span>
+<span class="sd">            By default, no additional annotations are set.</span>
+<span class="sd">        labels (List[str]): A list of labels which the transformer model outputs, should be ordered.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">ClassificationTransformer</span><span class="p">(</span>
+        <span class="n">nlp</span><span class="o">.</span><span class="n">vocab</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">,</span>
+        <span class="n">set_extra_annotations</span><span class="p">,</span>
+        <span class="n">max_batch_items</span><span class="o">=</span><span class="n">max_batch_items</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+        <span class="n">doc_extension_trf_data</span><span class="o">=</span><span class="n">doc_extension_trf_data</span><span class="p">,</span>
+        <span class="n">doc_extension_prediction</span><span class="o">=</span><span class="n">doc_extension_prediction</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ClassificationTransformer"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component.ClassificationTransformer">[docs]</a><span class="k">class</span> <span class="nc">ClassificationTransformer</span><span class="p">(</span><span class="n">Transformer</span><span class="p">):</span>
+    <span class="sd">"""spaCy pipeline component that provides access to a transformer model from</span>
+<span class="sd">    the Huggingface transformers library. Usually you will connect subsequent</span>
+<span class="sd">    components to the shared transformer using the TransformerListener layer.</span>
+<span class="sd">    This works similarly to spaCy's Tok2Vec component and Tok2VecListener</span>
+<span class="sd">    sublayer.</span>
+
+<span class="sd">    The activations from the transformer are saved in the doc._.trf_data extension</span>
+<span class="sd">    attribute. You can also provide a callback to set additional annotations.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        vocab (Vocab): The Vocab object for the pipeline.</span>
+<span class="sd">        model (Model[List[Doc], FullTransformerBatch]): A thinc Model object wrapping</span>
+<span class="sd">            the transformer. Usually you will want to use the TransformerModel</span>
+<span class="sd">            layer for this.</span>
+<span class="sd">        set_extra_annotations (Callable[[List[Doc], FullTransformerBatch], None]): A</span>
+<span class="sd">            callback to set additional information onto the batch of `Doc` objects.</span>
+<span class="sd">            The doc._.{doc_extension_trf_data} attribute is set prior to calling the callback</span>
+<span class="sd">            as well as doc._.{doc_extension_prediction} and doc._.{doc_extension_prediction}_prob.</span>
+<span class="sd">            By default, no additional annotations are set.</span>
+<span class="sd">        labels (List[str]): A list of labels which the transformer model outputs, should be ordered.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">vocab</span><span class="p">:</span> <span class="n">Vocab</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Doc</span><span class="p">],</span> <span class="n">FullTransformerBatch</span><span class="p">],</span>
+        <span class="n">set_extra_annotations</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">null_annotation_setter</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"classification_transformer"</span><span class="p">,</span>
+        <span class="n">max_batch_items</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span> <span class="o">*</span> <span class="mi">32</span><span class="p">,</span>  <span class="c1"># Max size of padded batch</span>
+        <span class="n">labels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">doc_extension_trf_data</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">doc_extension_prediction</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">"""Initialize the transformer component."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span> <span class="o">=</span> <span class="n">vocab</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">Model</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Expected Thinc Model, got: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_extra_annotations</span> <span class="o">=</span> <span class="n">set_extra_annotations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"max_batch_items"</span><span class="p">:</span> <span class="n">max_batch_items</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">listener_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">TransformerListener</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">doc_extension_trf_data</span> <span class="o">=</span> <span class="n">doc_extension_trf_data</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Doc</span><span class="o">.</span><span class="n">has_extension</span><span class="p">(</span><span class="n">doc_extension_trf_data</span><span class="p">):</span>
+            <span class="n">Doc</span><span class="o">.</span><span class="n">set_extension</span><span class="p">(</span><span class="n">doc_extension_trf_data</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">install_classification_extensions</span><span class="p">(</span>
+            <span class="n">doc_extension_prediction</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">doc_extension_trf_data</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="ClassificationTransformer.set_annotations"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component.ClassificationTransformer.set_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">set_annotations</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">docs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Doc</span><span class="p">],</span> <span class="n">predictions</span><span class="p">:</span> <span class="n">FullTransformerBatch</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">"""Assign the extracted features to the Doc objects. By default, the</span>
+<span class="sd">        TransformerData object is written to the doc._.trf_data attribute. Your</span>
+<span class="sd">        set_extra_annotations callback is then called, if provided.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            docs (Iterable[Doc]): The documents to modify.</span>
+<span class="sd">            predictions: (FullTransformerBatch): A batch of activations.</span>
+<span class="sd">        """</span>
+        <span class="n">doc_data</span> <span class="o">=</span> <span class="n">split_by_doc</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">doc</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span> <span class="n">doc_data</span><span class="p">):</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_extension_trf_data</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_extra_annotations</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">install_classification_extensions</span><span class="p">(</span>
+    <span class="n">doc_extension_prediction</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">labels</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">doc_extension</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">prob_getter</span><span class="p">,</span> <span class="n">label_getter</span> <span class="o">=</span> <span class="n">make_classification_getter</span><span class="p">(</span>
+        <span class="n">doc_extension_prediction</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">doc_extension</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">Doc</span><span class="o">.</span><span class="n">has_extension</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">doc_extension_prediction</span><span class="si">}</span><span class="s2">_prob"</span><span class="p">):</span>
+        <span class="n">Doc</span><span class="o">.</span><span class="n">set_extension</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">doc_extension_prediction</span><span class="si">}</span><span class="s2">_prob"</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="n">prob_getter</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">Doc</span><span class="o">.</span><span class="n">has_extension</span><span class="p">(</span><span class="n">doc_extension_prediction</span><span class="p">):</span>
+        <span class="n">Doc</span><span class="o">.</span><span class="n">set_extension</span><span class="p">(</span><span class="n">doc_extension_prediction</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="n">label_getter</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">make_classification_getter</span><span class="p">(</span>
+    <span class="n">doc_extension_prediction</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">doc_extension_trf_data</span>
+<span class="p">):</span>
+    <span class="k">def</span> <span class="nf">prob_getter</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">trf_data</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">_</span><span class="p">,</span> <span class="n">doc_extension_trf_data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">trf_data</span><span class="o">.</span><span class="n">tensors</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">"prob"</span><span class="p">:</span> <span class="n">softmax</span><span class="p">(</span><span class="n">trf_data</span><span class="o">.</span><span class="n">tensors</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">decimals</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
+                <span class="s2">"labels"</span><span class="p">:</span> <span class="n">labels</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">"The tensors from the transformer forward pass is empty this is likely caused by an empty input string. Thus the model will return None"</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">"prob"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">"labels"</span><span class="p">:</span> <span class="n">labels</span><span class="p">,</span>
+            <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">label_getter</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">_</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">doc_extension_prediction</span><span class="si">}</span><span class="s2">_prob"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">prob</span><span class="p">[</span><span class="s2">"prob"</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">labels</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">prob</span><span class="p">[</span><span class="s2">"prob"</span><span class="p">]</span><span class="o">.</span><span class="n">argmax</span><span class="p">())]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">prob_getter</span><span class="p">,</span> <span class="n">label_getter</span>
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+
+        <div class="related-information">
+              Copyright &#169;  |
+          Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+          <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
+    </body>
+</html>
