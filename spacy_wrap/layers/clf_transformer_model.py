@@ -1,6 +1,5 @@
 import copy
 from pathlib import Path
-from turtle import forward
 from typing import Callable, Dict, Union
 
 from spacy_transformers.align import get_alignment
