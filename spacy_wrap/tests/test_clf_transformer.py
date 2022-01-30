@@ -22,3 +22,7 @@ def test_clf_trf():
     doc._.clf_trf_data
     assert doc._.hate_speech == "Hate speech"
     assert isinstance(doc._.hate_speech_prob, dict)
+
+
+def test_workflows():
+    raise ValueError("!")
