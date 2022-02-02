@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.ico"/><meta name="generator" content="sphinx-4.4.0, furo 2022.01.02"/>
-        <title>spacy_wrap.pipeline_component - spacy-wrap 0.0.7 documentation</title>
+        <title>spacy_wrap.pipeline_component - spacy-wrap 0.0.8 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=df49af52631e7917044a9c21a57f7b83170a6dd0" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -130,7 +130,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">spacy-wrap 0.0.7 documentation</div></a>
+      <a href="../../index.html"><div class="brand">spacy-wrap 0.0.8 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -283,7 +283,7 @@
 <span class="sd">            By default, no additional annotations are set.</span>
 <span class="sd">        labels (List[str]): A list of labels which the transformer model outputs, should be ordered.</span>
 <span class="sd">    """</span>
-    <span class="k">return</span> <span class="n">ClassificationTransformer</span><span class="p">(</span>
+    <span class="n">clf_trf</span> <span class="o">=</span> <span class="n">ClassificationTransformer</span><span class="p">(</span>
         <span class="n">nlp</span><span class="o">.</span><span class="n">vocab</span><span class="p">,</span>
         <span class="n">model</span><span class="p">,</span>
         <span class="n">set_extra_annotations</span><span class="p">,</span>
@@ -292,7 +292,9 @@
         <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
         <span class="n">doc_extension_trf_data</span><span class="o">=</span><span class="n">doc_extension_trf_data</span><span class="p">,</span>
         <span class="n">doc_extension_prediction</span><span class="o">=</span><span class="n">doc_extension_prediction</span><span class="p">,</span>
-    <span class="p">)</span></div>
+    <span class="p">)</span>
+    <span class="n">clf_trf</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">clf_trf</span></div>
 
 
 <div class="viewcode-block" id="ClassificationTransformer"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component.ClassificationTransformer">[docs]</a><span class="k">class</span> <span class="nc">ClassificationTransformer</span><span class="p">(</span><span class="n">Transformer</span><span class="p">):</span>
