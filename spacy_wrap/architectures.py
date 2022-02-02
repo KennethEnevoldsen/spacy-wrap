@@ -5,7 +5,7 @@ from spacy.tokens import Doc
 from spacy_transformers.util import registry
 from spacy_transformers import FullTransformerBatch
 
-from .layers.clf_transformer_model import ClassificationTransformerModel
+from spacy_wrap.layers.clf_transformer_model import ClassificationTransformerModel
 
 
 @registry.architectures.register("spacy-wrap.ClassificationTransformerModel.v1")
