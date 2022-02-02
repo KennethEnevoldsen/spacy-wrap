@@ -96,5 +96,3 @@ for doc in docs:
 # {'prob': array([1., 0.], dtype=float32), 'labels': ['objective', 'subjective']}
 # subjective
 # {'prob': array([0., 1.], dtype=float32), 'labels': ['objective', 'subjective']}
-
-
