@@ -9,7 +9,7 @@ with open("spacy_wrap/about.py") as f:
 
 
  def setup_package():
-     setup(version=__version__)
+    setup(version=__version__)
 
 
 
