@@ -72,7 +72,7 @@ def make_classification_transformer(
             By default, no additional annotations are set.
         labels (List[str]): A list of labels which the transformer model outputs, should be ordered.
     """
-    return ClassificationTransformer(
+    clf_trf = ClassificationTransformer(
         nlp.vocab,
         model,
         set_extra_annotations,
@@ -82,6 +82,8 @@ def make_classification_transformer(
         doc_extension_trf_data=doc_extension_trf_data,
         doc_extension_prediction=doc_extension_prediction,
     )
+    clf_trf.model.initialize()
+    return clf_trf
 
 
 class ClassificationTransformer(Transformer):

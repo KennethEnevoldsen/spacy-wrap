@@ -80,7 +80,6 @@ Language.factory(
 
 nlp = spacy.blank("da")
 transformer = nlp.add_pipe("subjectivity")
-transformer.model.initialize()
 
 texts = [
     "Analysen viser, at økonomien bliver forfærdelig dårlig",

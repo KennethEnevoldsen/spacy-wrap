@@ -45,7 +45,6 @@ config = {
 }
 
 transformer = nlp.add_pipe("classification_transformer", config=config)
-transformer.model.initialize()
 
 doc = nlp("spaCy is a wonderful tool")
 
