@@ -1,17 +1,34 @@
-from typing import Callable, List, Iterable, Dict, Optional
+"""
+TODO
+- [ ] check serialization (does not work)
+- [ ] setup training + loss
+  - [ ] test training
+"""
+
+
 import warnings
+from typing import Callable, Dict, Iterable, Iterator, List, Optional, Union
+from pathlib import Path
+
+import srsly
 
 from spacy.language import Language
+from spacy.pipeline.trainable_pipe import TrainablePipe
 from spacy.tokens import Doc
 from spacy.vocab import Vocab
+from spacy.util import minibatch
+from spacy.training import Example, validate_get_examples
+from spacy.pipeline.pipe import deserialize_config
+from spacy import util, Errors
 
-from spacy_transformers.data_classes import FullTransformerBatch
-from spacy.pipeline.trainable_pipe import TrainablePipe
 from spacy_transformers.annotation_setters import null_annotation_setter
-from thinc.api import Config, Model
+from spacy_transformers.data_classes import FullTransformerBatch
+from spacy_transformers.util import batch_by_length
 
-from .util import split_by_doc, softmax
+from thinc.api import Model, Config, Optimizer
 
+from .util import softmax, split_by_doc
+from .layers.clf_transformer_model import huggingface_from_pretrained
 
 DEFAULT_CONFIG_STR = """
 [classification_transformer]
@@ -72,9 +89,9 @@ def make_classification_transformer(
         labels (List[str]): A list of labels which the transformer model outputs, should be ordered.
     """
     clf_trf = ClassificationTransformer(
-        nlp.vocab,
-        model,
-        set_extra_annotations,
+        vocab=nlp.vocab,
+        model=model,
+        set_extra_annotations=set_extra_annotations,
         max_batch_items=max_batch_items,
         name=name,
         labels=labels,
@@ -112,13 +129,13 @@ class ClassificationTransformer(TrainablePipe):
         self,
         vocab: Vocab,
         model: Model[List[Doc], FullTransformerBatch],
+        labels: List[str],
+        doc_extension_trf_data: str,
+        doc_extension_prediction: str,
         set_extra_annotations: Callable = null_annotation_setter,
         *,
         name: str = "classification_transformer",
         max_batch_items: int = 128 * 32,  # Max size of padded batch
-        labels: List[str],
-        doc_extension_trf_data: str,
-        doc_extension_prediction: str,
     ):
         """Initialize the transformer component."""
         self.name = name
@@ -130,8 +147,7 @@ class ClassificationTransformer(TrainablePipe):
         self.cfg = {"max_batch_items": max_batch_items}
         self.doc_extension_trf_data = doc_extension_trf_data
 
-        if not Doc.has_extension(doc_extension_trf_data):
-            Doc.set_extension(doc_extension_trf_data, default=None)
+        install_extensions(self.doc_extension_trf_data)
 
         install_classification_extensions(
             doc_extension_prediction, labels, doc_extension_trf_data
@@ -141,7 +157,7 @@ class ClassificationTransformer(TrainablePipe):
         self, docs: Iterable[Doc], predictions: FullTransformerBatch
     ) -> None:
         """Assign the extracted features to the Doc objects. By default, the
-        TransformerData object is written to the doc._.trf_data attribute. Your
+        TransformerData object is written to the doc._.{doc_extension_trf_data} attribute. Your
         set_extra_annotations callback is then called, if provided.
 
         Args:
@@ -153,7 +169,6 @@ class ClassificationTransformer(TrainablePipe):
             setattr(doc._, self.doc_extension_trf_data, data)
         self.set_extra_annotations(docs, predictions)
 
-
     def __call__(self, doc: Doc) -> Doc:
         """Apply the pipe to one document. The document is modified in place,
         and returned. This usually happens under the hood when the nlp object
@@ -162,10 +177,10 @@ class ClassificationTransformer(TrainablePipe):
         RETURNS (Doc): The processed Doc.
         DOCS: https://spacy.io/api/transformer#call
         """
-        install_extensions()
+        install_extensions(self.doc_extension_trf_data)
         outputs = self.predict([doc])
         self.set_annotations([doc], outputs)
-        return doc'
+        return doc
 
     def pipe(self, stream: Iterable[Doc], *, batch_size: int = 128) -> Iterator[Doc]:
         """Apply the pipe to a stream of documents. This usually happens under
@@ -176,7 +191,7 @@ class ClassificationTransformer(TrainablePipe):
         YIELDS (Doc): Processed documents in order.
         DOCS: https://spacy.io/api/transformer#pipe
         """
-        install_extensions()
+        install_extensions(self.doc_extension_trf_data)
         for outer_batch in minibatch(stream, batch_size):
             outer_batch = list(outer_batch)
             for indices in batch_by_length(outer_batch, self.cfg["max_batch_items"]):
@@ -196,9 +211,6 @@ class ClassificationTransformer(TrainablePipe):
             activations = FullTransformerBatch.empty(len(docs))
         else:
             activations = self.model.predict(docs)
-        batch_id = TransformerListener.get_batch_id(docs)
-        for listener in self.listeners:
-            listener.receive(batch_id, activations.doc_data, None)
         return activations
 
     def update(
@@ -209,84 +221,10 @@ class ClassificationTransformer(TrainablePipe):
         sgd: Optional[Optimizer] = None,
         losses: Optional[Dict[str, float]] = None,
     ) -> Dict[str, float]:
-        """Prepare for an update to the transformer.
-        Like the `Tok2Vec` component, the `Transformer` component is unusual
-        in that it does not receive "gold standard" annotations to calculate
-        a weight update. The optimal output of the transformer data is unknown;
-        it's a hidden layer inside the network that is updated by backpropagating
-        from output layers.
-        The `Transformer` component therefore does not perform a weight update
-        during its own `update` method. Instead, it runs its transformer model
-        and communicates the output and the backpropagation callback to any
-        downstream components that have been connected to it via the
-        TransformerListener sublayer. If there are multiple listeners, the last
-        layer will actually backprop to the transformer and call the optimizer,
-        while the others simply increment the gradients.
-        examples (Iterable[Example]):
-            A batch of Example objects. Only the `predicted` doc object is used,
-            the reference doc is ignored.
-        drop (float): The dropout rate.
-        sgd (thinc.api.Optimizer): The optimizer.
-        losses (Dict[str, float]): Optional record of the loss during training.
-            Updated using the component name as the key.
-        RETURNS (Dict[str, float]): The updated losses dictionary.
-        DOCS: https://spacy.io/api/transformer#update
-        """
-        validate_examples(examples, "Transformer.update")
-        if losses is None:
-            losses = {}
-        docs = [eg.predicted for eg in examples]
-        if isinstance(docs, Doc):
-            docs = [docs]
-        if not any(len(doc) for doc in docs):
-            # Handle cases where there are no tokens in any docs.
-            return losses
-        set_dropout_rate(self.model, drop)
-        trf_full, bp_trf_full = self.model.begin_update(docs)
-        d_tensors = []
-        losses.setdefault(self.name, 0.0)
-
-        def accumulate_gradient(d_trf_datas: List[TransformerData]):
-            """Accumulate tok2vec loss and gradient. This is passed as a callback
-            to all but the last listener. Only the last one does the backprop.
-            """
-            nonlocal d_tensors
-            for i, d_trf_data in enumerate(d_trf_datas):
-                for d_tensor in d_trf_data.tensors:
-                    # type: ignore
-                    losses[self.name] += float((d_tensor ** 2).sum())
-                if i >= len(d_tensors):
-                    d_tensors.append(list(d_trf_data.tensors))
-                else:
-                    for j, d_tensor in enumerate(d_trf_data.tensors):
-                        d_tensors[i][j] += d_tensor
-
-        def backprop(d_trf_datas: List[TransformerData]):
-            """Callback to actually do the backprop. Passed to last listener."""
-            nonlocal d_tensors
-            accumulate_gradient(d_trf_datas)
-            d_trf_full = trf_full.unsplit_by_doc(d_tensors)
-            d_docs = bp_trf_full(d_trf_full)
-            if sgd is not None:
-                self.model.finish_update(sgd)
-            d_tensors = []
-            return d_docs
-
-        batch_id = TransformerListener.get_batch_id(docs)
-        for listener in self.listeners[:-1]:
-            listener.receive(batch_id, trf_full.doc_data, accumulate_gradient)
-        if self.listeners:
-            self.listeners[-1].receive(batch_id, trf_full.doc_data, backprop)
-        return losses
-
-
-    def get_loss(self, docs, golds, scores):
-        """A noop function, for compatibility with the Pipe API. See the `update`
-        method for an explanation of the loss mechanics of the component.
-        """
         pass
 
-
+    def get_loss(self, docs, golds, scores):
+        pass
 
     def initialize(
         self,
@@ -301,14 +239,7 @@ class ClassificationTransformer(TrainablePipe):
         DOCS: https://spacy.io/api/transformer#initialize
         """
         validate_get_examples(get_examples, "Transformer.initialize")
-        docs = [Doc(Vocab(), words=["hello"])]
-        self.model.initialize(X=docs)
-        if nlp is not None:
-            for i, (name1, proc1) in enumerate(nlp.pipeline):
-                if proc1 is self:
-                    for name2, proc2 in nlp.pipeline[i:]:
-                        self.find_listeners(proc2)
-                    break
+        self.model.initialize()
 
     def to_disk(
         self, path: Union[str, Path], *, exclude: Iterable[str] = tuple()
@@ -326,7 +257,7 @@ class ClassificationTransformer(TrainablePipe):
 
     def from_disk(
         self, path: Union[str, Path], *, exclude: Iterable[str] = tuple()
-    ) -> "Transformer":
+    ) -> "ClassificationTransformer":
         """Load the pipe from disk.
         path (str / Path): Path to a directory.
         exclude (Iterable[str]): String names of serialization fields to exclude.
@@ -367,6 +298,11 @@ class ClassificationTransformer(TrainablePipe):
         return self
 
 
+def install_extensions(doc_ext_attr) -> None:
+    if not Doc.has_extension(doc_ext_attr):
+        Doc.set_extension(doc_ext_attr, default=None)
+
+
 def install_classification_extensions(
     doc_extension_prediction: str,
     labels: list,
@@ -379,9 +315,6 @@ def install_classification_extensions(
         Doc.set_extension(f"{doc_extension_prediction}_prob", getter=prob_getter)
     if not Doc.has_extension(doc_extension_prediction):
         Doc.set_extension(doc_extension_prediction, getter=label_getter)
-
-
-
 
 
 def make_classification_getter(

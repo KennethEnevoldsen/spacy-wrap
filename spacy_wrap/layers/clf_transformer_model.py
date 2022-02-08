@@ -1,13 +1,24 @@
+"""
+TODO:
+
+- [ ] Check if last part of init() is relevant? 
+    - Will have to run the code
+- [x] check replace_listener and replace_listener_cfg - are they relevant?
+    - I don't think so
+- [x] Do i need to wrap the Transformer model?
+    - you don't
+- [ ] is has transformer ever set to true?
+    - check after init
+"""
+
 import copy
 from pathlib import Path
 from typing import Callable, Dict, Union
 
 from spacy_transformers.align import get_alignment
 from spacy_transformers.data_classes import HFObjects, WordpieceBatch
-from spacy_transformers.layers._util import replace_listener, replace_listener_cfg
 from spacy_transformers.layers.hf_wrapper import HFWrapper
 from spacy_transformers.layers.transformer_model import (
-    TransformerModel,
     _convert_transformer_inputs,
     _convert_transformer_outputs,
     forward,
@@ -21,7 +32,11 @@ from thinc.api import CupyOps, Model, get_current_ops
 from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer
 
 
-class ClassificationTransformerModel(TransformerModel):
+class ClassificationTransformerModel(Model):
+    """
+    This is a variation of the TransformerModel from spacy-transformers with some utility regarding listeners removed
+    """
+
     def __init__(
         self,
         name: str,
@@ -49,7 +64,7 @@ class ClassificationTransformerModel(TransformerModel):
             mixed_precision=mixed_precision,
             grad_scaler_config=grad_scaler_config,
         )
-        super(TransformerModel, self).__init__(
+        super().__init__(
             "clf_transformer",
             forward,
             init=init,
@@ -61,10 +76,24 @@ class ClassificationTransformerModel(TransformerModel):
                 "set_transformer": set_pytorch_transformer,
                 "has_transformer": False,
                 "flush_cache_chance": 0.0,
-                "replace_listener": replace_listener,
-                "replace_listener_cfg": replace_listener_cfg,
             },
         )
+
+    @property
+    def tokenizer(self):
+        return self.layers[0].shims[0]._hfmodel.tokenizer
+
+    @property
+    def transformer(self):
+        return self.layers[0].shims[0]._hfmodel.transformer
+
+    @property
+    def _init_tokenizer_config(self):
+        return self.layers[0].shims[0]._hfmodel._init_tokenizer_config
+
+    @property
+    def _init_transformer_config(self):
+        return self.layers[0].shims[0]._hfmodel._init_transformer_config
 
     def copy(self):
         """
@@ -125,6 +154,9 @@ def huggingface_from_pretrained(
     """
     Create a Huggingface transformer model from pretrained/finetuned weights. Will
     download the model if it is not already downloaded.
+
+    Note this is the same af in spacy-transformers with only AutoModel replaced with
+    AutoModelForSequenceClassification
 
     Args:
         source (Union[str, Path]): The name of the model or a path to it, such as
