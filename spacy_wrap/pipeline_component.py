@@ -1,10 +1,28 @@
 """
+Copyright (C) 2022 Explosion AI - All Rights Reserved
+You may use, distribute and modify this code under the
+terms of the MIT license.
+
+Original code from:
+https://github.com/explosion/spacy-transformers/blob/master/spacy_transformers/pipeline_component.py
+
+The following functions are copied/modified from their code:
+- make_classification_transformer. Now created an instance of
+ClassificationTransformer instead of Transformer, which require the three new arguments:
+doc_extension_trf_data, doc_extension_prediction, labels
+- ClassificationTransformer. A varation of the Transformer. Includes changes to the init
+adding additional extensions, changed to load methods using AutoModelForClassification
+instead of Automodel. Code related to listeners has also been removed to avoid potential
+collision with the existing transformer model. There has also been a rework of the get_loss
+and and update functions.
+- install_extensions. Added argument, which is no longer predefined.
+- install_extensions. Added argument.
+
 TODO
 - [ ] check serialization (does not work)
 - [ ] setup training + loss
   - [ ] test training
 """
-
 
 import warnings
 from typing import Callable, Dict, Iterable, Iterator, List, Optional, Union

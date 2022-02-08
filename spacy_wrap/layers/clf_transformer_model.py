@@ -1,4 +1,15 @@
 """
+Copyright (C) 2022 Explosion AI - All Rights Reserved
+You may use, distribute and modify this code under the
+terms of the MIT license.
+
+Original code from:
+https://github.com/explosion/spacy-transformers/blob/master/spacy_transformers/layers/transformer_model.py
+
+The following functions are copied/modified:
+- create_ClassificationTransformerModel_v1. Changed to call
+ClassificationTransformerModel instead of TransformerModel
+
 TODO:
 
 - [ ] Check if last part of init() is relevant? 
