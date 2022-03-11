@@ -1,18 +1,52 @@
-from typing import Callable, List, Iterable, Dict, Optional
+"""
+Copyright (C) 2022 Explosion AI - All Rights Reserved
+You may use, distribute and modify this code under the
+terms of the MIT license.
+
+Original code from:
+https://github.com/explosion/spacy-transformers/blob/master/spacy_transformers/pipeline_component.py
+
+The following functions are copied/modified from their code:
+- make_classification_transformer. Now created an instance of
+ClassificationTransformer instead of Transformer, which require the three new arguments:
+doc_extension_trf_data, doc_extension_prediction, labels
+- ClassificationTransformer. A varation of the Transformer. Includes changes to the init
+adding additional extensions, changed to load methods using AutoModelForClassification
+instead of Automodel. Code related to listeners has also been removed to avoid potential
+collision with the existing transformer model. There has also been a rework of the get_loss
+and and update functions.
+- install_extensions. Added argument, which is no longer predefined.
+- install_extensions. Added argument.
+
+TODO
+- [ ] check serialization (does not work)
+- [ ] setup training + loss
+  - [ ] test training
+"""
+
 import warnings
+from typing import Callable, Dict, Iterable, Iterator, List, Optional, Union
+from pathlib import Path
+
+import srsly
 
 from spacy.language import Language
+from spacy.pipeline.trainable_pipe import TrainablePipe
 from spacy.tokens import Doc
 from spacy.vocab import Vocab
+from spacy.util import minibatch
+from spacy.training import Example, validate_get_examples
+from spacy.pipeline.pipe import deserialize_config
+from spacy import util, Errors
 
-from spacy_transformers.data_classes import FullTransformerBatch
-from spacy_transformers.pipeline_component import Transformer
-from spacy_transformers.layers import TransformerListener
 from spacy_transformers.annotation_setters import null_annotation_setter
-from thinc.api import Config, Model
+from spacy_transformers.data_classes import FullTransformerBatch
+from spacy_transformers.util import batch_by_length
 
-from .util import split_by_doc, softmax
+from thinc.api import Model, Config, Optimizer
 
+from .util import softmax, split_by_doc
+from .layers.clf_transformer_model import huggingface_from_pretrained
 
 DEFAULT_CONFIG_STR = """
 [classification_transformer]
@@ -73,9 +107,9 @@ def make_classification_transformer(
         labels (List[str]): A list of labels which the transformer model outputs, should be ordered.
     """
     clf_trf = ClassificationTransformer(
-        nlp.vocab,
-        model,
-        set_extra_annotations,
+        vocab=nlp.vocab,
+        model=model,
+        set_extra_annotations=set_extra_annotations,
         max_batch_items=max_batch_items,
         name=name,
         labels=labels,
@@ -86,7 +120,7 @@ def make_classification_transformer(
     return clf_trf
 
 
-class ClassificationTransformer(Transformer):
+class ClassificationTransformer(TrainablePipe):
     """spaCy pipeline component that provides access to a transformer model from
     the Huggingface transformers library. Usually you will connect subsequent
     components to the shared transformer using the TransformerListener layer.
@@ -113,13 +147,13 @@ class ClassificationTransformer(Transformer):
         self,
         vocab: Vocab,
         model: Model[List[Doc], FullTransformerBatch],
+        labels: List[str],
+        doc_extension_trf_data: str,
+        doc_extension_prediction: str,
         set_extra_annotations: Callable = null_annotation_setter,
         *,
         name: str = "classification_transformer",
         max_batch_items: int = 128 * 32,  # Max size of padded batch
-        labels: List[str],
-        doc_extension_trf_data: str,
-        doc_extension_prediction: str,
     ):
         """Initialize the transformer component."""
         self.name = name
@@ -129,12 +163,9 @@ class ClassificationTransformer(Transformer):
             raise ValueError(f"Expected Thinc Model, got: {type(self.model)}")
         self.set_extra_annotations = set_extra_annotations
         self.cfg = {"max_batch_items": max_batch_items}
-        self.listener_map: Dict[str, List[TransformerListener]] = {}
-
         self.doc_extension_trf_data = doc_extension_trf_data
 
-        if not Doc.has_extension(doc_extension_trf_data):
-            Doc.set_extension(doc_extension_trf_data, default=None)
+        install_extensions(self.doc_extension_trf_data)
 
         install_classification_extensions(
             doc_extension_prediction, labels, doc_extension_trf_data
@@ -144,7 +175,7 @@ class ClassificationTransformer(Transformer):
         self, docs: Iterable[Doc], predictions: FullTransformerBatch
     ) -> None:
         """Assign the extracted features to the Doc objects. By default, the
-        TransformerData object is written to the doc._.trf_data attribute. Your
+        TransformerData object is written to the doc._.{doc_extension_trf_data} attribute. Your
         set_extra_annotations callback is then called, if provided.
 
         Args:
@@ -155,6 +186,139 @@ class ClassificationTransformer(Transformer):
         for doc, data in zip(docs, doc_data):
             setattr(doc._, self.doc_extension_trf_data, data)
         self.set_extra_annotations(docs, predictions)
+
+    def __call__(self, doc: Doc) -> Doc:
+        """Apply the pipe to one document. The document is modified in place,
+        and returned. This usually happens under the hood when the nlp object
+        is called on a text and all components are applied to the Doc.
+        docs (Doc): The Doc to process.
+        RETURNS (Doc): The processed Doc.
+        DOCS: https://spacy.io/api/transformer#call
+        """
+        install_extensions(self.doc_extension_trf_data)
+        outputs = self.predict([doc])
+        self.set_annotations([doc], outputs)
+        return doc
+
+    def pipe(self, stream: Iterable[Doc], *, batch_size: int = 128) -> Iterator[Doc]:
+        """Apply the pipe to a stream of documents. This usually happens under
+        the hood when the nlp object is called on a text and all components are
+        applied to the Doc.
+        stream (Iterable[Doc]): A stream of documents.
+        batch_size (int): The number of documents to buffer.
+        YIELDS (Doc): Processed documents in order.
+        DOCS: https://spacy.io/api/transformer#pipe
+        """
+        install_extensions(self.doc_extension_trf_data)
+        for outer_batch in minibatch(stream, batch_size):
+            outer_batch = list(outer_batch)
+            for indices in batch_by_length(outer_batch, self.cfg["max_batch_items"]):
+                subbatch = [outer_batch[i] for i in indices]
+                self.set_annotations(subbatch, self.predict(subbatch))
+            yield from outer_batch
+
+    def predict(self, docs: Iterable[Doc]) -> FullTransformerBatch:
+        """Apply the pipeline's model to a batch of docs, without modifying them.
+        Returns the extracted features as the FullTransformerBatch dataclass.
+        docs (Iterable[Doc]): The documents to predict.
+        RETURNS (FullTransformerBatch): The extracted features.
+        DOCS: https://spacy.io/api/transformer#predict
+        """
+        if not any(len(doc) for doc in docs):
+            # Handle cases where there are no tokens in any docs.
+            activations = FullTransformerBatch.empty(len(docs))
+        else:
+            activations = self.model.predict(docs)
+        return activations
+
+    def update(
+        self,
+        examples: Iterable[Example],
+        *,
+        drop: float = 0.0,
+        sgd: Optional[Optimizer] = None,
+        losses: Optional[Dict[str, float]] = None,
+    ) -> Dict[str, float]:
+        pass
+
+    def get_loss(self, docs, golds, scores):
+        pass
+
+    def initialize(
+        self,
+        get_examples: Callable[[], Iterable[Example]],
+        *,
+        nlp: Optional[Language] = None,
+    ):
+        """Initialize the pipe for training, using data examples if available.
+        get_examples (Callable[[], Iterable[Example]]): Optional function that
+            returns gold-standard Example objects.
+        nlp (Language): The current nlp object.
+        DOCS: https://spacy.io/api/transformer#initialize
+        """
+        validate_get_examples(get_examples, "Transformer.initialize")
+        self.model.initialize()
+
+    def to_disk(
+        self, path: Union[str, Path], *, exclude: Iterable[str] = tuple()
+    ) -> None:
+        """Serialize the pipe to disk.
+        path (str / Path): Path to a directory.
+        exclude (Iterable[str]): String names of serialization fields to exclude.
+        DOCS: https://spacy.io/api/transformer#to_disk
+        """
+        serialize = {}
+        serialize["cfg"] = lambda p: srsly.write_json(p, self.cfg)
+        serialize["vocab"] = lambda p: self.vocab.to_disk(p)
+        serialize["model"] = lambda p: self.model.to_disk(p)
+        util.to_disk(path, serialize, exclude)
+
+    def from_disk(
+        self, path: Union[str, Path], *, exclude: Iterable[str] = tuple()
+    ) -> "ClassificationTransformer":
+        """Load the pipe from disk.
+        path (str / Path): Path to a directory.
+        exclude (Iterable[str]): String names of serialization fields to exclude.
+        RETURNS (Transformer): The loaded object.
+        DOCS: https://spacy.io/api/transformer#from_disk
+        """
+
+        def load_model(p):
+            try:
+                with open(p, "rb") as mfile:
+                    self.model.from_bytes(mfile.read())
+            except AttributeError:
+                raise ValueError(Errors.E149) from None
+            except (IsADirectoryError, PermissionError):
+                warn_msg = (
+                    "Automatically converting a transformer component "
+                    "from spacy-transformers v1.0 to v1.1+. If you see errors "
+                    "or degraded performance, download a newer compatible "
+                    "model or retrain your custom model with the current "
+                    "spacy-transformers version. For more details and "
+                    "available updates, run: python -m spacy validate"
+                )
+                warnings.warn(warn_msg)
+                p = Path(p).absolute()
+                hf_model = huggingface_from_pretrained(
+                    p,
+                    self.model._init_tokenizer_config,
+                    self.model._init_transformer_config,
+                )
+                self.model.attrs["set_transformer"](self.model, hf_model)
+
+        deserialize = {
+            "vocab": self.vocab.from_disk,
+            "cfg": lambda p: self.cfg.update(deserialize_config(p)),
+            "model": load_model,
+        }
+        util.from_disk(path, deserialize, exclude)
+        return self
+
+
+def install_extensions(doc_ext_attr) -> None:
+    if not Doc.has_extension(doc_ext_attr):
+        Doc.set_extension(doc_ext_attr, default=None)
 
 
 def install_classification_extensions(
