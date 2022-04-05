@@ -3,7 +3,7 @@ spacy>=3.2.1,<3.3.0
 thinc>=8.0.13,<8.1.0
 
 # Style
-black
+black==22.3.0
 flake8
 
 # Testing
