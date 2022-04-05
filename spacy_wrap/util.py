@@ -1,3 +1,17 @@
+"""
+Copyright (C) 2022 Explosion AI - All Rights Reserved
+You may use, distribute and modify this code under the
+terms of the MIT license.
+
+Original code from:
+https://github.com/explosion/spacy-transformers/blob/5a36943fccb66b5e7c7c2079b1b90ff9b2f9d020/spacy_transformers/data_classes.py
+
+
+The following functions are copied/modified:
+- split_by_doc. Changed to fetch logits instead of token embeddings
+"""
+
+
 from typing import List
 import torch
 from transformers.file_utils import ModelOutput
@@ -14,9 +28,11 @@ def split_by_doc(self) -> List[TransformerData]:
     Split a TransformerData that represents a batch into a list with
     one TransformerData per Doc.
 
-
-    This is essentially the same as in:
+    Original code from:
     https://github.com/explosion/spacy-transformers/blob/5a36943fccb66b5e7c7c2079b1b90ff9b2f9d020/spacy_transformers/data_classes.py
+
+    The following parts are modified:
+    - split_by_doc. Changed to fetch logits instead of token embeddings
     """
     flat_spans = []
     for doc_spans in self.spans:
@@ -36,7 +52,7 @@ def split_by_doc(self) -> List[TransformerData]:
         doc_align = self.align[start_i:end_i]
         doc_align.data = doc_align.data - prev_tokens
         model_output = ModelOutput()
-        logits = self.model_output.logits
+        logits = self.model_output.logits  # changed to fetch logits
         for key, output in self.model_output.items():
             if isinstance(output, torch.Tensor):
                 model_output[key] = torch2xp(output[start:end])
