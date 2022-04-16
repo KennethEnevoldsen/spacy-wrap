@@ -254,8 +254,8 @@ class ClassificationTransformer(TrainablePipe):
         """
         serialize = {}
         serialize["cfg"] = lambda p: srsly.write_json(p, self.cfg)
-        serialize["vocab"] = lambda p: self.vocab.to_disk(p)
-        serialize["model"] = lambda p: self.model.to_disk(p)
+        serialize["vocab"] = self.vocab.to_disk
+        serialize["model"] = self.model.to_disk
         util.to_disk(path, serialize, exclude)
 
     def from_disk(
