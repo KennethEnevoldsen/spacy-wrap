@@ -155,7 +155,6 @@ class ClassificationTransformer(TrainablePipe):
         """Initialize the transformer component."""
         self.name = name
         self.vocab = vocab
-        self.is_trainable = False
         self.model = model
         if not isinstance(self.model, Model):
             raise ValueError(f"Expected Thinc Model, got: {type(self.model)}")
@@ -168,6 +167,10 @@ class ClassificationTransformer(TrainablePipe):
         install_classification_extensions(
             doc_extension_prediction, labels, doc_extension_trf_data
         )
+
+    @property
+    def is_trainable(self) -> bool:
+        return False
 
     def set_annotations(
         self, docs: Iterable[Doc], predictions: FullTransformerBatch
