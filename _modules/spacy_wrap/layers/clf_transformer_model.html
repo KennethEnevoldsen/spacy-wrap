@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>spacy_wrap.layers.clf_transformer_model - spacy-wrap 0.0.8 documentation</title>
+        <title>spacy_wrap.layers.clf_transformer_model - spacy-wrap 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -130,7 +130,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">spacy-wrap 0.0.8 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">spacy-wrap 1.0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -215,16 +215,26 @@
         </div>
         <article role="main">
           <h1>Source code for spacy_wrap.layers.clf_transformer_model</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">copy</span>
+<span></span><span class="sd">"""</span>
+<span class="sd">Copyright (C) 2022 Explosion AI - All Rights Reserved</span>
+<span class="sd">You may use, distribute and modify this code under the</span>
+<span class="sd">terms of the MIT license.</span>
+
+<span class="sd">Original code from:</span>
+<span class="sd">https://github.com/explosion/spacy-transformers/blob/master/spacy_transformers/layers/transformer_model.py</span>
+
+<span class="sd">The following functions are copied/modified:</span>
+<span class="sd">- create_ClassificationTransformerModel_v1. Changed to call</span>
+<span class="sd">ClassificationTransformerModel instead of TransformerModel</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">spacy_transformers.align</span> <span class="kn">import</span> <span class="n">get_alignment</span>
 <span class="kn">from</span> <span class="nn">spacy_transformers.data_classes</span> <span class="kn">import</span> <span class="n">HFObjects</span><span class="p">,</span> <span class="n">WordpieceBatch</span>
-<span class="kn">from</span> <span class="nn">spacy_transformers.layers._util</span> <span class="kn">import</span> <span class="n">replace_listener</span><span class="p">,</span> <span class="n">replace_listener_cfg</span>
-<span class="kn">from</span> <span class="nn">spacy_transformers.layers.hf_wrapper</span> <span class="kn">import</span> <span class="n">HFWrapper</span>
 <span class="kn">from</span> <span class="nn">spacy_transformers.layers.transformer_model</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">TransformerModel</span><span class="p">,</span>
     <span class="n">_convert_transformer_inputs</span><span class="p">,</span>
     <span class="n">_convert_transformer_outputs</span><span class="p">,</span>
     <span class="n">forward</span><span class="p">,</span>
@@ -237,8 +247,14 @@
 
 <span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoConfig</span><span class="p">,</span> <span class="n">AutoModelForSequenceClassification</span><span class="p">,</span> <span class="n">AutoTokenizer</span>
 
+<span class="kn">from</span> <span class="nn">spacy_wrap.layers.hf_classification_wrapper</span> <span class="kn">import</span> <span class="n">HFWrapper</span>
 
-<div class="viewcode-block" id="ClassificationTransformerModel"><a class="viewcode-back" href="../../../wrap.layers.html#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel">[docs]</a><span class="k">class</span> <span class="nc">ClassificationTransformerModel</span><span class="p">(</span><span class="n">TransformerModel</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ClassificationTransformerModel"><a class="viewcode-back" href="../../../wrap.layers.html#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel">[docs]</a><span class="k">class</span> <span class="nc">ClassificationTransformerModel</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    This is a variation of the TransformerModel from spacy-transformers with some utility regarding listeners removed</span>
+<span class="sd">    """</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -265,8 +281,9 @@
             <span class="n">convert_outputs</span><span class="o">=</span><span class="n">_convert_transformer_outputs</span><span class="p">,</span>
             <span class="n">mixed_precision</span><span class="o">=</span><span class="n">mixed_precision</span><span class="p">,</span>
             <span class="n">grad_scaler_config</span><span class="o">=</span><span class="n">grad_scaler_config</span><span class="p">,</span>
+            <span class="n">load_model_from_config_fn</span><span class="o">=</span><span class="n">AutoModelForSequenceClassification</span><span class="o">.</span><span class="n">from_config</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">TransformerModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="s2">"clf_transformer"</span><span class="p">,</span>
             <span class="n">forward</span><span class="p">,</span>
             <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
@@ -278,10 +295,24 @@
                 <span class="s2">"set_transformer"</span><span class="p">:</span> <span class="n">set_pytorch_transformer</span><span class="p">,</span>
                 <span class="s2">"has_transformer"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
                 <span class="s2">"flush_cache_chance"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-                <span class="s2">"replace_listener"</span><span class="p">:</span> <span class="n">replace_listener</span><span class="p">,</span>
-                <span class="s2">"replace_listener_cfg"</span><span class="p">:</span> <span class="n">replace_listener_cfg</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_hfmodel</span><span class="o">.</span><span class="n">tokenizer</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">transformer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_hfmodel</span><span class="o">.</span><span class="n">transformer</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_init_tokenizer_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_hfmodel</span><span class="o">.</span><span class="n">_init_tokenizer_config</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_init_transformer_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_hfmodel</span><span class="o">.</span><span class="n">_init_transformer_config</span>
 
 <div class="viewcode-block" id="ClassificationTransformerModel.copy"><a class="viewcode-back" href="../../../wrap.layers.html#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">"""</span>
@@ -342,6 +373,9 @@
     <span class="sd">"""</span>
 <span class="sd">    Create a Huggingface transformer model from pretrained/finetuned weights. Will</span>
 <span class="sd">    download the model if it is not already downloaded.</span>
+
+<span class="sd">    Note this is the same af in spacy-transformers with only AutoModel replaced with</span>
+<span class="sd">    AutoModelForSequenceClassification</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        source (Union[str, Path]): The name of the model or a path to it, such as</span>

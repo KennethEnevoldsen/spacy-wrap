@@ -10,11 +10,11 @@
   
 <meta property="og:url" content="wrap.architectures.html" />
   
-<meta property="og:description" content="SpaCy wrap currently includes only one architecture namely:&quot;spacy-wrap.ClassificationTransformerModel.v1&quot; spacy_wrap.architectures:" />
+<meta property="og:description" content="SpaCy wrap currently includes only one architecture namely:&quot;spacy-wrap.ClassificationTransformerModel.v1&quot; spacy_wrap.architectures: Copyright (C) 2022 Explosion AI and Kenneth Enevoldsen - All Righ..." />
   <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Layers" href="wrap.layers.html" /><link rel="prev" title="News and Changelog" href="news.html" />
 
     <link rel="shortcut icon" href="_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>Architectures - spacy-wrap 0.0.8 documentation</title>
+        <title>Architectures - spacy-wrap 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -139,7 +139,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">spacy-wrap 0.0.8 documentation</div></a>
+      <a href="index.html"><div class="brand">spacy-wrap 1.0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -229,6 +229,14 @@
 <p><code class="code docutils literal notranslate"><span class="pre">"spacy-wrap.ClassificationTransformerModel.v1"</span></code></p>
 <section id="module-spacy_wrap.architectures">
 <span id="spacy-wrap-architectures"></span><h2>spacy_wrap.architectures<a class="headerlink" href="#module-spacy_wrap.architectures" title="Permalink to this headline">#</a></h2>
+<p>Copyright (C) 2022 Explosion AI and Kenneth Enevoldsen - All Rights Reserved
+You may use, distribute and modify this code under the
+terms of the MIT license.</p>
+<p>Original code from:
+<a class="reference external" href="https://github.com/explosion/spacy-transformers/blob/master/spacy_transformers/architectures.py">https://github.com/explosion/spacy-transformers/blob/master/spacy_transformers/architectures.py</a></p>
+<p>The following functions are copied/modified:
+- create_ClassificationTransformerModel_v1. Changed to call
+ClassificationTransformerModel instead of TransformerModel</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacy_wrap.architectures.create_ClassificationTransformerModel_v1">
 <span class="sig-prename descclassname"><span class="pre">spacy_wrap.architectures.</span></span><span class="sig-name descname"><span class="pre">create_ClassificationTransformerModel_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_spans</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tokenizer_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformer_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixed_precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_scaler_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">thinc.model.Model</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">spacy.tokens.doc.Doc</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">spacy_transformers.data_classes.FullTransformerBatch</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/spacy_wrap/architectures.html#create_ClassificationTransformerModel_v1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacy_wrap.architectures.create_ClassificationTransformerModel_v1" title="Permalink to this definition">#</a></dt>

@@ -10,11 +10,11 @@
   
 <meta property="og:url" content="wrap.layers.html" />
   
-<meta property="og:description" content="spacy_wrap.layers.clf_transformer_model:" />
+<meta property="og:description" content="spacy_wrap.layers.clf_transformer_model: Copyright (C) 2022 Explosion AI - All Rights Reserved You may use, distribute and modify this code under the terms of the MIT license. Original code from: h..." />
   <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="pipeline Components" href="wrap.pipeline_component.html" /><link rel="prev" title="Architectures" href="wrap.architectures.html" />
 
     <link rel="shortcut icon" href="_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>Layers - spacy-wrap 0.0.8 documentation</title>
+        <title>Layers - spacy-wrap 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -139,7 +139,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">spacy-wrap 0.0.8 documentation</div></a>
+      <a href="index.html"><div class="brand">spacy-wrap 1.0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -227,10 +227,19 @@
 <h1>Layers<a class="headerlink" href="#layers" title="Permalink to this headline">#</a></h1>
 <section id="module-spacy_wrap.layers.clf_transformer_model">
 <span id="spacy-wrap-layers-clf-transformer-model"></span><h2>spacy_wrap.layers.clf_transformer_model<a class="headerlink" href="#module-spacy_wrap.layers.clf_transformer_model" title="Permalink to this headline">#</a></h2>
+<p>Copyright (C) 2022 Explosion AI - All Rights Reserved
+You may use, distribute and modify this code under the
+terms of the MIT license.</p>
+<p>Original code from:
+<a class="reference external" href="https://github.com/explosion/spacy-transformers/blob/master/spacy_transformers/layers/transformer_model.py">https://github.com/explosion/spacy-transformers/blob/master/spacy_transformers/layers/transformer_model.py</a></p>
+<p>The following functions are copied/modified:
+- create_ClassificationTransformerModel_v1. Changed to call
+ClassificationTransformerModel instead of TransformerModel</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacy_wrap.layers.clf_transformer_model.</span></span><span class="sig-name descname"><span class="pre">ClassificationTransformerModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_spans</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tokenizer_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformer_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixed_precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_scaler_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacy_wrap/layers/clf_transformer_model.html#ClassificationTransformerModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">spacy_transformers.layers.transformer_model.TransformerModel</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">thinc.model.Model</span></code></p>
+<p>This is a variation of the TransformerModel from spacy-transformers with some utility regarding listeners removed</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.copy">
 <span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacy_wrap/layers/clf_transformer_model.html#ClassificationTransformerModel.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.copy" title="Permalink to this definition">#</a></dt>
@@ -254,12 +263,22 @@ value.</p>
 <dt class="sig sig-object py" id="spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.ops">
 <span class="sig-name descname"><span class="pre">ops</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">thinc.backends.ops.Ops</span></em><a class="headerlink" href="#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.ops" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.tokenizer">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tokenizer</span></span><a class="headerlink" href="#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.tokenizer" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.transformer">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transformer</span></span><a class="headerlink" href="#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.transformer" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacy_wrap.layers.clf_transformer_model.huggingface_from_pretrained">
 <span class="sig-prename descclassname"><span class="pre">spacy_wrap.layers.clf_transformer_model.</span></span><span class="sig-name descname"><span class="pre">huggingface_from_pretrained</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tok_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trf_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">spacy_transformers.data_classes.HFObjects</span></span></span><a class="reference internal" href="_modules/spacy_wrap/layers/clf_transformer_model.html#huggingface_from_pretrained"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacy_wrap.layers.clf_transformer_model.huggingface_from_pretrained" title="Permalink to this definition">#</a></dt>
 <dd><p>Create a Huggingface transformer model from pretrained/finetuned weights. Will
 download the model if it is not already downloaded.</p>
+<p>Note this is the same af in spacy-transformers with only AutoModel replaced with
+AutoModelForSequenceClassification</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

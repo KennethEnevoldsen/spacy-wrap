@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>spacy_wrap.architectures - spacy-wrap 0.0.8 documentation</title>
+        <title>spacy_wrap.architectures - spacy-wrap 1.0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -130,7 +130,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">spacy-wrap 0.0.8 documentation</div></a>
+      <a href="../../index.html"><div class="brand">spacy-wrap 1.0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -215,7 +215,22 @@
         </div>
         <article role="main">
           <h1>Source code for spacy_wrap.architectures</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Callable</span>
+<span></span><span class="sd">"""</span>
+<span class="sd">Copyright (C) 2022 Explosion AI and Kenneth Enevoldsen - All Rights Reserved</span>
+<span class="sd">You may use, distribute and modify this code under the</span>
+<span class="sd">terms of the MIT license.</span>
+
+<span class="sd">Original code from:</span>
+<span class="sd">https://github.com/explosion/spacy-transformers/blob/master/spacy_transformers/architectures.py</span>
+
+
+<span class="sd">The following functions are copied/modified:</span>
+<span class="sd">- create_ClassificationTransformerModel_v1. Changed to call</span>
+<span class="sd">ClassificationTransformerModel instead of TransformerModel</span>
+<span class="sd">"""</span>
+
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Callable</span>
 <span class="kn">from</span> <span class="nn">thinc.api</span> <span class="kn">import</span> <span class="n">Model</span>
 <span class="kn">from</span> <span class="nn">spacy.tokens</span> <span class="kn">import</span> <span class="n">Doc</span>
 
