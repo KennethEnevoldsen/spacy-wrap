@@ -1,5 +1,5 @@
 """
-Copyright (C) 2022 Explosion AI - All Rights Reserved
+Copyright (C) 2022 Explosion AI and Kenneth Enevoldsen - All Rights Reserved
 You may use, distribute and modify this code under the
 terms of the MIT license.
 
@@ -13,15 +13,10 @@ doc_extension_trf_data, doc_extension_prediction, labels
 - ClassificationTransformer. A varation of the Transformer. Includes changes to the init
 adding additional extensions, changed to load methods using AutoModelForClassification
 instead of Automodel. Code related to listeners has also been removed to avoid potential
-collision with the existing transformer model. There has also been a rework of the get_loss
-and and update functions.
+collision with the existing transformer model. There has also been a rework of the 
+get_loss and and update functions.
 - install_extensions. Added argument, which is no longer predefined.
 - install_extensions. Added argument.
-
-TODO
-- [ ] check serialization (does not work)
-- [ ] setup training + loss
-  - [ ] test training
 """
 
 import warnings
@@ -137,10 +132,12 @@ class ClassificationTransformer(TrainablePipe):
             layer for this.
         set_extra_annotations (Callable[[List[Doc], FullTransformerBatch], None]): A
             callback to set additional information onto the batch of `Doc` objects.
-            The doc._.{doc_extension_trf_data} attribute is set prior to calling the callback
-            as well as doc._.{doc_extension_prediction} and doc._.{doc_extension_prediction}_prob.
-            By default, no additional annotations are set.
-        labels (List[str]): A list of labels which the transformer model outputs, should be ordered.
+            The doc._.{doc_extension_trf_data} attribute is set prior to calling the
+            callback as well as doc._.{doc_extension_prediction} and
+            doc._.{doc_extension_prediction}_prob. By default, no additional annotations
+            are set.
+        labels (List[str]): A list of labels which the transformer model outputs, should
+            be ordered.
     """
 
     def __init__(
@@ -175,8 +172,8 @@ class ClassificationTransformer(TrainablePipe):
         self, docs: Iterable[Doc], predictions: FullTransformerBatch
     ) -> None:
         """Assign the extracted features to the Doc objects. By default, the
-        TransformerData object is written to the doc._.{doc_extension_trf_data} attribute. Your
-        set_extra_annotations callback is then called, if provided.
+        TransformerData object is written to the doc._.{doc_extension_trf_data}
+        attribute. Your set_extra_annotations callback is then called, if provided.
 
         Args:
             docs (Iterable[Doc]): The documents to modify.
@@ -347,7 +344,8 @@ def make_classification_getter(
             }
         else:
             warnings.warn(
-                "The tensors from the transformer forward pass is empty this is likely caused by an empty input string. Thus the model will return None"
+                "The tensors from the transformer forward pass is empty this is likely"
+                + " caused by an empty input string. Thus the model will return None"
             )
             return {
                 "prob": None,
