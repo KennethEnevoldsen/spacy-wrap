@@ -12,7 +12,7 @@
 <!-- [![pip downloads](https://img.shields.io/pypi/dm/spacy_wrap.svg)](https://pypi.org/project/spacy_wrap/) -->
 
 
-spaCy-wrap is minimal library intended for wrapping fine-tuned transformers from the [Huggingface model hub](https://huggingface.co/models?pipeline_tag=text-classification&sort=downloads) in your spaCy pipeline allowing inclusion of existing models within [SpaCy](https://spacy.io) workflows. 
+spaCy-wrap is a minimal library intended for wrapping fine-tuned transformers from the [Huggingface model hub](https://huggingface.co/models?pipeline_tag=text-classification&sort=downloads) in your spaCy pipeline allowing the inclusion of existing models within [SpaCy](https://spacy.io) workflows. 
 
 As for as possible it follows a similar API as [spacy-transformers](https://github.com/explosion/spacy-transformers).
 
@@ -97,7 +97,6 @@ config = {
 }
 
 transformer = nlp.add_pipe("classification_transformer", config=config)
-transformer.model.initialize()
 
 doc = nlp("Senile gamle idiot") # old senile idiot
 
@@ -117,11 +116,11 @@ doc._.hate_speech_prob
 
 # 📖 Documentation
 
-| Documentation              |                                                                               |
-| -------------------------- | ----------------------------------------------------------------------------- |
-| 🔧 **[Installation]**       | Installation instructions for spacy-wrap.                                  |
-| 📰 **[News and changelog]** | New additions, changes and version history.                                   |
-| 🎛 **[Documentation]**      | The reference for spacy-wrap's API. |
+| Documentation              |                                             |
+| -------------------------- | ------------------------------------------- |
+| 🔧 **[Installation]**       | Installation instructions for spacy-wrap.   |
+| 📰 **[News and changelog]** | New additions, changes and version history. |
+| 🎛 **[Documentation]**      | The reference for spacy-wrap's API.         |
 
 [Documentation]: https://kennethenevoldsen.github.io/spacy-wrap/index.html
 [Installation]: https://kennethenevoldsen.github.io/spacy-wrap/installation.html
