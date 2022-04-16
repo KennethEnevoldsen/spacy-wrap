@@ -20,7 +20,7 @@ get_loss and and update functions.
 """
 
 import warnings
-from typing import Callable, Dict, Iterable, Iterator, List, Optional, Union
+from typing import Callable, Iterable, Iterator, List, Optional, Union
 from pathlib import Path
 
 import srsly
@@ -38,7 +38,7 @@ from spacy_transformers.annotation_setters import null_annotation_setter
 from spacy_transformers.data_classes import FullTransformerBatch
 from spacy_transformers.util import batch_by_length
 
-from thinc.api import Model, Config, Optimizer
+from thinc.api import Model, Config
 
 from .util import softmax, split_by_doc
 from .layers.clf_transformer_model import huggingface_from_pretrained
@@ -155,6 +155,7 @@ class ClassificationTransformer(TrainablePipe):
         """Initialize the transformer component."""
         self.name = name
         self.vocab = vocab
+        self.is_trainable = False
         self.model = model
         if not isinstance(self.model, Model):
             raise ValueError(f"Expected Thinc Model, got: {type(self.model)}")
@@ -227,19 +228,6 @@ class ClassificationTransformer(TrainablePipe):
         else:
             activations = self.model.predict(docs)
         return activations
-
-    def update(
-        self,
-        examples: Iterable[Example],
-        *,
-        drop: float = 0.0,
-        sgd: Optional[Optimizer] = None,
-        losses: Optional[Dict[str, float]] = None,
-    ) -> Dict[str, float]:
-        pass
-
-    def get_loss(self, docs, golds, scores):
-        pass
 
     def initialize(
         self,

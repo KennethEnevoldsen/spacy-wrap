@@ -1,5 +1,5 @@
 """
-Copyright (C) 2022 Explosion AI - All Rights Reserved
+Copyright (C) 2022 Explosion AI and Kenneth Enevoldsen - All Rights Reserved
 You may use, distribute and modify this code under the
 terms of the MIT license.
 
