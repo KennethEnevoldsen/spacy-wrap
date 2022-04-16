@@ -9,17 +9,6 @@ https://github.com/explosion/spacy-transformers/blob/master/spacy_transformers/l
 The following functions are copied/modified:
 - create_ClassificationTransformerModel_v1. Changed to call
 ClassificationTransformerModel instead of TransformerModel
-
-TODO:
-
-- [ ] Check if last part of init() is relevant? 
-    - Will have to run the code
-- [x] check replace_listener and replace_listener_cfg - are they relevant?
-    - I don't think so
-- [x] Do i need to wrap the Transformer model?
-    - you don't
-- [ ] is has transformer ever set to true?
-    - check after init
 """
 
 import copy
