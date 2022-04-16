@@ -5,11 +5,13 @@ News and Changelog
 
   - Stable version of spacy-wrap launches
   
+    * extended the test suite.
     * Added docstring to ensure credit is given to the parts of the code developed by the team at Explosion AI.  
     * Minor implementations details leading the pipeline to behave more consistently with the rest of the spaCy framework, including:
     
       * Adding an attribute to indicate that the pipeline can't be trained.
       * Added functionality to read and write the component to disk 💾
+
 
 
 
