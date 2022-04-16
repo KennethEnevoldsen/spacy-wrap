@@ -28,7 +28,6 @@ from typing import Callable, Dict, Union
 
 from spacy_transformers.align import get_alignment
 from spacy_transformers.data_classes import HFObjects, WordpieceBatch
-from spacy_transformers.layers.hf_wrapper import HFWrapper
 from spacy_transformers.layers.transformer_model import (
     _convert_transformer_inputs,
     _convert_transformer_outputs,
@@ -41,6 +40,8 @@ from spacy_transformers.truncate import truncate_oversize_splits
 from thinc.api import CupyOps, Model, get_current_ops
 
 from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer
+
+from spacy_wrap.layers.hf_classification_wrapper import HFWrapper
 
 
 class ClassificationTransformerModel(Model):
@@ -74,6 +75,7 @@ class ClassificationTransformerModel(Model):
             convert_outputs=_convert_transformer_outputs,
             mixed_precision=mixed_precision,
             grad_scaler_config=grad_scaler_config,
+            load_model_from_config_fn=AutoModelForSequenceClassification.from_config,
         )
         super().__init__(
             "clf_transformer",
