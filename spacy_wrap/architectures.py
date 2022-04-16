@@ -1,3 +1,18 @@
+"""
+Copyright (C) 2022 Explosion AI and Kenneth Enevoldsen - All Rights Reserved
+You may use, distribute and modify this code under the
+terms of the MIT license.
+
+Original code from:
+https://github.com/explosion/spacy-transformers/blob/master/spacy_transformers/architectures.py
+
+
+The following functions are copied/modified:
+- create_ClassificationTransformerModel_v1. Changed to call
+ClassificationTransformerModel instead of TransformerModel
+"""
+
+
 from typing import List, Callable
 from thinc.api import Model
 from spacy.tokens import Doc
