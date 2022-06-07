@@ -1,5 +1,5 @@
 sphinx>=4.0.0,<5.1.0
-furo
+furo<="2022.04.07"
 sphinx-copybutton
 sphinxext-opengraph
 myst-parser
