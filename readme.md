@@ -1,7 +1,6 @@
 <a href="https://github.com/kennethenevoldsen/spacy-wrap"><img src="https://raw.githubusercontent.com/KennethEnevoldsen/spacy-wrap/main/docs/_static/icon.png" width="300" align="right" /></a>
 # spaCy-wrap: For Wrapping fine-tuned transformers in spaCy pipelines
 
-
 [![PyPI version](https://badge.fury.io/py/spacy-wrap.svg)](https://pypi.org/project/spacy-wrap/)
 [![python version](https://img.shields.io/badge/Python-%3E=3.7-blue)](https://github.com/kennethenevoldsen/spacy-wrap)
 [![Code style: black](https://img.shields.io/badge/Code%20Style-Black-black)](https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html)
