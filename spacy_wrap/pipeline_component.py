@@ -116,12 +116,12 @@ def make_classification_transformer(
 
 
 class ClassificationTransformer(TrainablePipe):
-    """spaCy pipeline component that provides access to a transformer model from
+    """
+    spaCy pipeline component that provides access to a transformer model from
     the Huggingface transformers library. Usually you will connect subsequent
     components to the shared transformer using the TransformerListener layer.
     This works similarly to spaCy's Tok2Vec component and Tok2VecListener
     sublayer.
-
     The activations from the transformer are saved in the doc._.trf_data extension
     attribute. You can also provide a callback to set additional annotations.
 
@@ -189,12 +189,16 @@ class ClassificationTransformer(TrainablePipe):
         self.set_extra_annotations(docs, predictions)
 
     def __call__(self, doc: Doc) -> Doc:
-        """Apply the pipe to one document. The document is modified in place,
+        """
+        Apply the pipe to one document. The document is modified in place,
         and returned. This usually happens under the hood when the nlp object
         is called on a text and all components are applied to the Doc.
-        docs (Doc): The Doc to process.
-        RETURNS (Doc): The processed Doc.
-        DOCS: https://spacy.io/api/transformer#call
+
+        Args:
+            docs (Doc): The Doc to process.
+
+        Returns:
+            (Doc): The processed Doc.
         """
         install_extensions(self.doc_extension_trf_data)
         outputs = self.predict([doc])
@@ -205,10 +209,13 @@ class ClassificationTransformer(TrainablePipe):
         """Apply the pipe to a stream of documents. This usually happens under
         the hood when the nlp object is called on a text and all components are
         applied to the Doc.
-        stream (Iterable[Doc]): A stream of documents.
-        batch_size (int): The number of documents to buffer.
-        YIELDS (Doc): Processed documents in order.
-        DOCS: https://spacy.io/api/transformer#pipe
+
+        Args:
+            stream (Iterable[Doc]): A stream of documents.
+            batch_size (int): The number of documents to buffer.
+
+        Yield:
+            (Doc): Processed documents in order.
         """
         install_extensions(self.doc_extension_trf_data)
         for outer_batch in minibatch(stream, batch_size):
@@ -221,9 +228,11 @@ class ClassificationTransformer(TrainablePipe):
     def predict(self, docs: Iterable[Doc]) -> FullTransformerBatch:
         """Apply the pipeline's model to a batch of docs, without modifying them.
         Returns the extracted features as the FullTransformerBatch dataclass.
-        docs (Iterable[Doc]): The documents to predict.
-        RETURNS (FullTransformerBatch): The extracted features.
-        DOCS: https://spacy.io/api/transformer#predict
+
+        Args:
+            docs (Iterable[Doc]): The documents to predict.
+        Returns:
+            (FullTransformerBatch): The extracted features.
         """
         if not any(len(doc) for doc in docs):
             # Handle cases where there are no tokens in any docs.
@@ -239,10 +248,11 @@ class ClassificationTransformer(TrainablePipe):
         nlp: Optional[Language] = None,
     ):
         """Initialize the pipe for training, using data examples if available.
-        get_examples (Callable[[], Iterable[Example]]): Optional function that
-            returns gold-standard Example objects.
-        nlp (Language): The current nlp object.
-        DOCS: https://spacy.io/api/transformer#initialize
+
+        Args:
+            get_examples (Callable[[], Iterable[Example]]): Optional function that
+                returns gold-standard Example objects.
+            nlp (Language): The current nlp object.
         """
         validate_get_examples(get_examples, "Transformer.initialize")
         self.model.initialize()
@@ -251,9 +261,10 @@ class ClassificationTransformer(TrainablePipe):
         self, path: Union[str, Path], *, exclude: Iterable[str] = tuple()
     ) -> None:
         """Serialize the pipe to disk.
-        path (str / Path): Path to a directory.
-        exclude (Iterable[str]): String names of serialization fields to exclude.
-        DOCS: https://spacy.io/api/transformer#to_disk
+
+        Args:
+            path (str / Path): Path to a directory.
+            exclude (Iterable[str]): String names of serialization fields to exclude.
         """
         serialize = {}
         serialize["cfg"] = lambda p: srsly.write_json(p, self.cfg)
@@ -264,11 +275,16 @@ class ClassificationTransformer(TrainablePipe):
     def from_disk(
         self, path: Union[str, Path], *, exclude: Iterable[str] = tuple()
     ) -> "ClassificationTransformer":
-        """Load the pipe from disk.
-        path (str / Path): Path to a directory.
-        exclude (Iterable[str]): String names of serialization fields to exclude.
-        RETURNS (Transformer): The loaded object.
-        DOCS: https://spacy.io/api/transformer#from_disk
+        """
+        Load the pipe from disk.
+
+
+        Args:
+            path (str / Path): Path to a directory.
+            exclude (Iterable[str]): String names of serialization fields to exclude.
+
+        Returns:
+            (Transformer): The loaded object.
         """
 
         def load_model(p):

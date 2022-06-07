@@ -7,6 +7,7 @@ SpaCy wrap currently includes only one architecture namely:
 
 spacy_wrap.architectures
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 .. automodule:: spacy_wrap.architectures
    :members:
    :undoc-members:

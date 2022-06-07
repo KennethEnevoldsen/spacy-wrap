@@ -7,6 +7,7 @@ SpaCy-wrap currently includes only one pipeline component namely the:
 
 spacy_wrap.pipeline_component
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 .. automodule:: spacy_wrap.pipeline_component
    :members:
    :undoc-members:
