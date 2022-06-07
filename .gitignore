@@ -1,6 +1,7 @@
 # Python
 __pycache__/*
 *.pyc
+*.egg-info
 
 # MacOS
 .DS_store
@@ -10,3 +11,4 @@ __pycache__/*
 
 # docs
 docs/_build/*
+
