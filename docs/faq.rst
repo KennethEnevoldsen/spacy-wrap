@@ -55,7 +55,7 @@ To make the documentation you can run:
 .. code-block:: bash
 
    # install sphinx, themes and extensions
-   pip install -r docs/requirements.txt
+   pip install -r requirements.txt
 
    # generate html from documentations
 
