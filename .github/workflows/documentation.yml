@@ -18,9 +18,6 @@ jobs:
         pip install -r requirements.txt
     - name: Build and Commit
       uses: sphinx-notes/pages@v2
-      with:
-        documentation_path: docs
-        install_requirements: "true"
     - name: Push changes
       uses: ad-m/github-push-action@master
       with:
