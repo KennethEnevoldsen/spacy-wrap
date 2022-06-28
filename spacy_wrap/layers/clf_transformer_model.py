@@ -11,26 +11,24 @@ The following functions are copied/modified:
 ClassificationTransformerModel instead of TransformerModel
 """
 
+from typing import Callable
 import copy
-from pathlib import Path
-from typing import Callable, Dict, Union
 
 from spacy_transformers.align import get_alignment
 from spacy_transformers.data_classes import HFObjects, WordpieceBatch
+from spacy_transformers.layers.hf_wrapper import HFWrapper
 from spacy_transformers.layers.transformer_model import (
     _convert_transformer_inputs,
     _convert_transformer_outputs,
     forward,
+    huggingface_from_pretrained,
     huggingface_tokenize,
     set_pytorch_transformer,
 )
 from spacy_transformers.truncate import truncate_oversize_splits
+from thinc.api import Model
+from transformers import AutoModelForSequenceClassification
 
-from thinc.api import CupyOps, Model, get_current_ops
-
-from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer
-
-from spacy_wrap.layers.hf_classification_wrapper import HFWrapper
 
 
 class ClassificationTransformerModel(Model):
@@ -64,7 +62,7 @@ class ClassificationTransformerModel(Model):
             convert_outputs=_convert_transformer_outputs,
             mixed_precision=mixed_precision,
             grad_scaler_config=grad_scaler_config,
-            load_model_from_config_fn=AutoModelForSequenceClassification.from_config,
+            model_cls=AutoModelForSequenceClassification,
         )
         super().__init__(
             "clf_transformer",
@@ -121,7 +119,7 @@ def init(model: Model, X=None, Y=None):
     name = model.attrs["name"]
     tok_cfg = model._init_tokenizer_config
     trf_cfg = model._init_transformer_config
-    hf_model = huggingface_from_pretrained(name, tok_cfg, trf_cfg)
+    hf_model = huggingface_from_pretrained(name, tok_cfg, trf_cfg, model_cls=AutoModelForSequenceClassification)
     model.attrs["set_transformer"](model, hf_model)
     tokenizer = model.tokenizer
     # Call the model with a batch of inputs to infer the width
@@ -147,40 +145,3 @@ def init(model: Model, X=None, Y=None):
         token_data = huggingface_tokenize(tokenizer, texts)
         wordpieces = WordpieceBatch.from_batch_encoding(token_data)
     model.layers[0].initialize(X=wordpieces)
-    model_output = model.layers[0].predict(wordpieces)
-
-
-def huggingface_from_pretrained(
-    source: Union[Path, str], tok_config: Dict, trf_config: Dict
-) -> HFObjects:
-    """
-    Create a Huggingface transformer model from pretrained/finetuned weights. Will
-    download the model if it is not already downloaded.
-
-    Note this is the same af in spacy-transformers with only AutoModel replaced with
-    AutoModelForSequenceClassification
-
-    Args:
-        source (Union[str, Path]): The name of the model or a path to it, such as
-            'bert-base-cased'.
-        tok_config (dict): Settings to pass to the tokenizer.
-        trf_config (dict): Settings to pass to the transformer.
-    """
-    if hasattr(source, "absolute"):
-        str_path = str(source.absolute())
-    else:
-        str_path = source
-    tokenizer = AutoTokenizer.from_pretrained(str_path, **tok_config)
-    vocab_file_contents = None
-    if hasattr(tokenizer, "vocab_file"):
-        with open(tokenizer.vocab_file, "rb") as fileh:
-            vocab_file_contents = fileh.read()
-    trf_config["return_dict"] = True
-    config = AutoConfig.from_pretrained(str_path, **trf_config)
-    transformer = AutoModelForSequenceClassification.from_pretrained(
-        str_path, config=config
-    )
-    ops = get_current_ops()
-    if isinstance(ops, CupyOps):
-        transformer.cuda()
-    return HFObjects(tokenizer, transformer, vocab_file_contents)
