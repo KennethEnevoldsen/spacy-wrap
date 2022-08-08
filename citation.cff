@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Enevoldsen"
+  given-names: "Kenneth"
+  orcid: "https://orcid.org/0000-0001-8733-0966"
+title: "spaCy-wrap: For Wrapping fine-tuned transformers in spaCy pipelines"
+version: 1.0.2
+date-released: 2022-08-08
+doi: 10.5281/zenodo.6675315
+url: "https://github.com/KennethEnevoldsen/spacy-wrap"
