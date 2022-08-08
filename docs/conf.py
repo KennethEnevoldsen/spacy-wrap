@@ -17,8 +17,9 @@ from spacy_wrap.about import __version__
 
 project = "spacy-wrap"
 author = "Kenneth Enevoldsen"
+github_user = "kennethenevoldsen"
 
-repo_url = f"https://github.com/kennethenevoldsen/{project}"
+repo_url = f"https://github.com/{github_user}/{project}"
 # The full version, including alpha/beta/rc tags
 release = __version__
 
@@ -79,6 +80,17 @@ source_suffix = {
 
 html_static_path = ["_static"]
 html_favicon = "_static/favicon.ico"
+
+html_context = {
+    "display_github": True,
+    "github_user": github_user,
+    "github_repo": project.lower(),
+    "github_version": "main",
+    "conf_py_path": "/docs/",
+    "slug": project.lower(),
+    "current_version": "latest",
+}
+
 
 html_theme_options = {
     "footer_icons": [
