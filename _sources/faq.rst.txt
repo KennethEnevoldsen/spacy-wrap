@@ -5,15 +5,27 @@ Frequently asked questions
 Citing spacy-wrap
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you wish this library in your research, please cite it using:
+If you wish this library in your research, please cite it using (Changing the version if relevant):
 
 .. code-block::
 
-   @inproceedings{spacywrap2022,
-      title={spaCy-wrap: Wrapper for including pre-trained transformers in spaCy},
-      author={Enevoldsen, Kenneth},
-      year={2022}
+   @software{Enevoldsen_spaCy-wrap_For_Wrapping_2022,
+      author = {Enevoldsen, Kenneth},
+      doi = {10.5281/zenodo.6675315},
+      month = {8},
+      title = {{spaCy-wrap: For Wrapping fine-tuned transformers in spaCy pipelines}},
+      url = {https://github.com/KennethEnevoldsen/spacy-wrap},
+      version = {1.0.2},
+      year = {2022}
    }
+
+
+Or if you prefer APA:
+
+.. code-block:: 
+
+   Enevoldsen, K. (2022). spaCy-wrap: For Wrapping fine-tuned transformers in spaCy pipelines (Version 1.0.2) [Computer software]. https://doi.org/10.5281/zenodo.6675315
+
 
 
 How do I test the code and run the test suite?
