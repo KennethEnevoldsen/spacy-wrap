@@ -13,12 +13,12 @@ ClassificationTransformerModel instead of TransformerModel
 """
 
 
-from typing import List, Callable
-from thinc.api import Model
-from spacy.tokens import Doc
+from typing import Callable, List
 
-from spacy_transformers.util import registry
+from spacy.tokens import Doc
 from spacy_transformers import FullTransformerBatch
+from spacy_transformers.util import registry
+from thinc.api import Model
 
 from spacy_wrap.layers.clf_transformer_model import ClassificationTransformerModel
 
@@ -32,7 +32,8 @@ def create_ClassificationTransformerModel_v1(
     mixed_precision: bool = False,
     grad_scaler_config: dict = {},
 ) -> Model[List[Doc], "FullTransformerBatch"]:
-    """Finetuned transformer model that can be further traine for downstream tasks or applied as is.
+    """Finetuned transformer model that can be further traine for downstream
+    tasks or applied as is.
 
     Args:
         name (str): Name of the Huggingface model to use.

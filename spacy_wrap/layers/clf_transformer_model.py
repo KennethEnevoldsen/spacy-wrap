@@ -11,8 +11,8 @@ The following functions are copied/modified:
 ClassificationTransformerModel instead of TransformerModel
 """
 
-from typing import Callable
 import copy
+from typing import Callable
 
 from spacy_transformers.align import get_alignment
 from spacy_transformers.data_classes import HFObjects, WordpieceBatch
@@ -31,9 +31,8 @@ from transformers import AutoModelForSequenceClassification
 
 
 class ClassificationTransformerModel(Model):
-    """
-    This is a variation of the TransformerModel from spacy-transformers with some utility regarding listeners removed
-    """
+    """This is a variation of the TransformerModel from spacy-transformers with
+    some utility regarding listeners removed."""
 
     def __init__(
         self,
@@ -44,15 +43,15 @@ class ClassificationTransformerModel(Model):
         mixed_precision: bool = False,
         grad_scaler_config: dict = {},
     ):
-        """
-        get_spans (Callable[[List[Doc]], List[Span]]):
-            A function to extract spans from the batch of Doc objects.
-            This is used to manage long documents, by cutting them into smaller
-            sequences before running the transformer. The spans are allowed to
-            overlap, and you can also omit sections of the Doc if they are not
-            relevant.
-        tokenizer_config (dict): Settings to pass to the transformers tokenizer.
-        transformer_config (dict): Settings to pass to the transformers forward pass.
+        """get_spans (Callable[[List[Doc]], List[Span]]):
+
+        A function to extract spans from the batch of Doc objects. This
+        is used to manage long documents, by cutting them into smaller
+        sequences before running the transformer. The spans are allowed
+        to     overlap, and you can also omit sections of the Doc if
+        they are not     relevant. tokenizer_config (dict): Settings to
+        pass to the transformers tokenizer. transformer_config (dict):
+        Settings to pass to the transformers forward pass.
         """
         hf_model = HFObjects(None, None, None, tokenizer_config, transformer_config)
         wrapper = HFWrapper(
@@ -95,10 +94,10 @@ class ClassificationTransformerModel(Model):
         return self.layers[0].shims[0]._hfmodel._init_transformer_config
 
     def copy(self):
-        """
-        Create a copy of the model, its attributes, and its parameters. Any child
-        layers will also be deep-copied. The copy will receive a distinct `model.id`
-        value.
+        """Create a copy of the model, its attributes, and its parameters.
+
+        Any child layers will also be deep-copied. The copy will receive
+        a distinct `model.id` value.
         """
         copied = ClassificationTransformerModel(self.name, self.attrs["get_spans"])
         params = {}
@@ -119,7 +118,10 @@ def init(model: Model, X=None, Y=None):
     tok_cfg = model._init_tokenizer_config
     trf_cfg = model._init_transformer_config
     hf_model = huggingface_from_pretrained(
-        name, tok_cfg, trf_cfg, model_cls=AutoModelForSequenceClassification
+        name,
+        tok_cfg,
+        trf_cfg,
+        model_cls=AutoModelForSequenceClassification,
     )
     model.attrs["set_transformer"](model, hf_model)
     tokenizer = model.tokenizer
@@ -136,10 +138,14 @@ def init(model: Model, X=None, Y=None):
         token_data = huggingface_tokenize(tokenizer, [span.text for span in flat_spans])
         wordpieces = WordpieceBatch.from_batch_encoding(token_data)
         align = get_alignment(
-            flat_spans, wordpieces.strings, tokenizer.all_special_tokens
+            flat_spans,
+            wordpieces.strings,
+            tokenizer.all_special_tokens,
         )
         wordpieces, align = truncate_oversize_splits(
-            wordpieces, align, tokenizer.model_max_length
+            wordpieces,
+            align,
+            tokenizer.model_max_length,
         )
     else:
         texts = ["hello world", "foo bar"]
