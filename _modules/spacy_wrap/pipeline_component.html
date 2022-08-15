@@ -237,25 +237,22 @@
 <span class="sd">"""</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">srsly</span>
-
+<span class="kn">from</span> <span class="nn">spacy</span> <span class="kn">import</span> <span class="n">Errors</span><span class="p">,</span> <span class="n">util</span>
 <span class="kn">from</span> <span class="nn">spacy.language</span> <span class="kn">import</span> <span class="n">Language</span>
+<span class="kn">from</span> <span class="nn">spacy.pipeline.pipe</span> <span class="kn">import</span> <span class="n">deserialize_config</span>
 <span class="kn">from</span> <span class="nn">spacy.pipeline.trainable_pipe</span> <span class="kn">import</span> <span class="n">TrainablePipe</span>
 <span class="kn">from</span> <span class="nn">spacy.tokens</span> <span class="kn">import</span> <span class="n">Doc</span>
-<span class="kn">from</span> <span class="nn">spacy.vocab</span> <span class="kn">import</span> <span class="n">Vocab</span>
-<span class="kn">from</span> <span class="nn">spacy.util</span> <span class="kn">import</span> <span class="n">minibatch</span>
 <span class="kn">from</span> <span class="nn">spacy.training</span> <span class="kn">import</span> <span class="n">Example</span><span class="p">,</span> <span class="n">validate_get_examples</span>
-<span class="kn">from</span> <span class="nn">spacy.pipeline.pipe</span> <span class="kn">import</span> <span class="n">deserialize_config</span>
-<span class="kn">from</span> <span class="nn">spacy</span> <span class="kn">import</span> <span class="n">util</span><span class="p">,</span> <span class="n">Errors</span>
-
+<span class="kn">from</span> <span class="nn">spacy.util</span> <span class="kn">import</span> <span class="n">minibatch</span>
+<span class="kn">from</span> <span class="nn">spacy.vocab</span> <span class="kn">import</span> <span class="n">Vocab</span>
 <span class="kn">from</span> <span class="nn">spacy_transformers.annotation_setters</span> <span class="kn">import</span> <span class="n">null_annotation_setter</span>
 <span class="kn">from</span> <span class="nn">spacy_transformers.data_classes</span> <span class="kn">import</span> <span class="n">FullTransformerBatch</span>
 <span class="kn">from</span> <span class="nn">spacy_transformers.util</span> <span class="kn">import</span> <span class="n">batch_by_length</span>
-
-<span class="kn">from</span> <span class="nn">thinc.api</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">thinc.api</span> <span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">Model</span>
 
 <span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">softmax</span><span class="p">,</span> <span class="n">split_by_doc</span>
 
@@ -300,11 +297,11 @@
     <span class="n">doc_extension_prediction</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">labels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
 <span class="p">):</span>
-    <span class="sd">"""Construct a ClassificationTransformer component, which lets you plug a model from the</span>
-<span class="sd">    Huggingface transformers library into spaCy so you can use it in your</span>
-<span class="sd">    pipeline. One or more subsequent spaCy components can use the transformer</span>
-<span class="sd">    outputs as features in its model, with gradients backpropagated to the single</span>
-<span class="sd">    shared weights.</span>
+    <span class="sd">"""Construct a ClassificationTransformer component, which lets you plug a</span>
+<span class="sd">    model from the Huggingface transformers library into spaCy so you can use</span>
+<span class="sd">    it in your pipeline. One or more subsequent spaCy components can use the</span>
+<span class="sd">    transformer outputs as features in its model, with gradients backpropagated</span>
+<span class="sd">    to the single shared weights.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        model (Model[List[Doc], FullTransformerBatch]): A thinc Model object wrapping</span>
@@ -331,14 +328,13 @@
 
 
 <div class="viewcode-block" id="ClassificationTransformer"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component.ClassificationTransformer">[docs]</a><span class="k">class</span> <span class="nc">ClassificationTransformer</span><span class="p">(</span><span class="n">TrainablePipe</span><span class="p">):</span>
-    <span class="sd">"""</span>
-<span class="sd">    spaCy pipeline component that provides access to a transformer model from</span>
-<span class="sd">    the Huggingface transformers library. Usually you will connect subsequent</span>
-<span class="sd">    components to the shared transformer using the TransformerListener layer.</span>
-<span class="sd">    This works similarly to spaCy's Tok2Vec component and Tok2VecListener</span>
-<span class="sd">    sublayer.</span>
-<span class="sd">    The activations from the transformer are saved in the doc._.trf_data extension</span>
-<span class="sd">    attribute. You can also provide a callback to set additional annotations.</span>
+    <span class="sd">"""spaCy pipeline component that provides access to a transformer model</span>
+<span class="sd">    from the Huggingface transformers library. Usually you will connect</span>
+<span class="sd">    subsequent components to the shared transformer using the</span>
+<span class="sd">    TransformerListener layer. This works similarly to spaCy's Tok2Vec</span>
+<span class="sd">    component and Tok2VecListener sublayer. The activations from the</span>
+<span class="sd">    transformer are saved in the doc._.trf_data extension attribute. You can</span>
+<span class="sd">    also provide a callback to set additional annotations.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        vocab (Vocab): The Vocab object for the pipeline.</span>
@@ -380,7 +376,9 @@
         <span class="n">install_extensions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_extension_trf_data</span><span class="p">)</span>
 
         <span class="n">install_classification_extensions</span><span class="p">(</span>
-            <span class="n">doc_extension_prediction</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">doc_extension_trf_data</span>
+            <span class="n">doc_extension_prediction</span><span class="p">,</span>
+            <span class="n">labels</span><span class="p">,</span>
+            <span class="n">doc_extension_trf_data</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -388,11 +386,14 @@
         <span class="k">return</span> <span class="kc">False</span>
 
 <div class="viewcode-block" id="ClassificationTransformer.set_annotations"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component.ClassificationTransformer.set_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">set_annotations</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">docs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Doc</span><span class="p">],</span> <span class="n">predictions</span><span class="p">:</span> <span class="n">FullTransformerBatch</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">docs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Doc</span><span class="p">],</span>
+        <span class="n">predictions</span><span class="p">:</span> <span class="n">FullTransformerBatch</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">"""Assign the extracted features to the Doc objects. By default, the</span>
 <span class="sd">        TransformerData object is written to the doc._.{doc_extension_trf_data}</span>
-<span class="sd">        attribute. Your set_extra_annotations callback is then called, if provided.</span>
+<span class="sd">        attribute. Your set_extra_annotations callback is then called, if</span>
+<span class="sd">        provided.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            docs (Iterable[Doc]): The documents to modify.</span>
@@ -404,8 +405,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_extra_annotations</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">:</span> <span class="n">Doc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Doc</span><span class="p">:</span>
-        <span class="sd">"""</span>
-<span class="sd">        Apply the pipe to one document. The document is modified in place,</span>
+        <span class="sd">"""Apply the pipe to one document. The document is modified in place,</span>
 <span class="sd">        and returned. This usually happens under the hood when the nlp object</span>
 <span class="sd">        is called on a text and all components are applied to the Doc.</span>
 
@@ -441,8 +441,9 @@
             <span class="k">yield from</span> <span class="n">outer_batch</span></div>
 
 <div class="viewcode-block" id="ClassificationTransformer.predict"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component.ClassificationTransformer.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Doc</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FullTransformerBatch</span><span class="p">:</span>
-        <span class="sd">"""Apply the pipeline's model to a batch of docs, without modifying them.</span>
-<span class="sd">        Returns the extracted features as the FullTransformerBatch dataclass.</span>
+        <span class="sd">"""Apply the pipeline's model to a batch of docs, without modifying</span>
+<span class="sd">        them. Returns the extracted features as the FullTransformerBatch</span>
+<span class="sd">        dataclass.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            docs (Iterable[Doc]): The documents to predict.</span>
@@ -490,9 +491,7 @@
 <div class="viewcode-block" id="ClassificationTransformer.from_disk"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component.ClassificationTransformer.from_disk">[docs]</a>    <span class="k">def</span> <span class="nf">from_disk</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ClassificationTransformer"</span><span class="p">:</span>
-        <span class="sd">"""</span>
-<span class="sd">        Load the pipe from disk.</span>
-
+        <span class="sd">"""Load the pipe from disk.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            path (str / Path): Path to a directory.</span>
@@ -529,7 +528,9 @@
     <span class="n">doc_extension</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="n">prob_getter</span><span class="p">,</span> <span class="n">label_getter</span> <span class="o">=</span> <span class="n">make_classification_getter</span><span class="p">(</span>
-        <span class="n">doc_extension_prediction</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">doc_extension</span>
+        <span class="n">doc_extension_prediction</span><span class="p">,</span>
+        <span class="n">labels</span><span class="p">,</span>
+        <span class="n">doc_extension</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">Doc</span><span class="o">.</span><span class="n">has_extension</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">doc_extension_prediction</span><span class="si">}</span><span class="s2">_prob"</span><span class="p">):</span>
         <span class="n">Doc</span><span class="o">.</span><span class="n">set_extension</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">doc_extension_prediction</span><span class="si">}</span><span class="s2">_prob"</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="n">prob_getter</span><span class="p">)</span>
@@ -538,7 +539,9 @@
 
 
 <span class="k">def</span> <span class="nf">make_classification_getter</span><span class="p">(</span>
-    <span class="n">doc_extension_prediction</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">doc_extension_trf_data</span>
+    <span class="n">doc_extension_prediction</span><span class="p">,</span>
+    <span class="n">labels</span><span class="p">,</span>
+    <span class="n">doc_extension_trf_data</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="k">def</span> <span class="nf">prob_getter</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="n">trf_data</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">_</span><span class="p">,</span> <span class="n">doc_extension_trf_data</span><span class="p">)</span>
@@ -550,7 +553,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="s2">"The tensors from the transformer forward pass is empty this is likely"</span>
-                <span class="o">+</span> <span class="s2">" caused by an empty input string. Thus the model will return None"</span>
+                <span class="o">+</span> <span class="s2">" caused by an empty input string. Thus the model will return None"</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="p">{</span>
                 <span class="s2">"prob"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>

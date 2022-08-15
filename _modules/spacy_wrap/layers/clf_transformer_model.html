@@ -228,8 +228,8 @@
 <span class="sd">ClassificationTransformerModel instead of TransformerModel</span>
 <span class="sd">"""</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
 
 <span class="kn">from</span> <span class="nn">spacy_transformers.align</span> <span class="kn">import</span> <span class="n">get_alignment</span>
 <span class="kn">from</span> <span class="nn">spacy_transformers.data_classes</span> <span class="kn">import</span> <span class="n">HFObjects</span><span class="p">,</span> <span class="n">WordpieceBatch</span>
@@ -248,9 +248,8 @@
 
 
 <div class="viewcode-block" id="ClassificationTransformerModel"><a class="viewcode-back" href="../../../wrap.layers.html#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel">[docs]</a><span class="k">class</span> <span class="nc">ClassificationTransformerModel</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="sd">"""</span>
-<span class="sd">    This is a variation of the TransformerModel from spacy-transformers with some utility regarding listeners removed</span>
-<span class="sd">    """</span>
+    <span class="sd">"""This is a variation of the TransformerModel from spacy-transformers with</span>
+<span class="sd">    some utility regarding listeners removed."""</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -261,15 +260,15 @@
         <span class="n">mixed_precision</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">grad_scaler_config</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="p">):</span>
-        <span class="sd">"""</span>
-<span class="sd">        get_spans (Callable[[List[Doc]], List[Span]]):</span>
-<span class="sd">            A function to extract spans from the batch of Doc objects.</span>
-<span class="sd">            This is used to manage long documents, by cutting them into smaller</span>
-<span class="sd">            sequences before running the transformer. The spans are allowed to</span>
-<span class="sd">            overlap, and you can also omit sections of the Doc if they are not</span>
-<span class="sd">            relevant.</span>
-<span class="sd">        tokenizer_config (dict): Settings to pass to the transformers tokenizer.</span>
-<span class="sd">        transformer_config (dict): Settings to pass to the transformers forward pass.</span>
+        <span class="sd">"""get_spans (Callable[[List[Doc]], List[Span]]):</span>
+
+<span class="sd">        A function to extract spans from the batch of Doc objects. This</span>
+<span class="sd">        is used to manage long documents, by cutting them into smaller</span>
+<span class="sd">        sequences before running the transformer. The spans are allowed</span>
+<span class="sd">        to     overlap, and you can also omit sections of the Doc if</span>
+<span class="sd">        they are not     relevant. tokenizer_config (dict): Settings to</span>
+<span class="sd">        pass to the transformers tokenizer. transformer_config (dict):</span>
+<span class="sd">        Settings to pass to the transformers forward pass.</span>
 <span class="sd">        """</span>
         <span class="n">hf_model</span> <span class="o">=</span> <span class="n">HFObjects</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tokenizer_config</span><span class="p">,</span> <span class="n">transformer_config</span><span class="p">)</span>
         <span class="n">wrapper</span> <span class="o">=</span> <span class="n">HFWrapper</span><span class="p">(</span>
@@ -312,10 +311,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_hfmodel</span><span class="o">.</span><span class="n">_init_transformer_config</span>
 
 <div class="viewcode-block" id="ClassificationTransformerModel.copy"><a class="viewcode-back" href="../../../wrap.layers.html#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">"""</span>
-<span class="sd">        Create a copy of the model, its attributes, and its parameters. Any child</span>
-<span class="sd">        layers will also be deep-copied. The copy will receive a distinct `model.id`</span>
-<span class="sd">        value.</span>
+        <span class="sd">"""Create a copy of the model, its attributes, and its parameters.</span>
+
+<span class="sd">        Any child layers will also be deep-copied. The copy will receive</span>
+<span class="sd">        a distinct `model.id` value.</span>
 <span class="sd">        """</span>
         <span class="n">copied</span> <span class="o">=</span> <span class="n">ClassificationTransformerModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"get_spans"</span><span class="p">])</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
@@ -336,7 +335,10 @@
     <span class="n">tok_cfg</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_init_tokenizer_config</span>
     <span class="n">trf_cfg</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_init_transformer_config</span>
     <span class="n">hf_model</span> <span class="o">=</span> <span class="n">huggingface_from_pretrained</span><span class="p">(</span>
-        <span class="n">name</span><span class="p">,</span> <span class="n">tok_cfg</span><span class="p">,</span> <span class="n">trf_cfg</span><span class="p">,</span> <span class="n">model_cls</span><span class="o">=</span><span class="n">AutoModelForSequenceClassification</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">tok_cfg</span><span class="p">,</span>
+        <span class="n">trf_cfg</span><span class="p">,</span>
+        <span class="n">model_cls</span><span class="o">=</span><span class="n">AutoModelForSequenceClassification</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">model</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"set_transformer"</span><span class="p">](</span><span class="n">model</span><span class="p">,</span> <span class="n">hf_model</span><span class="p">)</span>
     <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">tokenizer</span>
@@ -353,10 +355,14 @@
         <span class="n">token_data</span> <span class="o">=</span> <span class="n">huggingface_tokenize</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">,</span> <span class="p">[</span><span class="n">span</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">span</span> <span class="ow">in</span> <span class="n">flat_spans</span><span class="p">])</span>
         <span class="n">wordpieces</span> <span class="o">=</span> <span class="n">WordpieceBatch</span><span class="o">.</span><span class="n">from_batch_encoding</span><span class="p">(</span><span class="n">token_data</span><span class="p">)</span>
         <span class="n">align</span> <span class="o">=</span> <span class="n">get_alignment</span><span class="p">(</span>
-            <span class="n">flat_spans</span><span class="p">,</span> <span class="n">wordpieces</span><span class="o">.</span><span class="n">strings</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">all_special_tokens</span>
+            <span class="n">flat_spans</span><span class="p">,</span>
+            <span class="n">wordpieces</span><span class="o">.</span><span class="n">strings</span><span class="p">,</span>
+            <span class="n">tokenizer</span><span class="o">.</span><span class="n">all_special_tokens</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">wordpieces</span><span class="p">,</span> <span class="n">align</span> <span class="o">=</span> <span class="n">truncate_oversize_splits</span><span class="p">(</span>
-            <span class="n">wordpieces</span><span class="p">,</span> <span class="n">align</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">model_max_length</span>
+            <span class="n">wordpieces</span><span class="p">,</span>
+            <span class="n">align</span><span class="p">,</span>
+            <span class="n">tokenizer</span><span class="o">.</span><span class="n">model_max_length</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">texts</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"hello world"</span><span class="p">,</span> <span class="s2">"foo bar"</span><span class="p">]</span>

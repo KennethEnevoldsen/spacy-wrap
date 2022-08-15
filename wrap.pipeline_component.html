@@ -249,13 +249,13 @@ get_loss and and update functions.
 <dt class="sig sig-object py" id="spacy_wrap.pipeline_component.ClassificationTransformer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spacy_wrap.pipeline_component.</span></span><span class="sig-name descname"><span class="pre">ClassificationTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">vocab:</span> <span class="pre">spacy.vocab.Vocab,</span> <span class="pre">model:</span> <span class="pre">thinc.model.Model[typing.List[spacy.tokens.doc.Doc],</span> <span class="pre">spacy_transformers.data_classes.FullTransformerBatch],</span> <span class="pre">labels:</span> <span class="pre">typing.List[str],</span> <span class="pre">doc_extension_trf_data:</span> <span class="pre">str,</span> <span class="pre">doc_extension_prediction:</span> <span class="pre">str,</span> <span class="pre">set_extra_annotations:</span> <span class="pre">typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">null_annotation_setter&gt;,</span> <span class="pre">*,</span> <span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'classification_transformer',</span> <span class="pre">max_batch_items:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">4096</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacy_wrap/pipeline_component.html#ClassificationTransformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacy_wrap.pipeline_component.ClassificationTransformer" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">spacy.pipeline.trainable_pipe.TrainablePipe</span></code></p>
-<p>spaCy pipeline component that provides access to a transformer model from
-the Huggingface transformers library. Usually you will connect subsequent
-components to the shared transformer using the TransformerListener layer.
-This works similarly to spaCy’s Tok2Vec component and Tok2VecListener
-sublayer.
-The activations from the transformer are saved in the doc._.trf_data extension
-attribute. You can also provide a callback to set additional annotations.</p>
+<p>spaCy pipeline component that provides access to a transformer model
+from the Huggingface transformers library. Usually you will connect
+subsequent components to the shared transformer using the
+TransformerListener layer. This works similarly to spaCy’s Tok2Vec
+component and Tok2VecListener sublayer. The activations from the
+transformer are saved in the doc._.trf_data extension attribute. You can
+also provide a callback to set additional annotations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -332,8 +332,9 @@ applied to the Doc.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="spacy_wrap.pipeline_component.ClassificationTransformer.predict">
 <span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">docs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">spacy.tokens.doc.Doc</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">spacy_transformers.data_classes.FullTransformerBatch</span></span></span><a class="reference internal" href="_modules/spacy_wrap/pipeline_component.html#ClassificationTransformer.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacy_wrap.pipeline_component.ClassificationTransformer.predict" title="Permalink to this definition">#</a></dt>
-<dd><p>Apply the pipeline’s model to a batch of docs, without modifying them.
-Returns the extracted features as the FullTransformerBatch dataclass.</p>
+<dd><p>Apply the pipeline’s model to a batch of docs, without modifying
+them. Returns the extracted features as the FullTransformerBatch
+dataclass.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>docs</strong> (<em>Iterable</em><em>[</em><em>Doc</em><em>]</em>) – The documents to predict.</p>
@@ -351,7 +352,8 @@ Returns the extracted features as the FullTransformerBatch dataclass.</p>
 <span class="sig-name descname"><span class="pre">set_annotations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">docs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">spacy.tokens.doc.Doc</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">spacy_transformers.data_classes.FullTransformerBatch</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/spacy_wrap/pipeline_component.html#ClassificationTransformer.set_annotations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacy_wrap.pipeline_component.ClassificationTransformer.set_annotations" title="Permalink to this definition">#</a></dt>
 <dd><p>Assign the extracted features to the Doc objects. By default, the
 TransformerData object is written to the doc._.{doc_extension_trf_data}
-attribute. Your set_extra_annotations callback is then called, if provided.</p>
+attribute. Your set_extra_annotations callback is then called, if
+provided.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -382,11 +384,11 @@ attribute. Your set_extra_annotations callback is then called, if provided.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacy_wrap.pipeline_component.make_classification_transformer">
 <span class="sig-prename descclassname"><span class="pre">spacy_wrap.pipeline_component.</span></span><span class="sig-name descname"><span class="pre">make_classification_transformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nlp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">spacy.language.Language</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">thinc.model.Model</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">spacy.tokens.doc.Doc</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">spacy_transformers.data_classes.FullTransformerBatch</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_extra_annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">spacy.tokens.doc.Doc</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">spacy_transformers.data_classes.FullTransformerBatch</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_batch_items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_extension_trf_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_extension_prediction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacy_wrap/pipeline_component.html#make_classification_transformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacy_wrap.pipeline_component.make_classification_transformer" title="Permalink to this definition">#</a></dt>
-<dd><p>Construct a ClassificationTransformer component, which lets you plug a model from the
-Huggingface transformers library into spaCy so you can use it in your
-pipeline. One or more subsequent spaCy components can use the transformer
-outputs as features in its model, with gradients backpropagated to the single
-shared weights.</p>
+<dd><p>Construct a ClassificationTransformer component, which lets you plug a
+model from the Huggingface transformers library into spaCy so you can use
+it in your pipeline. One or more subsequent spaCy components can use the
+transformer outputs as features in its model, with gradients backpropagated
+to the single shared weights.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
