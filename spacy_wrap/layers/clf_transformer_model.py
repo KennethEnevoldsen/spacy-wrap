@@ -30,7 +30,6 @@ from thinc.api import Model
 from transformers import AutoModelForSequenceClassification
 
 
-
 class ClassificationTransformerModel(Model):
     """
     This is a variation of the TransformerModel from spacy-transformers with some utility regarding listeners removed
@@ -119,7 +118,9 @@ def init(model: Model, X=None, Y=None):
     name = model.attrs["name"]
     tok_cfg = model._init_tokenizer_config
     trf_cfg = model._init_transformer_config
-    hf_model = huggingface_from_pretrained(name, tok_cfg, trf_cfg, model_cls=AutoModelForSequenceClassification)
+    hf_model = huggingface_from_pretrained(
+        name, tok_cfg, trf_cfg, model_cls=AutoModelForSequenceClassification
+    )
     model.attrs["set_transformer"](model, hf_model)
     tokenizer = model.tokenizer
     # Call the model with a batch of inputs to infer the width
