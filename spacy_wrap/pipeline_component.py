@@ -20,25 +20,22 @@ get_loss and and update functions.
 """
 
 import warnings
-from typing import Callable, Iterable, Iterator, List, Optional, Union
 from pathlib import Path
+from typing import Callable, Iterable, Iterator, List, Optional, Union
 
 import srsly
-
+from spacy import Errors, util
 from spacy.language import Language
+from spacy.pipeline.pipe import deserialize_config
 from spacy.pipeline.trainable_pipe import TrainablePipe
 from spacy.tokens import Doc
-from spacy.vocab import Vocab
-from spacy.util import minibatch
 from spacy.training import Example, validate_get_examples
-from spacy.pipeline.pipe import deserialize_config
-from spacy import util, Errors
-
+from spacy.util import minibatch
+from spacy.vocab import Vocab
 from spacy_transformers.annotation_setters import null_annotation_setter
 from spacy_transformers.data_classes import FullTransformerBatch
 from spacy_transformers.util import batch_by_length
-
-from thinc.api import Model, Config
+from thinc.api import Config, Model
 
 from .util import softmax, split_by_doc
 
@@ -83,11 +80,11 @@ def make_classification_transformer(
     doc_extension_prediction: str,
     labels: List[str],
 ):
-    """Construct a ClassificationTransformer component, which lets you plug a model from the
-    Huggingface transformers library into spaCy so you can use it in your
-    pipeline. One or more subsequent spaCy components can use the transformer
-    outputs as features in its model, with gradients backpropagated to the single
-    shared weights.
+    """Construct a ClassificationTransformer component, which lets you plug a
+    model from the Huggingface transformers library into spaCy so you can use
+    it in your pipeline. One or more subsequent spaCy components can use the
+    transformer outputs as features in its model, with gradients backpropagated
+    to the single shared weights.
 
     Args:
         model (Model[List[Doc], FullTransformerBatch]): A thinc Model object wrapping
@@ -114,14 +111,13 @@ def make_classification_transformer(
 
 
 class ClassificationTransformer(TrainablePipe):
-    """
-    spaCy pipeline component that provides access to a transformer model from
-    the Huggingface transformers library. Usually you will connect subsequent
-    components to the shared transformer using the TransformerListener layer.
-    This works similarly to spaCy's Tok2Vec component and Tok2VecListener
-    sublayer.
-    The activations from the transformer are saved in the doc._.trf_data extension
-    attribute. You can also provide a callback to set additional annotations.
+    """spaCy pipeline component that provides access to a transformer model
+    from the Huggingface transformers library. Usually you will connect
+    subsequent components to the shared transformer using the
+    TransformerListener layer. This works similarly to spaCy's Tok2Vec
+    component and Tok2VecListener sublayer. The activations from the
+    transformer are saved in the doc._.trf_data extension attribute. You can
+    also provide a callback to set additional annotations.
 
     Args:
         vocab (Vocab): The Vocab object for the pipeline.
@@ -163,7 +159,9 @@ class ClassificationTransformer(TrainablePipe):
         install_extensions(self.doc_extension_trf_data)
 
         install_classification_extensions(
-            doc_extension_prediction, labels, doc_extension_trf_data
+            doc_extension_prediction,
+            labels,
+            doc_extension_trf_data,
         )
 
     @property
@@ -171,11 +169,14 @@ class ClassificationTransformer(TrainablePipe):
         return False
 
     def set_annotations(
-        self, docs: Iterable[Doc], predictions: FullTransformerBatch
+        self,
+        docs: Iterable[Doc],
+        predictions: FullTransformerBatch,
     ) -> None:
         """Assign the extracted features to the Doc objects. By default, the
         TransformerData object is written to the doc._.{doc_extension_trf_data}
-        attribute. Your set_extra_annotations callback is then called, if provided.
+        attribute. Your set_extra_annotations callback is then called, if
+        provided.
 
         Args:
             docs (Iterable[Doc]): The documents to modify.
@@ -187,8 +188,7 @@ class ClassificationTransformer(TrainablePipe):
         self.set_extra_annotations(docs, predictions)
 
     def __call__(self, doc: Doc) -> Doc:
-        """
-        Apply the pipe to one document. The document is modified in place,
+        """Apply the pipe to one document. The document is modified in place,
         and returned. This usually happens under the hood when the nlp object
         is called on a text and all components are applied to the Doc.
 
@@ -224,8 +224,9 @@ class ClassificationTransformer(TrainablePipe):
             yield from outer_batch
 
     def predict(self, docs: Iterable[Doc]) -> FullTransformerBatch:
-        """Apply the pipeline's model to a batch of docs, without modifying them.
-        Returns the extracted features as the FullTransformerBatch dataclass.
+        """Apply the pipeline's model to a batch of docs, without modifying
+        them. Returns the extracted features as the FullTransformerBatch
+        dataclass.
 
         Args:
             docs (Iterable[Doc]): The documents to predict.
@@ -273,9 +274,7 @@ class ClassificationTransformer(TrainablePipe):
     def from_disk(
         self, path: Union[str, Path], *, exclude: Iterable[str] = tuple()
     ) -> "ClassificationTransformer":
-        """
-        Load the pipe from disk.
-
+        """Load the pipe from disk.
 
         Args:
             path (str / Path): Path to a directory.
@@ -312,7 +311,9 @@ def install_classification_extensions(
     doc_extension: str,
 ):
     prob_getter, label_getter = make_classification_getter(
-        doc_extension_prediction, labels, doc_extension
+        doc_extension_prediction,
+        labels,
+        doc_extension,
     )
     if not Doc.has_extension(f"{doc_extension_prediction}_prob"):
         Doc.set_extension(f"{doc_extension_prediction}_prob", getter=prob_getter)
@@ -321,7 +322,9 @@ def install_classification_extensions(
 
 
 def make_classification_getter(
-    doc_extension_prediction, labels, doc_extension_trf_data
+    doc_extension_prediction,
+    labels,
+    doc_extension_trf_data,
 ):
     def prob_getter(doc) -> dict:
         trf_data = getattr(doc._, doc_extension_trf_data)
@@ -333,7 +336,7 @@ def make_classification_getter(
         else:
             warnings.warn(
                 "The tensors from the transformer forward pass is empty this is likely"
-                + " caused by an empty input string. Thus the model will return None"
+                + " caused by an empty input string. Thus the model will return None",
             )
             return {
                 "prob": None,

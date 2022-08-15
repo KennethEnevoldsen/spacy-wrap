@@ -13,20 +13,18 @@ The following functions are copied/modified:
 
 
 from typing import List
-import torch
-from transformers.file_utils import ModelOutput
-from thinc.api import torch2xp
-
-from spacy_transformers.data_classes import TransformerData
-from spacy_transformers.align import get_token_positions
 
 import numpy as np
+import torch
+from spacy_transformers.align import get_token_positions
+from spacy_transformers.data_classes import TransformerData
+from thinc.api import torch2xp
+from transformers.file_utils import ModelOutput
 
 
 def split_by_doc(self) -> List[TransformerData]:
-    """
-    Split a TransformerData that represents a batch into a list with
-    one TransformerData per Doc.
+    """Split a TransformerData that represents a batch into a list with one
+    TransformerData per Doc.
 
     Original code from:
     https://github.com/explosion/spacy-transformers/blob/5a36943fccb66b5e7c7c2079b1b90ff9b2f9d020/spacy_transformers/data_classes.py
@@ -67,7 +65,7 @@ def split_by_doc(self) -> List[TransformerData]:
                 wordpieces=doc_tokens,
                 model_output=model_output,
                 align=doc_align,
-            )
+            ),
         )
         prev_tokens += doc_tokens.input_ids.size
         start += len(doc_spans)

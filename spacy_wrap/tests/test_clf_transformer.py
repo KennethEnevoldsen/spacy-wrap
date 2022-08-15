@@ -1,5 +1,6 @@
-import pytest
 import shutil
+
+import pytest
 import spacy
 
 
@@ -20,7 +21,7 @@ class TestClassificationTransformer:
         return nlp
 
     def test_forward(self, nlp):
-        """tests if that the forward pass work as intended"""
+        """tests if that the forward pass work as intended."""
 
         doc = nlp("Senile gamle idiot")
 
@@ -29,7 +30,7 @@ class TestClassificationTransformer:
         assert isinstance(doc._.hate_speech_prob, dict)
 
     def test_to_and_from_disk(self, nlp):
-        """tests if the pipeline can be serialized to disk"""
+        """tests if the pipeline can be serialized to disk."""
 
         transformer = nlp.get_pipe("classification_transformer")
 

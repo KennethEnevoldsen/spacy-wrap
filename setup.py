@@ -1,6 +1,5 @@
 from setuptools import setup
 
-
 with open("spacy_wrap/about.py") as f:
     v = f.read()
     for line in v.split("\n"):
