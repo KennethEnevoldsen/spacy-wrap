@@ -1,9 +1,6 @@
 import pytest
 import shutil
-
 import spacy
-
-import spacy_wrap
 
 
 class TestClassificationTransformer:
@@ -19,6 +16,7 @@ class TestClassificationTransformer:
             },
         }
         nlp.add_pipe("classification_transformer", config=config)
+        nlp.initialize()
         return nlp
 
     def test_forward(self, nlp):
