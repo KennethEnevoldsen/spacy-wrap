@@ -1,6 +1,10 @@
 News and Changelog
 ==============================
 
+* 1.1.0 (15/08/22)
+
+  - Update following this `Pull request <https://github.com/explosion/spacy-transformers/pull/332>`__ on spacy-transformers allowing for alternate model loaders. This makes the code-base more stable towards future changes and removes existing monkeypatch.
+
 * 1.0.0 (29/01/22)
 
   - Stable version of spacy-wrap launches
