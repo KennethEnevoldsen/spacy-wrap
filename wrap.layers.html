@@ -14,7 +14,7 @@
   <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="pipeline Components" href="wrap.pipeline_component.html" /><link rel="prev" title="Architectures" href="wrap.architectures.html" />
 
     <link rel="shortcut icon" href="_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>Layers - spacy-wrap 1.0.3 documentation</title>
+        <title>Layers - spacy-wrap 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -139,7 +139,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">spacy-wrap 1.0.3 documentation</div></a>
+      <a href="index.html"><div class="brand">spacy-wrap 1.1.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -271,24 +271,6 @@ value.</p>
 <dt class="sig sig-object py" id="spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.transformer">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transformer</span></span><a class="headerlink" href="#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.transformer" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="spacy_wrap.layers.clf_transformer_model.huggingface_from_pretrained">
-<span class="sig-prename descclassname"><span class="pre">spacy_wrap.layers.clf_transformer_model.</span></span><span class="sig-name descname"><span class="pre">huggingface_from_pretrained</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tok_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trf_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">spacy_transformers.data_classes.HFObjects</span></span></span><a class="reference internal" href="_modules/spacy_wrap/layers/clf_transformer_model.html#huggingface_from_pretrained"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacy_wrap.layers.clf_transformer_model.huggingface_from_pretrained" title="Permalink to this definition">#</a></dt>
-<dd><p>Create a Huggingface transformer model from pretrained/finetuned weights. Will
-download the model if it is not already downloaded.</p>
-<p>Note this is the same af in spacy-transformers with only AutoModel replaced with
-AutoModelForSequenceClassification</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>source</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>Path</em><em>]</em>) – The name of the model or a path to it, such as
-‘bert-base-cased’.</p></li>
-<li><p><strong>tok_config</strong> (<em>dict</em>) – Settings to pass to the tokenizer.</p></li>
-<li><p><strong>trf_config</strong> (<em>dict</em>) – Settings to pass to the transformer.</p></li>
-</ul>
-</dd>
-</dl>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacy_wrap.layers.clf_transformer_model.init">

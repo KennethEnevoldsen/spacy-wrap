@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>spacy_wrap.layers.clf_transformer_model - spacy-wrap 1.0.3 documentation</title>
+        <title>spacy_wrap.layers.clf_transformer_model - spacy-wrap 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -130,7 +130,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">spacy-wrap 1.0.3 documentation</div></a>
+      <a href="../../../index.html"><div class="brand">spacy-wrap 1.1.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -228,26 +228,23 @@
 <span class="sd">ClassificationTransformerModel instead of TransformerModel</span>
 <span class="sd">"""</span>
 
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">spacy_transformers.align</span> <span class="kn">import</span> <span class="n">get_alignment</span>
 <span class="kn">from</span> <span class="nn">spacy_transformers.data_classes</span> <span class="kn">import</span> <span class="n">HFObjects</span><span class="p">,</span> <span class="n">WordpieceBatch</span>
+<span class="kn">from</span> <span class="nn">spacy_transformers.layers.hf_wrapper</span> <span class="kn">import</span> <span class="n">HFWrapper</span>
 <span class="kn">from</span> <span class="nn">spacy_transformers.layers.transformer_model</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">_convert_transformer_inputs</span><span class="p">,</span>
     <span class="n">_convert_transformer_outputs</span><span class="p">,</span>
     <span class="n">forward</span><span class="p">,</span>
+    <span class="n">huggingface_from_pretrained</span><span class="p">,</span>
     <span class="n">huggingface_tokenize</span><span class="p">,</span>
     <span class="n">set_pytorch_transformer</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">spacy_transformers.truncate</span> <span class="kn">import</span> <span class="n">truncate_oversize_splits</span>
-
-<span class="kn">from</span> <span class="nn">thinc.api</span> <span class="kn">import</span> <span class="n">CupyOps</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">get_current_ops</span>
-
-<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoConfig</span><span class="p">,</span> <span class="n">AutoModelForSequenceClassification</span><span class="p">,</span> <span class="n">AutoTokenizer</span>
-
-<span class="kn">from</span> <span class="nn">spacy_wrap.layers.hf_classification_wrapper</span> <span class="kn">import</span> <span class="n">HFWrapper</span>
+<span class="kn">from</span> <span class="nn">thinc.api</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoModelForSequenceClassification</span>
 
 
 <div class="viewcode-block" id="ClassificationTransformerModel"><a class="viewcode-back" href="../../../wrap.layers.html#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel">[docs]</a><span class="k">class</span> <span class="nc">ClassificationTransformerModel</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
@@ -281,7 +278,7 @@
             <span class="n">convert_outputs</span><span class="o">=</span><span class="n">_convert_transformer_outputs</span><span class="p">,</span>
             <span class="n">mixed_precision</span><span class="o">=</span><span class="n">mixed_precision</span><span class="p">,</span>
             <span class="n">grad_scaler_config</span><span class="o">=</span><span class="n">grad_scaler_config</span><span class="p">,</span>
-            <span class="n">load_model_from_config_fn</span><span class="o">=</span><span class="n">AutoModelForSequenceClassification</span><span class="o">.</span><span class="n">from_config</span><span class="p">,</span>
+            <span class="n">model_cls</span><span class="o">=</span><span class="n">AutoModelForSequenceClassification</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="s2">"clf_transformer"</span><span class="p">,</span>
@@ -338,7 +335,9 @@
     <span class="n">name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
     <span class="n">tok_cfg</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_init_tokenizer_config</span>
     <span class="n">trf_cfg</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_init_transformer_config</span>
-    <span class="n">hf_model</span> <span class="o">=</span> <span class="n">huggingface_from_pretrained</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tok_cfg</span><span class="p">,</span> <span class="n">trf_cfg</span><span class="p">)</span>
+    <span class="n">hf_model</span> <span class="o">=</span> <span class="n">huggingface_from_pretrained</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">tok_cfg</span><span class="p">,</span> <span class="n">trf_cfg</span><span class="p">,</span> <span class="n">model_cls</span><span class="o">=</span><span class="n">AutoModelForSequenceClassification</span>
+    <span class="p">)</span>
     <span class="n">model</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"set_transformer"</span><span class="p">](</span><span class="n">model</span><span class="p">,</span> <span class="n">hf_model</span><span class="p">)</span>
     <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">tokenizer</span>
     <span class="c1"># Call the model with a batch of inputs to infer the width</span>
@@ -363,44 +362,7 @@
         <span class="n">texts</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"hello world"</span><span class="p">,</span> <span class="s2">"foo bar"</span><span class="p">]</span>
         <span class="n">token_data</span> <span class="o">=</span> <span class="n">huggingface_tokenize</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">,</span> <span class="n">texts</span><span class="p">)</span>
         <span class="n">wordpieces</span> <span class="o">=</span> <span class="n">WordpieceBatch</span><span class="o">.</span><span class="n">from_batch_encoding</span><span class="p">(</span><span class="n">token_data</span><span class="p">)</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">wordpieces</span><span class="p">)</span>
-    <span class="n">model_output</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">wordpieces</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="huggingface_from_pretrained"><a class="viewcode-back" href="../../../wrap.layers.html#spacy_wrap.layers.clf_transformer_model.huggingface_from_pretrained">[docs]</a><span class="k">def</span> <span class="nf">huggingface_from_pretrained</span><span class="p">(</span>
-    <span class="n">source</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">tok_config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">trf_config</span><span class="p">:</span> <span class="n">Dict</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HFObjects</span><span class="p">:</span>
-    <span class="sd">"""</span>
-<span class="sd">    Create a Huggingface transformer model from pretrained/finetuned weights. Will</span>
-<span class="sd">    download the model if it is not already downloaded.</span>
-
-<span class="sd">    Note this is the same af in spacy-transformers with only AutoModel replaced with</span>
-<span class="sd">    AutoModelForSequenceClassification</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        source (Union[str, Path]): The name of the model or a path to it, such as</span>
-<span class="sd">            'bert-base-cased'.</span>
-<span class="sd">        tok_config (dict): Settings to pass to the tokenizer.</span>
-<span class="sd">        trf_config (dict): Settings to pass to the transformer.</span>
-<span class="sd">    """</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="s2">"absolute"</span><span class="p">):</span>
-        <span class="n">str_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">absolute</span><span class="p">())</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">str_path</span> <span class="o">=</span> <span class="n">source</span>
-    <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">str_path</span><span class="p">,</span> <span class="o">**</span><span class="n">tok_config</span><span class="p">)</span>
-    <span class="n">vocab_file_contents</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">,</span> <span class="s2">"vocab_file"</span><span class="p">):</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tokenizer</span><span class="o">.</span><span class="n">vocab_file</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fileh</span><span class="p">:</span>
-            <span class="n">vocab_file_contents</span> <span class="o">=</span> <span class="n">fileh</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-    <span class="n">trf_config</span><span class="p">[</span><span class="s2">"return_dict"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">AutoConfig</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">str_path</span><span class="p">,</span> <span class="o">**</span><span class="n">trf_config</span><span class="p">)</span>
-    <span class="n">transformer</span> <span class="o">=</span> <span class="n">AutoModelForSequenceClassification</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
-        <span class="n">str_path</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span>
-    <span class="p">)</span>
-    <span class="n">ops</span> <span class="o">=</span> <span class="n">get_current_ops</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ops</span><span class="p">,</span> <span class="n">CupyOps</span><span class="p">):</span>
-        <span class="n">transformer</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">HFObjects</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">,</span> <span class="n">transformer</span><span class="p">,</span> <span class="n">vocab_file_contents</span><span class="p">)</span></div>
+    <span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">wordpieces</span><span class="p">)</span></div>
 </pre></div>
         </article>
       </div>

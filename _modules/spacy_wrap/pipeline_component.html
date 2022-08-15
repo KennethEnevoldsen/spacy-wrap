@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>spacy_wrap.pipeline_component - spacy-wrap 1.0.3 documentation</title>
+        <title>spacy_wrap.pipeline_component - spacy-wrap 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -130,7 +130,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">spacy-wrap 1.0.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">spacy-wrap 1.1.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +230,7 @@
 <span class="sd">- ClassificationTransformer. A varation of the Transformer. Includes changes to the init</span>
 <span class="sd">adding additional extensions, changed to load methods using AutoModelForClassification</span>
 <span class="sd">instead of Automodel. Code related to listeners has also been removed to avoid potential</span>
-<span class="sd">collision with the existing transformer model. There has also been a rework of the </span>
+<span class="sd">collision with the existing transformer model. There has also been a rework of the</span>
 <span class="sd">get_loss and and update functions.</span>
 <span class="sd">- install_extensions. Added argument, which is no longer predefined.</span>
 <span class="sd">- install_extensions. Added argument.</span>
@@ -258,7 +258,6 @@
 <span class="kn">from</span> <span class="nn">thinc.api</span> <span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">Config</span>
 
 <span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">softmax</span><span class="p">,</span> <span class="n">split_by_doc</span>
-<span class="kn">from</span> <span class="nn">.layers.clf_transformer_model</span> <span class="kn">import</span> <span class="n">huggingface_from_pretrained</span>
 
 <span class="n">DEFAULT_CONFIG_STR</span> <span class="o">=</span> <span class="s2">"""</span>
 <span class="s2">[classification_transformer]</span>
@@ -328,7 +327,6 @@
         <span class="n">doc_extension_trf_data</span><span class="o">=</span><span class="n">doc_extension_trf_data</span><span class="p">,</span>
         <span class="n">doc_extension_prediction</span><span class="o">=</span><span class="n">doc_extension_prediction</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">clf_trf</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">clf_trf</span></div>
 
 
@@ -510,23 +508,6 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">mfile</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
             <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">Errors</span><span class="o">.</span><span class="n">E149</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
-            <span class="k">except</span> <span class="p">(</span><span class="ne">IsADirectoryError</span><span class="p">,</span> <span class="ne">PermissionError</span><span class="p">):</span>
-                <span class="n">warn_msg</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="s2">"Automatically converting a transformer component "</span>
-                    <span class="s2">"from spacy-transformers v1.0 to v1.1+. If you see errors "</span>
-                    <span class="s2">"or degraded performance, download a newer compatible "</span>
-                    <span class="s2">"model or retrain your custom model with the current "</span>
-                    <span class="s2">"spacy-transformers version. For more details and "</span>
-                    <span class="s2">"available updates, run: python -m spacy validate"</span>
-                <span class="p">)</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warn_msg</span><span class="p">)</span>
-                <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
-                <span class="n">hf_model</span> <span class="o">=</span> <span class="n">huggingface_from_pretrained</span><span class="p">(</span>
-                    <span class="n">p</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_init_tokenizer_config</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_init_transformer_config</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"set_transformer"</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">hf_model</span><span class="p">)</span>
 
         <span class="n">deserialize</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">"vocab"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">from_disk</span><span class="p">,</span>
