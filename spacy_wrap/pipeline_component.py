@@ -13,7 +13,7 @@ doc_extension_trf_data, doc_extension_prediction, labels
 - ClassificationTransformer. A varation of the Transformer. Includes changes to the init
 adding additional extensions, changed to load methods using AutoModelForClassification
 instead of Automodel. Code related to listeners has also been removed to avoid potential
-collision with the existing transformer model. There has also been a rework of the 
+collision with the existing transformer model. There has also been a rework of the
 get_loss and and update functions.
 - install_extensions. Added argument, which is no longer predefined.
 - install_extensions. Added argument.
@@ -41,7 +41,6 @@ from spacy_transformers.util import batch_by_length
 from thinc.api import Model, Config
 
 from .util import softmax, split_by_doc
-from .layers.clf_transformer_model import huggingface_from_pretrained
 
 DEFAULT_CONFIG_STR = """
 [classification_transformer]
@@ -111,7 +110,6 @@ def make_classification_transformer(
         doc_extension_trf_data=doc_extension_trf_data,
         doc_extension_prediction=doc_extension_prediction,
     )
-    clf_trf.model.initialize()
     return clf_trf
 
 
@@ -293,23 +291,6 @@ class ClassificationTransformer(TrainablePipe):
                     self.model.from_bytes(mfile.read())
             except AttributeError:
                 raise ValueError(Errors.E149) from None
-            except (IsADirectoryError, PermissionError):
-                warn_msg = (
-                    "Automatically converting a transformer component "
-                    "from spacy-transformers v1.0 to v1.1+. If you see errors "
-                    "or degraded performance, download a newer compatible "
-                    "model or retrain your custom model with the current "
-                    "spacy-transformers version. For more details and "
-                    "available updates, run: python -m spacy validate"
-                )
-                warnings.warn(warn_msg)
-                p = Path(p).absolute()
-                hf_model = huggingface_from_pretrained(
-                    p,
-                    self.model._init_tokenizer_config,
-                    self.model._init_transformer_config,
-                )
-                self.model.attrs["set_transformer"](self.model, hf_model)
 
         deserialize = {
             "vocab": self.vocab.from_disk,
