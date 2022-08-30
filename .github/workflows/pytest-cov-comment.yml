@@ -51,6 +51,7 @@ jobs:
         set -o pipefail
         pytest --cov=spacy_wrap --cov-report term-missing | tee pytest-coverage.txt
     - name: Pytest coverage comment
+      if: ${{ github.event_name == 'push' }}
       id: coverage-comment
       uses: MishaKav/pytest-coverage-comment@v1.1.33
       with:
