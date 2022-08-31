@@ -44,7 +44,7 @@ DEFAULT_CONFIG_STR = """
 max_batch_items = 4096
 doc_extension_trf_data = "clf_trf_data"
 doc_extension_prediction = "classification"
-labels = ["positive", negative"]
+labels = ["positive", "negative"]
 
 [classification_transformer.set_extra_annotations]
 @annotation_setters = "spacy-transformers.null_annotation_setter.v1"
