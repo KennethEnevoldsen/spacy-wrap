@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.09.29"/>
         <title>spacy_wrap.layers.clf_transformer_model - spacy-wrap 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
@@ -200,7 +200,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -215,7 +216,7 @@
         </div>
         <article role="main">
           <h1>Source code for spacy_wrap.layers.clf_transformer_model</h1><div class="highlight"><pre>
-<span></span><span class="sd">"""</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Copyright (C) 2022 Explosion AI - All Rights Reserved</span>
 <span class="sd">You may use, distribute and modify this code under the</span>
 <span class="sd">terms of the MIT license.</span>
@@ -226,7 +227,7 @@
 <span class="sd">The following functions are copied/modified:</span>
 <span class="sd">- create_ClassificationTransformerModel_v1. Changed to call</span>
 <span class="sd">ClassificationTransformerModel instead of TransformerModel</span>
-<span class="sd">"""</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
@@ -248,8 +249,8 @@
 
 
 <div class="viewcode-block" id="ClassificationTransformerModel"><a class="viewcode-back" href="../../../wrap.layers.html#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel">[docs]</a><span class="k">class</span> <span class="nc">ClassificationTransformerModel</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
-    <span class="sd">"""This is a variation of the TransformerModel from spacy-transformers with</span>
-<span class="sd">    some utility regarding listeners removed."""</span>
+    <span class="sd">&quot;&quot;&quot;This is a variation of the TransformerModel from spacy-transformers with</span>
+<span class="sd">    some utility regarding listeners removed.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -260,7 +261,7 @@
         <span class="n">mixed_precision</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">grad_scaler_config</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="p">):</span>
-        <span class="sd">"""get_spans (Callable[[List[Doc]], List[Span]]):</span>
+        <span class="sd">&quot;&quot;&quot;get_spans (Callable[[List[Doc]], List[Span]]):</span>
 
 <span class="sd">        A function to extract spans from the batch of Doc objects. This</span>
 <span class="sd">        is used to manage long documents, by cutting them into smaller</span>
@@ -269,7 +270,7 @@
 <span class="sd">        they are not     relevant. tokenizer_config (dict): Settings to</span>
 <span class="sd">        pass to the transformers tokenizer. transformer_config (dict):</span>
 <span class="sd">        Settings to pass to the transformers forward pass.</span>
-<span class="sd">        """</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hf_model</span> <span class="o">=</span> <span class="n">HFObjects</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tokenizer_config</span><span class="p">,</span> <span class="n">transformer_config</span><span class="p">)</span>
         <span class="n">wrapper</span> <span class="o">=</span> <span class="n">HFWrapper</span><span class="p">(</span>
             <span class="n">hf_model</span><span class="p">,</span>
@@ -280,17 +281,17 @@
             <span class="n">model_cls</span><span class="o">=</span><span class="n">AutoModelForSequenceClassification</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="s2">"clf_transformer"</span><span class="p">,</span>
+            <span class="s2">&quot;clf_transformer&quot;</span><span class="p">,</span>
             <span class="n">forward</span><span class="p">,</span>
             <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
             <span class="n">layers</span><span class="o">=</span><span class="p">[</span><span class="n">wrapper</span><span class="p">],</span>
-            <span class="n">dims</span><span class="o">=</span><span class="p">{</span><span class="s2">"nO"</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;nO&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
             <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">"get_spans"</span><span class="p">:</span> <span class="n">get_spans</span><span class="p">,</span>
-                <span class="s2">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-                <span class="s2">"set_transformer"</span><span class="p">:</span> <span class="n">set_pytorch_transformer</span><span class="p">,</span>
-                <span class="s2">"has_transformer"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="s2">"flush_cache_chance"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">&quot;get_spans&quot;</span><span class="p">:</span> <span class="n">get_spans</span><span class="p">,</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;set_transformer&quot;</span><span class="p">:</span> <span class="n">set_pytorch_transformer</span><span class="p">,</span>
+                <span class="s2">&quot;has_transformer&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;flush_cache_chance&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">)</span>
 
@@ -311,12 +312,12 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_hfmodel</span><span class="o">.</span><span class="n">_init_transformer_config</span>
 
 <div class="viewcode-block" id="ClassificationTransformerModel.copy"><a class="viewcode-back" href="../../../wrap.layers.html#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">"""Create a copy of the model, its attributes, and its parameters.</span>
+        <span class="sd">&quot;&quot;&quot;Create a copy of the model, its attributes, and its parameters.</span>
 
 <span class="sd">        Any child layers will also be deep-copied. The copy will receive</span>
 <span class="sd">        a distinct `model.id` value.</span>
-<span class="sd">        """</span>
-        <span class="n">copied</span> <span class="o">=</span> <span class="n">ClassificationTransformerModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"get_spans"</span><span class="p">])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">copied</span> <span class="o">=</span> <span class="n">ClassificationTransformerModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;get_spans&quot;</span><span class="p">])</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_names</span><span class="p">:</span>
             <span class="n">params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_param</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
@@ -329,9 +330,9 @@
 
 
 <div class="viewcode-block" id="init"><a class="viewcode-back" href="../../../wrap.layers.html#spacy_wrap.layers.clf_transformer_model.init">[docs]</a><span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"has_transformer"</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;has_transformer&quot;</span><span class="p">]:</span>
         <span class="k">return</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
     <span class="n">tok_cfg</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_init_tokenizer_config</span>
     <span class="n">trf_cfg</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_init_transformer_config</span>
     <span class="n">hf_model</span> <span class="o">=</span> <span class="n">huggingface_from_pretrained</span><span class="p">(</span>
@@ -340,14 +341,14 @@
         <span class="n">trf_cfg</span><span class="p">,</span>
         <span class="n">model_cls</span><span class="o">=</span><span class="n">AutoModelForSequenceClassification</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"set_transformer"</span><span class="p">](</span><span class="n">model</span><span class="p">,</span> <span class="n">hf_model</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;set_transformer&quot;</span><span class="p">](</span><span class="n">model</span><span class="p">,</span> <span class="n">hf_model</span><span class="p">)</span>
     <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">tokenizer</span>
     <span class="c1"># Call the model with a batch of inputs to infer the width</span>
     <span class="k">if</span> <span class="n">X</span><span class="p">:</span>
-        <span class="c1"># If we're dealing with actual texts, do the work to setup the wordpieces</span>
+        <span class="c1"># If we&#39;re dealing with actual texts, do the work to setup the wordpieces</span>
         <span class="c1"># batch properly</span>
         <span class="n">docs</span> <span class="o">=</span> <span class="n">X</span>
-        <span class="n">get_spans</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"get_spans"</span><span class="p">]</span>
+        <span class="n">get_spans</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;get_spans&quot;</span><span class="p">]</span>
         <span class="n">nested_spans</span> <span class="o">=</span> <span class="n">get_spans</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span>
         <span class="n">flat_spans</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">doc_spans</span> <span class="ow">in</span> <span class="n">nested_spans</span><span class="p">:</span>
@@ -365,7 +366,7 @@
             <span class="n">tokenizer</span><span class="o">.</span><span class="n">model_max_length</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">texts</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"hello world"</span><span class="p">,</span> <span class="s2">"foo bar"</span><span class="p">]</span>
+        <span class="n">texts</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;hello world&quot;</span><span class="p">,</span> <span class="s2">&quot;foo bar&quot;</span><span class="p">]</span>
         <span class="n">token_data</span> <span class="o">=</span> <span class="n">huggingface_tokenize</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">,</span> <span class="n">texts</span><span class="p">)</span>
         <span class="n">wordpieces</span> <span class="o">=</span> <span class="n">WordpieceBatch</span><span class="o">.</span><span class="n">from_batch_encoding</span><span class="p">(</span><span class="n">token_data</span><span class="p">)</span>
     <span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">wordpieces</span><span class="p">)</span></div>

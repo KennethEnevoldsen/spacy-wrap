@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <link rel="shortcut icon" href="../../_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.09.29"/>
         <title>spacy_wrap.architectures - spacy-wrap 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
@@ -200,7 +200,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -215,7 +216,7 @@
         </div>
         <article role="main">
           <h1>Source code for spacy_wrap.architectures</h1><div class="highlight"><pre>
-<span></span><span class="sd">"""</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Copyright (C) 2022 Explosion AI and Kenneth Enevoldsen - All Rights Reserved</span>
 <span class="sd">You may use, distribute and modify this code under the</span>
 <span class="sd">terms of the MIT license.</span>
@@ -227,7 +228,7 @@
 <span class="sd">The following functions are copied/modified:</span>
 <span class="sd">- create_ClassificationTransformerModel_v1. Changed to call</span>
 <span class="sd">ClassificationTransformerModel instead of TransformerModel</span>
-<span class="sd">"""</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span>
@@ -240,7 +241,7 @@
 <span class="kn">from</span> <span class="nn">spacy_wrap.layers.clf_transformer_model</span> <span class="kn">import</span> <span class="n">ClassificationTransformerModel</span>
 
 
-<div class="viewcode-block" id="create_ClassificationTransformerModel_v1"><a class="viewcode-back" href="../../wrap.architectures.html#spacy_wrap.architectures.create_ClassificationTransformerModel_v1">[docs]</a><span class="nd">@registry</span><span class="o">.</span><span class="n">architectures</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">"spacy-wrap.ClassificationTransformerModel.v1"</span><span class="p">)</span>
+<div class="viewcode-block" id="create_ClassificationTransformerModel_v1"><a class="viewcode-back" href="../../wrap.architectures.html#spacy_wrap.architectures.create_ClassificationTransformerModel_v1">[docs]</a><span class="nd">@registry</span><span class="o">.</span><span class="n">architectures</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;spacy-wrap.ClassificationTransformerModel.v1&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">create_ClassificationTransformerModel_v1</span><span class="p">(</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">get_spans</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
@@ -248,14 +249,14 @@
     <span class="n">transformer_config</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
     <span class="n">mixed_precision</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">grad_scaler_config</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Model</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Doc</span><span class="p">],</span> <span class="s2">"FullTransformerBatch"</span><span class="p">]:</span>
-    <span class="sd">"""Finetuned transformer model that can be further traine for downstream</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Model</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Doc</span><span class="p">],</span> <span class="s2">&quot;FullTransformerBatch&quot;</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Finetuned transformer model that can be further traine for downstream</span>
 <span class="sd">    tasks or applied as is.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        name (str): Name of the Huggingface model to use.</span>
 <span class="sd">        get_spans (Callable[[List[Doc]], List[List[Span]]]): A function to extract</span>
-<span class="sd">            spans from the batch of Doc objects. See the "TransformerModel" layer</span>
+<span class="sd">            spans from the batch of Doc objects. See the &quot;TransformerModel&quot; layer</span>
 <span class="sd">            for details.</span>
 <span class="sd">        tokenizer_config (dict): Settings to pass to the transformers tokenizer.</span>
 <span class="sd">        transformers_config (dict): Settings to pass to the transformers forward pass</span>
@@ -275,7 +276,7 @@
 <span class="sd">            Finally, `growth_factor` (default: `2.0`) determines the factor by which</span>
 <span class="sd">            the scale should be increased when no overflows were found for</span>
 <span class="sd">            `growth_interval` steps.</span>
-<span class="sd">    """</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">ClassificationTransformerModel</span><span class="p">(</span>
         <span class="n">name</span><span class="p">,</span>
         <span class="n">get_spans</span><span class="p">,</span>

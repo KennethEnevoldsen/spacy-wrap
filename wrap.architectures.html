@@ -13,10 +13,10 @@
 <meta property="og:description" content="SpaCy wrap currently includes only one architecture namely:&quot;spacy-wrap.ClassificationTransformerModel.v1&quot; spacy_wrap.architectures: Copyright (C) 2022 Explosion AI and Kenneth Enevoldsen - All Righ..." />
   <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Layers" href="wrap.layers.html" /><link rel="prev" title="News and Changelog" href="news.html" />
 
-    <link rel="shortcut icon" href="_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
+    <link rel="shortcut icon" href="_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.09.29"/>
         <title>Architectures - spacy-wrap 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
@@ -209,7 +209,17 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/kennethenevoldsen/spacy-wrap/edit/main/docs/wrap.architectures.rst" title="Edit this page">
+    <svg aria-hidden="true" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" />
+      <line x1="13.5" y1="6.5" x2="17.5" y2="10.5" />
+    </svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -226,7 +236,7 @@
           <section id="architectures">
 <h1>Architectures<a class="headerlink" href="#architectures" title="Permalink to this headline">#</a></h1>
 <p>SpaCy wrap currently includes only one architecture namely:</p>
-<p><code class="code docutils literal notranslate"><span class="pre">"spacy-wrap.ClassificationTransformerModel.v1"</span></code></p>
+<p><code class="code docutils literal notranslate"><span class="pre">&quot;spacy-wrap.ClassificationTransformerModel.v1&quot;</span></code></p>
 <section id="module-spacy_wrap.architectures">
 <span id="spacy-wrap-architectures"></span><h2>spacy_wrap.architectures<a class="headerlink" href="#module-spacy_wrap.architectures" title="Permalink to this headline">#</a></h2>
 <p>Copyright (C) 2022 Explosion AI and Kenneth Enevoldsen - All Rights Reserved
@@ -239,7 +249,7 @@ terms of the MIT license.</p>
 ClassificationTransformerModel instead of TransformerModel</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="spacy_wrap.architectures.create_ClassificationTransformerModel_v1">
-<span class="sig-prename descclassname"><span class="pre">spacy_wrap.architectures.</span></span><span class="sig-name descname"><span class="pre">create_ClassificationTransformerModel_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_spans</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tokenizer_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformer_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixed_precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_scaler_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">thinc.model.Model</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">spacy.tokens.doc.Doc</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">spacy_transformers.data_classes.FullTransformerBatch</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/spacy_wrap/architectures.html#create_ClassificationTransformerModel_v1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacy_wrap.architectures.create_ClassificationTransformerModel_v1" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">spacy_wrap.architectures.</span></span><span class="sig-name descname"><span class="pre">create_ClassificationTransformerModel_v1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_spans</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tokenizer_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformer_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mixed_precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad_scaler_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">thinc.model.Model</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">spacy.tokens.doc.Doc</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">spacy_transformers.data_classes.FullTransformerBatch</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/spacy_wrap/architectures.html#create_ClassificationTransformerModel_v1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacy_wrap.architectures.create_ClassificationTransformerModel_v1" title="Permalink to this definition">#</a></dt>
 <dd><p>Finetuned transformer model that can be further traine for downstream
 tasks or applied as is.</p>
 <dl class="field-list simple">
@@ -271,6 +281,7 @@ the scale should be increased when no overflows were found for
 </dd>
 </dl>
 </dd></dl>
+
 </section>
 </section>
 
@@ -286,10 +297,10 @@ the scale should be increased when no overflows were found for
                 </div>
                 <div class="title">Layers</div>
               </div>
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
           <a class="prev-page" href="news.html">
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
@@ -330,7 +341,7 @@ the scale should be increased when no overflows were found for
       <div class="toc-sticky toc-scroll">
         <div class="toc-title-container">
           <span class="toc-title">
-            Contents
+            On this page
           </span>
         </div>
         <div class="toc-tree-container">

@@ -13,10 +13,10 @@
 <meta property="og:description" content="spacy_wrap.layers.clf_transformer_model: Copyright (C) 2022 Explosion AI - All Rights Reserved You may use, distribute and modify this code under the terms of the MIT license. Original code from: h..." />
   <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="pipeline Components" href="wrap.pipeline_component.html" /><link rel="prev" title="Architectures" href="wrap.architectures.html" />
 
-    <link rel="shortcut icon" href="_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
+    <link rel="shortcut icon" href="_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.09.29"/>
         <title>Layers - spacy-wrap 1.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
@@ -209,7 +209,17 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/kennethenevoldsen/spacy-wrap/edit/main/docs/wrap.layers.rst" title="Edit this page">
+    <svg aria-hidden="true" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" />
+      <line x1="13.5" y1="6.5" x2="17.5" y2="10.5" />
+    </svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -248,35 +258,44 @@ some utility regarding listeners removed.</p>
 <p>Any child layers will also be deep-copied. The copy will receive
 a distinct <cite>model.id</cite> value.</p>
 </dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.id">
 <span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.id" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.init">
 <span class="sig-name descname"><span class="pre">init</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Callable</span></em><a class="headerlink" href="#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.init" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.name">
 <span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.name" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.ops">
 <span class="sig-name descname"><span class="pre">ops</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">thinc.backends.ops.Ops</span></em><a class="headerlink" href="#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.ops" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.tokenizer">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tokenizer</span></span><a class="headerlink" href="#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.tokenizer" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.transformer">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transformer</span></span><a class="headerlink" href="#spacy_wrap.layers.clf_transformer_model.ClassificationTransformerModel.transformer" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="spacy_wrap.layers.clf_transformer_model.init">
 <span class="sig-prename descclassname"><span class="pre">spacy_wrap.layers.clf_transformer_model.</span></span><span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">thinc.model.Model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/spacy_wrap/layers/clf_transformer_model.html#init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spacy_wrap.layers.clf_transformer_model.init" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 </section>
 </section>
 
@@ -292,10 +311,10 @@ a distinct <cite>model.id</cite> value.</p>
                 </div>
                 <div class="title">pipeline Components</div>
               </div>
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
           <a class="prev-page" href="wrap.architectures.html">
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
@@ -336,7 +355,7 @@ a distinct <cite>model.id</cite> value.</p>
       <div class="toc-sticky toc-scroll">
         <div class="toc-title-container">
           <span class="toc-title">
-            Contents
+            On this page
           </span>
         </div>
         <div class="toc-tree-container">
