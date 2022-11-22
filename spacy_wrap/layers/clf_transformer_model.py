@@ -12,7 +12,7 @@ ClassificationTransformerModel instead of TransformerModel
 """
 
 import copy
-from typing import Callable
+from typing import Callable, Type, Union
 
 from spacy_transformers.align import get_alignment
 from spacy_transformers.data_classes import HFObjects, WordpieceBatch
@@ -27,7 +27,10 @@ from spacy_transformers.layers.transformer_model import (
 )
 from spacy_transformers.truncate import truncate_oversize_splits
 from thinc.api import Model
-from transformers import AutoModelForSequenceClassification
+from transformers import (
+    AutoModelForSequenceClassification,
+    AutoModelForTokenClassification,
+)
 
 
 class ClassificationTransformerModel(Model):
@@ -38,6 +41,10 @@ class ClassificationTransformerModel(Model):
         self,
         name: str,
         get_spans: Callable,
+        model_cls: Union[
+            Type[AutoModelForTokenClassification],
+            Type[AutoModelForSequenceClassification],
+        ],
         tokenizer_config: dict = {},
         transformer_config: dict = {},
         mixed_precision: bool = False,
@@ -60,7 +67,7 @@ class ClassificationTransformerModel(Model):
             convert_outputs=_convert_transformer_outputs,
             mixed_precision=mixed_precision,
             grad_scaler_config=grad_scaler_config,
-            model_cls=AutoModelForSequenceClassification,
+            model_cls=model_cls,
         )
         super().__init__(
             "clf_transformer",

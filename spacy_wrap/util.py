@@ -16,6 +16,7 @@ from typing import List
 
 import numpy as np
 import torch
+from spacy.tokens import Doc, Span
 from spacy_transformers.align import get_token_positions
 from spacy_transformers.data_classes import TransformerData
 from thinc.api import torch2xp
@@ -74,3 +75,36 @@ def split_by_doc(self) -> List[TransformerData]:
 
 def softmax(x):
     return np.exp(x) / sum(np.exp(x))
+
+
+def add_iob_tags(doc: Doc, iob: List[str]) -> Doc:
+    """Add iob tags to Doc.
+
+    Args:
+        doc (Doc): A SpaCy doc
+        iob (List[str]): a list of tokens on the IOB format
+    Returns:
+        Doc: A doc with the spans to the new IOB
+    """
+    ent = []
+    for i, label in enumerate(iob):
+
+        # turn IOB labels into spans
+        if label == "O":
+            continue
+        iob_, ent_type = label.split("-")
+        if (i - 1 >= 0 and iob_ == "I" and iob[i - 1] == "O") or (
+            i == 0 and iob_ == "I"
+        ):
+            iob_ = "B"
+        if iob_ == "B":
+            start = i
+        if i + 1 >= len(iob) or iob[i + 1].split("-")[0] != "I":
+            ent.append(Span(doc, start, i + 1, label=ent_type))
+    doc.set_ents(ent)
+    return doc
+
+
+def install_extensions(doc_ext_attr) -> None:
+    if not Doc.has_extension(doc_ext_attr):
+        Doc.set_extension(doc_ext_attr, default=None)

@@ -19,11 +19,11 @@ get_loss and and update functions.
 - install_extensions. Added argument.
 """
 
-import warnings
 from pathlib import Path
-from typing import Callable, Iterable, Iterator, List, Optional, Union
+from typing import Callable, Iterable, Iterator, List, Literal, Optional, Union
 
 import srsly
+import torch
 from spacy import Errors, util
 from spacy.language import Language
 from spacy.pipeline.pipe import deserialize_config
@@ -31,33 +31,31 @@ from spacy.pipeline.trainable_pipe import TrainablePipe
 from spacy.tokens import Doc
 from spacy.training import Example, validate_get_examples
 from spacy.util import minibatch
-from spacy.vocab import Vocab
+from spacy.vocab import Vocab  # pylint: disable=no-name-in-module
 from spacy_transformers.annotation_setters import null_annotation_setter
-from spacy_transformers.data_classes import FullTransformerBatch
+from spacy_transformers.data_classes import FullTransformerBatch, TransformerData
 from spacy_transformers.util import batch_by_length
 from thinc.api import Config, Model
 
-from .util import softmax, split_by_doc
+from .util import add_iob_tags, split_by_doc
 
 DEFAULT_CONFIG_STR = """
-[classification_transformer]
+[token_classification_transformer]
 max_batch_items = 4096
-doc_extension_trf_data = "clf_trf_data"
-doc_extension_prediction = "classification"
-labels = ["positive", "negative"]
+doc_extension_trf_data = "token_clf_trf_data"
+doc_extension_prediction = "token_clf_iob_tags"
 
-[classification_transformer.set_extra_annotations]
+[token_classification_transformer.set_extra_annotations]
 @annotation_setters = "spacy-transformers.null_annotation_setter.v1"
 
-[classification_transformer.model]
-@architectures = "spacy-wrap.ClassificationTransformerModel.v1"
-name = "roberta-base"
+[token_classification_transformer.model]
+@architectures = "spacy-wrap.TokenClassificationTransformerModel.v1"
 tokenizer_config = {"use_fast": true}
 transformer_config = {}
 mixed_precision = false
 grad_scaler_config = {}
 
-[classification_transformer.model.get_spans]
+[token_classification_transformer.model.get_spans]
 @span_getters = "spacy-transformers.strided_spans.v1"
 window = 128
 stride = 96
@@ -67,10 +65,10 @@ DEFAULT_CONFIG = Config().from_str(DEFAULT_CONFIG_STR)
 
 
 @Language.factory(
-    "classification_transformer",
-    default_config=DEFAULT_CONFIG["classification_transformer"],
+    "token_classification_transformer",
+    default_config=DEFAULT_CONFIG["token_classification_transformer"],
 )
-def make_classification_transformer(
+def make_token_classification_transformer(
     nlp: Language,
     name: str,
     model: Model[List[Doc], FullTransformerBatch],
@@ -78,7 +76,7 @@ def make_classification_transformer(
     max_batch_items: int,
     doc_extension_trf_data: str,
     doc_extension_prediction: str,
-    labels: List[str],
+    labels: Optional[List[str]] = None,
 ):
     """Construct a ClassificationTransformer component, which lets you plug a
     model from the Huggingface transformers library into spaCy so you can use
@@ -97,7 +95,7 @@ def make_classification_transformer(
             By default, no additional annotations are set.
         labels (List[str]): A list of labels which the transformer model outputs, should be ordered.
     """
-    clf_trf = ClassificationTransformer(
+    clf_trf = TokenClassificationTransformer(
         vocab=nlp.vocab,
         model=model,
         set_extra_annotations=set_extra_annotations,
@@ -110,7 +108,7 @@ def make_classification_transformer(
     return clf_trf
 
 
-class ClassificationTransformer(TrainablePipe):
+class TokenClassificationTransformer(TrainablePipe):
     """spaCy pipeline component that provides access to a transformer model
     from the Huggingface transformers library. Usually you will connect
     subsequent components to the shared transformer using the
@@ -143,7 +141,7 @@ class ClassificationTransformer(TrainablePipe):
         doc_extension_prediction: str,
         set_extra_annotations: Callable = null_annotation_setter,
         *,
-        name: str = "classification_transformer",
+        name: str = "token_classification_transformer",
         max_batch_items: int = 128 * 32,  # Max size of padded batch
     ):
         """Initialize the transformer component."""
@@ -155,14 +153,11 @@ class ClassificationTransformer(TrainablePipe):
         self.set_extra_annotations = set_extra_annotations
         self.cfg = {"max_batch_items": max_batch_items}
         self.doc_extension_trf_data = doc_extension_trf_data
+        self.doc_extension_prediction = doc_extension_prediction
+        self.labels = labels
 
         install_extensions(self.doc_extension_trf_data)
-
-        install_classification_extensions(
-            doc_extension_prediction,
-            labels,
-            doc_extension_trf_data,
-        )
+        install_extensions(self.doc_extension_prediction)
 
     @property
     def is_trainable(self) -> bool:
@@ -185,7 +180,82 @@ class ClassificationTransformer(TrainablePipe):
         doc_data = split_by_doc(predictions)
         for doc, data in zip(docs, doc_data):
             setattr(doc._, self.doc_extension_trf_data, data)
+            iob_prob, iob_tags = self.convert_to_token_predictions(
+                data,
+                self.aggregation_strategy,
+                self.labels,
+            )
+            doc = add_iob_tags(doc, iob_tags)
+            doc._.set(
+                self.doc_extension_prediction,
+                {"iob_tags": iob_tags, "iob_prob": iob_prob},
+            )
+            doc._.set("iob_tags", iob_tags)
+
         self.set_extra_annotations(docs, predictions)
+
+    @staticmethod
+    def convert_to_token_predictions(
+        data: TransformerData,
+        aggregation_strategy: Literal["first", "average", "max"],
+        labels: List[str],
+    ) -> TransformerData:
+        """Convert the transformer data to token predictions.
+
+        Args:
+            data (TransformerData): The transformer data.
+            aggregation_strategy (Literal["first", "average", "max"]): The aggregation
+                strategy to use. Chosen to correspond to the aggregation strategies
+                used in the `TokenClassificationPipeline` in Huggingface:
+                https://huggingface.co/docs/transformers/v4.24.0/en/main_classes/pipelines#transformers.TokenClassificationPipeline.aggregation_strategy
+                “first”: Words will simply use the tag of the first token of the word
+                when there is ambiguity. “average”: Scores will be averaged first across
+                tokens, and then the maximum label is applied. “max”: Word entity will
+                simply be the token with the maximum score.
+
+        Returns:
+            TransformerData: The transformer data with token predictions.
+        """
+        token_logits = {}
+
+        for token_id in data.align:
+            if token_id in token_logits:
+                token_logits[token_id].append(data.logits[token_id])
+            else:
+                token_logits[token_id] = [data.logits[token_id]]
+
+        if aggregation_strategy == "first":
+            token_logits = {
+                token_id: logits[0] for token_id, logits in token_logits.items()
+            }
+        elif aggregation_strategy == "average":
+            token_logits = {
+                token_id: torch.mean(logits, axis=0)
+                for token_id, logits in token_logits.items()
+            }
+        elif aggregation_strategy == "max":
+            token_logits = {
+                token_id: torch.max(logits, axis=0)
+                for token_id, logits in token_logits.items()
+            }
+        else:
+            raise ValueError(
+                f"Aggregation strategy {aggregation_strategy} is not supported.",
+            )
+
+        # convert to labels and probabilities
+        token_predictions = {}
+        token_probabilities = {}
+        for token_id, logits in token_logits.items():
+            token_predictions[token_id] = labels[logits.argmax()]
+            token_probabilities[token_id] = logits.softmax().tolist()
+
+        # convert to list
+        token_predictions = [
+            token_predictions[token_id] for token_id in range(len(data.tokens))
+        ]
+        iob = [token_probabilities[token_id] for token_id in range(len(data.tokens))]
+        return token_predictions, iob
 
     def __call__(self, doc: Doc) -> Doc:
         """Apply the pipe to one document. The document is modified in place,
@@ -255,6 +325,15 @@ class ClassificationTransformer(TrainablePipe):
         """
         validate_get_examples(get_examples, "Transformer.initialize")
         self.model.initialize()
+        # extract hf model
+        hf_model = self.model.model
+        if self.lables is None:
+            # extract hf_model.config.label2id.items()
+            # convert to sorted list
+            self.labels = [
+                tag[0]
+                for tag in sorted(hf_model.config.label2id.items(), key=lambda x: x[1])
+            ]
 
     def to_disk(
         self, path: Union[str, Path], *, exclude: Iterable[str] = tuple()
@@ -273,7 +352,7 @@ class ClassificationTransformer(TrainablePipe):
 
     def from_disk(
         self, path: Union[str, Path], *, exclude: Iterable[str] = tuple()
-    ) -> "ClassificationTransformer":
+    ) -> "TokenClassificationTransformer":
         """Load the pipe from disk.
 
         Args:
@@ -303,51 +382,3 @@ class ClassificationTransformer(TrainablePipe):
 def install_extensions(doc_ext_attr) -> None:
     if not Doc.has_extension(doc_ext_attr):
         Doc.set_extension(doc_ext_attr, default=None)
-
-
-def install_classification_extensions(
-    doc_extension_prediction: str,
-    labels: list,
-    doc_extension: str,
-):
-    prob_getter, label_getter = make_classification_getter(
-        doc_extension_prediction,
-        labels,
-        doc_extension,
-    )
-    if not Doc.has_extension(f"{doc_extension_prediction}_prob"):
-        Doc.set_extension(f"{doc_extension_prediction}_prob", getter=prob_getter)
-    if not Doc.has_extension(doc_extension_prediction):
-        Doc.set_extension(doc_extension_prediction, getter=label_getter)
-
-
-def make_classification_getter(
-    doc_extension_prediction,
-    labels,
-    doc_extension_trf_data,
-):
-    def prob_getter(doc) -> dict:
-        trf_data = getattr(doc._, doc_extension_trf_data)
-        if trf_data.tensors:
-            return {
-                "prob": softmax(trf_data.tensors[0][0]).round(decimals=3),
-                "labels": labels,
-            }
-        else:
-            warnings.warn(
-                "The tensors from the transformer forward pass is empty this is likely"
-                + " caused by an empty input string. Thus the model will return None",
-            )
-            return {
-                "prob": None,
-                "labels": labels,
-            }
-
-    def label_getter(doc) -> Optional[str]:
-        prob = getattr(doc._, f"{doc_extension_prediction}_prob")
-        if prob["prob"] is not None:
-            return labels[int(prob["prob"].argmax())]
-        else:
-            return None
-
-    return prob_getter, label_getter

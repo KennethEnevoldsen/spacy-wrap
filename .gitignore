@@ -17,3 +17,6 @@ docs/_build/*
 tmp.py
 example.png
 test/*
+
+# virtual env
+spacy_wrap_venv/*
