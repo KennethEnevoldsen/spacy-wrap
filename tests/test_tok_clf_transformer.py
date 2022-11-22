@@ -25,6 +25,20 @@ EXAMPLES.append(
 EXAMPLES.append(
     (
         {
+            "doc_extension_trf_data": "tok_clf_trf_data",
+            "doc_extension_prediction": "token_clf_iob_tags",
+            "labels": None,  # infer from model
+            "model": {
+                "name": "dslim/bert-base-NER",  # model from the hub
+                "@architectures": "spacy-wrap.TokenClassificationTransformerModel.v1",
+            },
+        },
+        ("", []),
+    ),
+)
+EXAMPLES.append(
+    (
+        {
             "model": {
                 "name": "PlanTL-GOB-ES/bsc-bio-ehr-es-pharmaconer",
             },

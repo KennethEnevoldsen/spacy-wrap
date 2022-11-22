@@ -12,7 +12,7 @@ The following functions are copied/modified:
 """
 
 
-from typing import List
+from typing import List, Literal
 
 import numpy as np
 import torch
@@ -105,6 +105,58 @@ def add_iob_tags(doc: Doc, iob: List[str]) -> Doc:
     return doc
 
 
+def add_pos_tags(
+    doc: Doc,
+    pos: List[str],
+    extension: Literal["pos", "tag"] = "tag",
+) -> Doc:
+    """Add pos tags to Doc.
+
+    Args:
+        doc (Doc): A SpaCy doc
+        pos (List[str]): A list of pos tags
+        extension (Literal["pos", "tag"], optional): The extension to add the tags to.
+            Defaults to "tag". If "pos" is used note that the tags have to be in the
+            UD format.
+
+    Returns:
+        Doc: A doc with new pos tags
+    """
+    extension = extension + "_"
+    for token, tag in zip(doc, pos):
+        setattr(token, extension, tag)
+    return doc
+
+
 def install_extensions(doc_ext_attr) -> None:
     if not Doc.has_extension(doc_ext_attr):
         Doc.set_extension(doc_ext_attr, default=None)
+
+
+UPOS_TAGS = {
+    # POS tags
+    # Universal POS Tags
+    # http://universaldependencies.org/u/pos/
+    # list from:
+    # https://github.com/explosion/spaCy/blob/master/spacy/glossary.py
+    "ADJ": "adjective",
+    "ADP": "adposition",
+    "ADV": "adverb",
+    "AUX": "auxiliary",
+    "CONJ": "conjunction",
+    "CCONJ": "coordinating conjunction",
+    "DET": "determiner",
+    "INTJ": "interjection",
+    "NOUN": "noun",
+    "NUM": "numeral",
+    "PART": "particle",
+    "PRON": "pronoun",
+    "PROPN": "proper noun",
+    "PUNCT": "punctuation",
+    "SCONJ": "subordinating conjunction",
+    "SYM": "symbol",
+    "VERB": "verb",
+    "X": "other",
+    "EOL": "end of line",
+    "SPACE": "space",
+}

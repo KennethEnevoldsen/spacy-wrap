@@ -19,4 +19,4 @@ example.png
 test/*
 
 # virtual env
-spacy_wrap_venv/*
+spacy_wrap_venv1/*
