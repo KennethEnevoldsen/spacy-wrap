@@ -68,6 +68,7 @@ To make the documentation you can run:
 
    # install sphinx, themes and extensions
    pip install -r requirements.txt
+   pip install -e .
 
    # generate html from documentations
 

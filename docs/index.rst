@@ -52,7 +52,7 @@ authors.
    :hidden:
 
    installation
-   faq
+   wrap.pipeline_component
 
 .. toctree::
    :caption: News
@@ -64,17 +64,7 @@ authors.
    :caption: FAQ
    :hidden:
 
-
-
-.. toctree::
-   :maxdepth: 3
-   :caption: API references
-   :hidden:
-
-   wrap.architectures
-   wrap.layers
-   wrap.pipeline_component   
-
+   faq
 
 .. toctree::
    :caption: GitHub

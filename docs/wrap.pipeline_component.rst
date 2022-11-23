@@ -19,5 +19,5 @@ Sequence Classification Transformer
 Sequence Classification Transformer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: spacy_wrap.pipeline_component_token_clf.make_token_classification_transformer
+.. autofunction:: spacy_wrap.pipeline_component_tok_clf.make_token_classification_transformer
 

@@ -90,6 +90,8 @@ def make_token_classification_transformer(
     to the single shared weights.
 
     Args:
+        nlp (Language): The current nlp object.
+        name (str): The name of the component instance.
         model (Model[List[Doc], FullTransformerBatch]): A thinc Model object wrapping
             the transformer. Usually you will want to use the ClassificationTransformer
             layer for this.
@@ -98,6 +100,11 @@ def make_token_classification_transformer(
             The doc._.{doc_extension_trf_data} attribute is set prior to calling the callback
             as well as doc._.{doc_extension_prediction} and doc._.{doc_extension_prediction}_prob.
             By default, no additional annotations are set.
+        max_batch_items (int): The maximum number of items to process in a batch.
+        doc_extension_trf_data (str): The name of the doc extension to store the
+            transformer data in.
+        doc_extension_prediction (str): The name of the doc extension to store the
+            predictions in.
         aggregation_strategy (Literal["first", "average", "max"]): The aggregation
             strategy to use. Chosen to correspond to the aggregation strategies
             used in the `TokenClassificationPipeline` in Huggingface:
@@ -106,7 +113,8 @@ def make_token_classification_transformer(
             when there is ambiguity. “average”: Scores will be averaged first across
             tokens, and then the maximum label is applied. “max”: Word entity will
             simply be the token with the maximum score.
-        labels (List[str]): A list of labels which the transformer model outputs, should be ordered.
+        labels (List[str]): A list of labels which the transformer model outputs, should
+            be ordered.
         predictions_to (Optional[List[Literal["pos", "tag", "ents"]]]): A list of
             attributes the predictions should be written to. Default to None. In which
             case it is inferred from the labels. If the labels are UPOS tags, the
@@ -115,6 +123,21 @@ def make_token_classification_transformer(
             not inferred from the labels, but can be added explicitly.
             Note that if the "pos" attribute is set the labels must be UPOS tags and if
             the "ents" attribute is set the labels must be IOB tags.
+
+    Returns:
+        TokenClassificationTransformer: The constructed component.
+
+    Example:
+        >>> import spacy
+        >>> import spacy_wrap
+        >>>
+        >>> nlp = spacy.blank("en")
+        >>> nlp.add_pipe("token_classification_transformer", config={
+        ...     "model": {"name": "vblagoje/bert-english-uncased-finetuned-pos"}}
+        ... )
+        >>> doc = nlp("My name is Wolfgang and I live in Berlin")
+        >>> print([tok.pos_ for tok in doc])
+        ["PRON", "NOUN", "AUX", "PROPN", "CCONJ", "PRON", "VERB", "ADP", "PROPN"]
     """
     clf_trf = TokenClassificationTransformer(
         vocab=nlp.vocab,
