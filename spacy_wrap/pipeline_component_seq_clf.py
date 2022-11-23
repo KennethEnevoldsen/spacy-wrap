@@ -81,24 +81,57 @@ def make_sequence_classification_transformer(
     labels: Optional[List[str]] = None,
     assign_to_cats: bool = True,
 ):
-    """Construct a ClassificationTransformer component, which lets you plug a
-    model from the Huggingface transformers library into spaCy so you can use
-    it in your pipeline. One or more subsequent spaCy components can use the
-    transformer outputs as features in its model, with gradients backpropagated
-    to the single shared weights.
+    """Construct a SequenceClassificationTransformer component, which lets you
+    plug a model from the Huggingface transformers library into spaCy so you
+    can use it in your pipeline. The component will add a Doc extension with
+    the name specified in the config/arguments, which you can use to access the
+    transformer's output.
 
     Args:
+        nlp (Language): The current nlp object.
         model (Model[List[Doc], FullTransformerBatch]): A thinc Model object wrapping
-            the transformer. Usually you will want to use the ClassificationTransformer
-            layer for this.
+            the transformer. Usually you will want to use the
+            SequenceClassificationTransformer layer for this.
         set_extra_annotations (Callable[[List[Doc], FullTransformerBatch], None]): A
             callback to set additional information onto the batch of `Doc` objects.
-            The doc._.{doc_extension_trf_data} attribute is set prior to calling the callback
-            as well as doc._.{doc_extension_prediction} and doc._.{doc_extension_prediction}_prob.
-            By default, no additional annotations are set.
-        labels (List[str]): A list of labels which the transformer model outputs, should be ordered.
+            The doc._.{doc_extension_trf_data} attribute is set prior to calling the
+            callback as well as doc._.{doc_extension_prediction} and
+            doc._.{doc_extension_prediction}_prob. By default, no additional annotations
+            are set.
+        max_batch_items (int): The maximum number of items to process in a batch.
+        doc_extension_trf_data (str): The name of the Doc extension to add the
+            transformer's output to.
+        doc_extension_prediction (str): The name of the Doc extension to add the
+            transformer's prediction to.
+        labels (List[str]): A list of labels which the transformer model outputs, should
+            be ordered.
         assign_to_cats (bool): Whether to assign the predictions to the doc.cats
             dictionary. Defaults to True.
+
+    Returns:
+        SequenceClassificationTransformer: The constructed component.
+
+    Example:
+        >>> import spacy
+        >>> import spacy_wrap
+        >>>
+        >>> nlp = spacy.blank("en")
+        >>>
+        >>> config = {
+        >>>     "doc_extension_trf_data": "clf_trf_data",  # document extention for the forward pass
+        >>>     "doc_extension_prediction": "sentiment",  # document extention for the prediction
+        >>>     "model": {
+        >>>         "@architectures": "spacy-transformers.SequenceClassificationTransformer.v1",
+        >>>         # the model name or path of huggingface model
+        >>>         "name": "distilbert-base-uncased-finetuned-sst-2-english",
+        >>>     },
+        >>> }
+        >>>
+        >>> nlp.add_pipe("sequence_classification_transformer", config=config)
+        >>>
+        >>> doc = nlp("spaCy is a wonderful tool")
+        >>> doc.cats
+        {'NEGATIVE': 0.001, 'POSITIVE': 0.999}
     """
     clf_trf = SequenceClassificationTransformer(
         vocab=nlp.vocab,
@@ -120,8 +153,8 @@ class SequenceClassificationTransformer(TrainablePipe):
     subsequent components to the shared transformer using the
     TransformerListener layer. This works similarly to spaCy's Tok2Vec
     component and Tok2VecListener sublayer. The activations from the
-    transformer are saved in the doc._.trf_data extension attribute. You can
-    also provide a callback to set additional annotations.
+    transformer are saved in the doc._.{doc_extension_trf_data} extension
+    attribute. You can also provide a callback to set additional annotations.
 
     Args:
         vocab (Vocab): The Vocab object for the pipeline.

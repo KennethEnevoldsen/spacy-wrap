@@ -8,7 +8,6 @@
 [![github actions docs](https://github.com/kennethenevoldsen/spacy-wrap/actions/workflows/documentation.yml/badge.svg)](https://kennethenevoldsen.github.io/spacy-wrap/)
 ![github coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/KennethEnevoldsen/33fb85a2c440013df494c1fce884633c/raw/3813a0369fdd61b39a806b7b91839ff405ef809a/badge-spacy-wrap-coverage.json)
 [![CodeFactor](https://www.codefactor.io/repository/github/kennethenevoldsen/spacy-wrap/badge)](https://www.codefactor.io/repository/github/kennethenevoldsen/spacy-wrap)
-<!-- [![pip downloads](https://img.shields.io/pypi/dm/spacy_wrap.svg)](https://pypi.org/project/spacy_wrap/) -->
 
 
 spaCy-wrap is a minimal library intended for wrapping fine-tuned transformers from the [Huggingface model hub](https://huggingface.co/models?pipeline_tag=text-classification&sort=downloads) in your spaCy pipeline allowing the inclusion of existing models within [SpaCy](https://spacy.io) workflows. 
@@ -23,10 +22,12 @@ Installing spacy-wrap is simple using pip:
 pip install spacy_wrap
 ```
 
-There is no reason to update from GitHub as the version on PyPI should always be the same as on GitHub.
+## Examples
+The following shows a simple example of how you can quickly add a fine-tuned transformer model from the Huggingface model hub for either [text classification](https://huggingface.co/models?pipeline_tag=text-classification&sort=downloads), [named entity](https://huggingface.co/models?pipeline_tag=token-classification&sort=downloads) or [token classification](https://huggingface.co/models?pipeline_tag=token-classification&sort=downloads). 
 
-## Example
-The following shows a simple example of how you can quickly add a fine-tuned transformer model from the [Huggingface model hub](https://huggingface.co/models?pipeline_tag=text-classification&sort=downloads).  In this example we will use the sentiment model by [Barbieri et al. (2020)](https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment) for classifying whether a tweet is positive, negative or neutral. We will add this model to a blank English pipeline:
+### Sequence Classification
+In this example, we will use a [model](https://huggingface.co/distilbert-base-uncased-finetuned-sst-2-english) fine-tuned for sentiment classification on SST2. This model classifies whether a text is positive or negative. We will add this model to a blank English pipeline:
+
 
 ```python
 import spacy
@@ -37,41 +38,41 @@ nlp = spacy.blank("en")
 config = {
     "doc_extension_trf_data": "clf_trf_data",  # document extention for the forward pass
     "doc_extension_prediction": "sentiment",  # document extention for the prediction
-    "labels": ["negative", "neutral", "positive"],
     "model": {
-        "name": "cardiffnlp/twitter-roberta-base-sentiment",  # the model name or path of huggingface model
+        # the model name or path of huggingface model
+        "name": "distilbert-base-uncased-finetuned-sst-2-english",  
     },
 }
 
-transformer = nlp.add_pipe("classification_transformer", config=config)
+transformer = nlp.add_pipe("sequence_classification_transformer", config=config)
 
 doc = nlp("spaCy is a wonderful tool")
 
+print(doc.cats)
+# {'NEGATIVE': 0.001, 'POSITIVE': 0.999}
+print(doc._.sentiment)
+# 'POSITIVE'
 print(doc._.clf_trf_data)
 # TransformerData(wordpieces=...
-print(doc._.sentiment)
-# 'positive'
-print(doc._.sentiment_prob)
-#{'prob': array([0.004, 0.028, 0.969], dtype=float32), 'labels': ['negative', 'neutral', 'positive']}
 ```
-
 These pipelines can also easily be applied to multiple documents using the `nlp.pipe` as one would expect from a spaCy component:
 
 ```python
 docs = nlp.pipe(
     [
         "I hate wrapping my own models",
-        "Isn't there a tool for this?",
+        "Isn't there a tool for this?!",
         "spacy-wrap is great for wrapping models",
     ]
 )
 
 for doc in docs:
     print(doc._.sentiment)
-# 'negative'
-# 'neutral'
-# 'positive'
+# 'NEGATIVE'
+# 'NEGATIVE'
+# 'POSITIVE'
 ```
+
 
  <br /> 
 
@@ -89,6 +90,7 @@ nlp = spacy.blank("da")
 config = {
     "doc_extension_trf_data": "clf_trf_data",  # document extention for the forward pass
     "doc_extension_prediction": "hate_speech",  # document extention for the prediction
+    # choose custom labels
     "labels": ["Not hate Speech", "Hate speech"],
     "model": {
         "name": "DaNLP/da-bert-hatespeech-detection",  # the model name or path of huggingface model
@@ -109,9 +111,54 @@ doc._.hate_speech_prob
 
 </details>
 
- <br /> 
+<br /> 
 
 
+### Token Classification
+We can also use the model for token classification: 
+
+```python
+import spacy
+import spacy_wrap
+nlp = spacy.blank("en")
+
+config = {"model": {"name": "vblagoje/bert-english-uncased-finetuned-pos"}}
+
+nlp.add_pipe("token_classification_transformer", config=config)
+
+text = "My name is Wolfgang and I live in Berlin"
+
+doc = nlp(text)
+doc._.tok_clf_predictions
+# ['O', 'O', 'O', 'B-PER', 'O', 'O', 'O', 'O', 'B-LOC', 'O']
+```
+
+By default, spacy-wrap will automatically detect it the labels follow the universal POS tags as well. If so it will also assign it to the `token.pos`, similar regular spacy pipelines:
+
+```python
+doc[0].pos_
+# 'PRON'
+```
+
+### Named Entity Recognition
+In this example, we use a model fine-tuned for named entity recognition. spacy-wrap will in this case infer from the IOB tags that the model is intended for named entity recognition and assign it to `doc.ents`.
+
+```python
+import spacy
+import spacy_wrap
+nlp = spacy.blank("en")
+
+# specify model from the hub
+config = {"model": {"name": "dslim/bert-base-NER"}}
+
+# add it to the pipe
+nlp.add_pipe("token_classification_transformer", config=config)
+
+doc = nlp("My name is Wolfgang and I live in Berlin.")
+
+print(doc.ents)
+# (Wolfgang, Berlin)
+```
 
 # 📖 Documentation
 

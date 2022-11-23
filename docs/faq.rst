@@ -40,18 +40,18 @@ and test utilities defined in the `requirements.txt <https://github.com/KennethE
 .. code-block:: bash
 
    pip install -r requirements.txt
-   pip install pytest
+   pip install -e .
 
    python -m pytest
 
 
-which will run all the test in the `spacy-wrap/tests` folder.
+which will run all the test in the `tests` folder.
 
 Specific tests can be run using:
 
 .. code-block:: bash
 
-   python -m pytest spacy-wrap/tests/desired_test.py
+   python -m pytest tests/desired_test.py
 
 
 
