@@ -3,18 +3,16 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
 <meta property="og:title" content="Frequently asked questions" />
-  
 <meta property="og:type" content="website" />
-  
 <meta property="og:url" content="faq.html" />
-  
+<meta property="og:site_name" content="spacy-wrap" />
 <meta property="og:description" content="Citing spacy-wrap: If you wish this library in your research, please cite it using (Changing the version if relevant): Or if you prefer APA: How do I test the code and run the test suite?: This pac..." />
-  <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="News and Changelog" href="news.html" /><link rel="prev" title="Installation" href="installation.html" />
+<meta name="description" content="Citing spacy-wrap: If you wish this library in your research, please cite it using (Changing the version if relevant): Or if you prefer APA: How do I test the code and run the test suite?: This pac..." />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="News and Changelog" href="news.html" />
 
     <link rel="shortcut icon" href="_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.09.29"/>
-        <title>Frequently asked questions - spacy-wrap 1.1.0 documentation</title>
+        <title>Frequently asked questions - spacy-wrap 1.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
@@ -139,7 +137,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">spacy-wrap 1.1.0 documentation</div></a>
+      <a href="index.html"><div class="brand">spacy-wrap 1.2.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -174,19 +172,17 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Frequently asked questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrap.pipeline_component.html">pipeline Components</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">News</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="news.html">News and Changelog</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">API references</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="wrap.architectures.html">Architectures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="wrap.layers.html">Layers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="wrap.pipeline_component.html">pipeline Components</a></li>
+<p class="caption" role="heading"><span class="caption-text">FAQ</span></p>
+<ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Frequently asked questions</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">GitHub</span></p>
 <ul>
@@ -261,14 +257,14 @@ you’ll usually want to clone the repository and build the package from the
 source. This will also install the required development dependencies
 and test utilities defined in the <a class="reference external" href="https://github.com/KennethEnevoldsen/spacy-wrap/blob/master/requirements.txt">requirements.txt</a>.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -r requirements.txt
-pip install pytest
+pip install -e .
 
 python -m pytest
 </pre></div>
 </div>
-<p>which will run all the test in the <cite>spacy-wrap/tests</cite> folder.</p>
+<p>which will run all the test in the <cite>tests</cite> folder.</p>
 <p>Specific tests can be run using:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m pytest spacy-wrap/tests/desired_test.py
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m pytest tests/desired_test.py
 </pre></div>
 </div>
 </section>
@@ -280,6 +276,7 @@ with custom styling.</p>
 <p>To make the documentation you can run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># install sphinx, themes and extensions</span>
 pip install -r requirements.txt
+pip install -e .
 
 <span class="c1"># generate html from documentations</span>
 
@@ -294,23 +291,15 @@ make -C docs html
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="news.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">News and Changelog</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="installation.html">
+          
+          <a class="prev-page" href="news.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Installation</div>
+                <div class="title">News and Changelog</div>
                 
               </div>
             </a>

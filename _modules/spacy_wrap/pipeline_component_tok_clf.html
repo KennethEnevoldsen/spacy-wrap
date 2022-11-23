@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.09.29"/>
-        <title>spacy_wrap.pipeline_component - spacy-wrap 1.1.0 documentation</title>
+        <title>spacy_wrap.pipeline_component_tok_clf - spacy-wrap 1.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -130,7 +130,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">spacy-wrap 1.1.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">spacy-wrap 1.2.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -167,17 +167,15 @@
   <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently asked questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../wrap.pipeline_component.html">pipeline Components</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">News</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../news.html">News and Changelog</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">API references</span></p>
+<p class="caption" role="heading"><span class="caption-text">FAQ</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../wrap.architectures.html">Architectures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../wrap.layers.html">Layers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../wrap.pipeline_component.html">pipeline Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently asked questions</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">GitHub</span></p>
 <ul>
@@ -215,7 +213,7 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for spacy_wrap.pipeline_component</h1><div class="highlight"><pre>
+          <h1>Source code for spacy_wrap.pipeline_component_tok_clf</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Copyright (C) 2022 Explosion AI and Kenneth Enevoldsen - All Rights Reserved</span>
 <span class="sd">You may use, distribute and modify this code under the</span>
@@ -237,45 +235,46 @@
 <span class="sd">- install_extensions. Added argument.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">srsly</span>
 <span class="kn">from</span> <span class="nn">spacy</span> <span class="kn">import</span> <span class="n">Errors</span><span class="p">,</span> <span class="n">util</span>
 <span class="kn">from</span> <span class="nn">spacy.language</span> <span class="kn">import</span> <span class="n">Language</span>
 <span class="kn">from</span> <span class="nn">spacy.pipeline.pipe</span> <span class="kn">import</span> <span class="n">deserialize_config</span>
 <span class="kn">from</span> <span class="nn">spacy.pipeline.trainable_pipe</span> <span class="kn">import</span> <span class="n">TrainablePipe</span>
 <span class="kn">from</span> <span class="nn">spacy.tokens</span> <span class="kn">import</span> <span class="n">Doc</span>
-<span class="kn">from</span> <span class="nn">spacy.training</span> <span class="kn">import</span> <span class="n">Example</span><span class="p">,</span> <span class="n">validate_get_examples</span>
+<span class="kn">from</span> <span class="nn">spacy.training</span> <span class="kn">import</span> <span class="n">Example</span>
 <span class="kn">from</span> <span class="nn">spacy.util</span> <span class="kn">import</span> <span class="n">minibatch</span>
-<span class="kn">from</span> <span class="nn">spacy.vocab</span> <span class="kn">import</span> <span class="n">Vocab</span>
+<span class="kn">from</span> <span class="nn">spacy.vocab</span> <span class="kn">import</span> <span class="n">Vocab</span>  <span class="c1"># pylint: disable=no-name-in-module</span>
 <span class="kn">from</span> <span class="nn">spacy_transformers.annotation_setters</span> <span class="kn">import</span> <span class="n">null_annotation_setter</span>
-<span class="kn">from</span> <span class="nn">spacy_transformers.data_classes</span> <span class="kn">import</span> <span class="n">FullTransformerBatch</span>
+<span class="kn">from</span> <span class="nn">spacy_transformers.data_classes</span> <span class="kn">import</span> <span class="n">FullTransformerBatch</span><span class="p">,</span> <span class="n">TransformerData</span>
 <span class="kn">from</span> <span class="nn">spacy_transformers.util</span> <span class="kn">import</span> <span class="n">batch_by_length</span>
 <span class="kn">from</span> <span class="nn">thinc.api</span> <span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">Model</span>
 
-<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">softmax</span><span class="p">,</span> <span class="n">split_by_doc</span>
+<span class="kn">from</span> <span class="nn">.util</span> <span class="kn">import</span> <span class="n">UPOS_TAGS</span><span class="p">,</span> <span class="n">add_iob_tags</span><span class="p">,</span> <span class="n">add_pos_tags</span><span class="p">,</span> <span class="n">softmax</span><span class="p">,</span> <span class="n">split_by_doc</span>
 
 <span class="n">DEFAULT_CONFIG_STR</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">[classification_transformer]</span>
+<span class="s2">[token_classification_transformer]</span>
 <span class="s2">max_batch_items = 4096</span>
-<span class="s2">doc_extension_trf_data = &quot;clf_trf_data&quot;</span>
-<span class="s2">doc_extension_prediction = &quot;classification&quot;</span>
-<span class="s2">labels = [&quot;positive&quot;, &quot;negative&quot;]</span>
+<span class="s2">doc_extension_trf_data = &quot;tok_clf_trf_data&quot;</span>
+<span class="s2">doc_extension_prediction = &quot;tok_clf_predictions&quot;</span>
+<span class="s2">predictions_to = null</span>
+<span class="s2">labels = null</span>
+<span class="s2">aggregation_strategy = &quot;average&quot;</span>
 
-<span class="s2">[classification_transformer.set_extra_annotations]</span>
+<span class="s2">[token_classification_transformer.set_extra_annotations]</span>
 <span class="s2">@annotation_setters = &quot;spacy-transformers.null_annotation_setter.v1&quot;</span>
 
-<span class="s2">[classification_transformer.model]</span>
-<span class="s2">@architectures = &quot;spacy-wrap.ClassificationTransformerModel.v1&quot;</span>
-<span class="s2">name = &quot;roberta-base&quot;</span>
+<span class="s2">[token_classification_transformer.model]</span>
+<span class="s2">@architectures = &quot;spacy-wrap.TokenClassificationTransformerModel.v1&quot;</span>
 <span class="s2">tokenizer_config = {&quot;use_fast&quot;: true}</span>
 <span class="s2">transformer_config = </span><span class="si">{}</span><span class="s2"></span>
 <span class="s2">mixed_precision = false</span>
 <span class="s2">grad_scaler_config = </span><span class="si">{}</span><span class="s2"></span>
 
-<span class="s2">[classification_transformer.model.get_spans]</span>
+<span class="s2">[token_classification_transformer.model.get_spans]</span>
 <span class="s2">@span_getters = &quot;spacy-transformers.strided_spans.v1&quot;</span>
 <span class="s2">window = 128</span>
 <span class="s2">stride = 96</span>
@@ -284,11 +283,11 @@
 <span class="n">DEFAULT_CONFIG</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="n">DEFAULT_CONFIG_STR</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="make_classification_transformer"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component.make_classification_transformer">[docs]</a><span class="nd">@Language</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span>
-    <span class="s2">&quot;classification_transformer&quot;</span><span class="p">,</span>
-    <span class="n">default_config</span><span class="o">=</span><span class="n">DEFAULT_CONFIG</span><span class="p">[</span><span class="s2">&quot;classification_transformer&quot;</span><span class="p">],</span>
+<div class="viewcode-block" id="make_token_classification_transformer"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component_tok_clf.make_token_classification_transformer">[docs]</a><span class="nd">@Language</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span>
+    <span class="s2">&quot;token_classification_transformer&quot;</span><span class="p">,</span>
+    <span class="n">default_config</span><span class="o">=</span><span class="n">DEFAULT_CONFIG</span><span class="p">[</span><span class="s2">&quot;token_classification_transformer&quot;</span><span class="p">],</span>
 <span class="p">)</span>
-<span class="k">def</span> <span class="nf">make_classification_transformer</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">make_token_classification_transformer</span><span class="p">(</span>
     <span class="n">nlp</span><span class="p">:</span> <span class="n">Language</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Doc</span><span class="p">],</span> <span class="n">FullTransformerBatch</span><span class="p">],</span>
@@ -296,8 +295,10 @@
     <span class="n">max_batch_items</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">doc_extension_trf_data</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">doc_extension_prediction</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">labels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-<span class="p">):</span>
+    <span class="n">aggregation_strategy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;first&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">],</span>
+    <span class="n">labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">predictions_to</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">,</span> <span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="s2">&quot;ents&quot;</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;TokenClassificationTransformer&quot;</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Construct a ClassificationTransformer component, which lets you plug a</span>
 <span class="sd">    model from the Huggingface transformers library into spaCy so you can use</span>
 <span class="sd">    it in your pipeline. One or more subsequent spaCy components can use the</span>
@@ -305,6 +306,8 @@
 <span class="sd">    to the single shared weights.</span>
 
 <span class="sd">    Args:</span>
+<span class="sd">        nlp (Language): The current nlp object.</span>
+<span class="sd">        name (str): The name of the component instance.</span>
 <span class="sd">        model (Model[List[Doc], FullTransformerBatch]): A thinc Model object wrapping</span>
 <span class="sd">            the transformer. Usually you will want to use the ClassificationTransformer</span>
 <span class="sd">            layer for this.</span>
@@ -313,22 +316,61 @@
 <span class="sd">            The doc._.{doc_extension_trf_data} attribute is set prior to calling the callback</span>
 <span class="sd">            as well as doc._.{doc_extension_prediction} and doc._.{doc_extension_prediction}_prob.</span>
 <span class="sd">            By default, no additional annotations are set.</span>
-<span class="sd">        labels (List[str]): A list of labels which the transformer model outputs, should be ordered.</span>
+<span class="sd">        max_batch_items (int): The maximum number of items to process in a batch.</span>
+<span class="sd">        doc_extension_trf_data (str): The name of the doc extension to store the</span>
+<span class="sd">            transformer data in.</span>
+<span class="sd">        doc_extension_prediction (str): The name of the doc extension to store the</span>
+<span class="sd">            predictions in.</span>
+<span class="sd">        aggregation_strategy (Literal[&quot;first&quot;, &quot;average&quot;, &quot;max&quot;]): The aggregation</span>
+<span class="sd">            strategy to use. Chosen to correspond to the aggregation strategies</span>
+<span class="sd">            used in the `TokenClassificationPipeline` in Huggingface:</span>
+<span class="sd">            https://huggingface.co/docs/transformers/v4.24.0/en/main_classes/pipelines#transformers.TokenClassificationPipeline.aggregation_strategy</span>
+<span class="sd">            “first”: Words will simply use the tag of the first token of the word</span>
+<span class="sd">            when there is ambiguity. “average”: Scores will be averaged first across</span>
+<span class="sd">            tokens, and then the maximum label is applied. “max”: Word entity will</span>
+<span class="sd">            simply be the token with the maximum score.</span>
+<span class="sd">        labels (List[str]): A list of labels which the transformer model outputs, should</span>
+<span class="sd">            be ordered.</span>
+<span class="sd">        predictions_to (Optional[List[Literal[&quot;pos&quot;, &quot;tag&quot;, &quot;ents&quot;]]]): A list of</span>
+<span class="sd">            attributes the predictions should be written to. Default to None. In which</span>
+<span class="sd">            case it is inferred from the labels. If the labels are UPOS tags, the</span>
+<span class="sd">            predictions will be written to the &quot;pos&quot; attribute. If the labels are</span>
+<span class="sd">            IOB tags, the predictions will be written to the &quot;ents&quot; attribute. &quot;tag&quot; is</span>
+<span class="sd">            not inferred from the labels, but can be added explicitly.</span>
+<span class="sd">            Note that if the &quot;pos&quot; attribute is set the labels must be UPOS tags and if</span>
+<span class="sd">            the &quot;ents&quot; attribute is set the labels must be IOB tags.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        TokenClassificationTransformer: The constructed component.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; import spacy</span>
+<span class="sd">        &gt;&gt;&gt; import spacy_wrap</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; nlp = spacy.blank(&quot;en&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; nlp.add_pipe(&quot;token_classification_transformer&quot;, config={</span>
+<span class="sd">        ...     &quot;model&quot;: {&quot;name&quot;: &quot;vblagoje/bert-english-uncased-finetuned-pos&quot;}}</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; doc = nlp(&quot;My name is Wolfgang and I live in Berlin&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; print([tok.pos_ for tok in doc])</span>
+<span class="sd">        [&quot;PRON&quot;, &quot;NOUN&quot;, &quot;AUX&quot;, &quot;PROPN&quot;, &quot;CCONJ&quot;, &quot;PRON&quot;, &quot;VERB&quot;, &quot;ADP&quot;, &quot;PROPN&quot;]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">clf_trf</span> <span class="o">=</span> <span class="n">ClassificationTransformer</span><span class="p">(</span>
+    <span class="n">clf_trf</span> <span class="o">=</span> <span class="n">TokenClassificationTransformer</span><span class="p">(</span>
         <span class="n">vocab</span><span class="o">=</span><span class="n">nlp</span><span class="o">.</span><span class="n">vocab</span><span class="p">,</span>
         <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
         <span class="n">set_extra_annotations</span><span class="o">=</span><span class="n">set_extra_annotations</span><span class="p">,</span>
         <span class="n">max_batch_items</span><span class="o">=</span><span class="n">max_batch_items</span><span class="p">,</span>
+        <span class="n">aggregation_strategy</span><span class="o">=</span><span class="n">aggregation_strategy</span><span class="p">,</span>
         <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
         <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
         <span class="n">doc_extension_trf_data</span><span class="o">=</span><span class="n">doc_extension_trf_data</span><span class="p">,</span>
         <span class="n">doc_extension_prediction</span><span class="o">=</span><span class="n">doc_extension_prediction</span><span class="p">,</span>
+        <span class="n">predictions_to</span><span class="o">=</span><span class="n">predictions_to</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">clf_trf</span></div>
 
 
-<div class="viewcode-block" id="ClassificationTransformer"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component.ClassificationTransformer">[docs]</a><span class="k">class</span> <span class="nc">ClassificationTransformer</span><span class="p">(</span><span class="n">TrainablePipe</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">TokenClassificationTransformer</span><span class="p">(</span><span class="n">TrainablePipe</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;spaCy pipeline component that provides access to a transformer model</span>
 <span class="sd">    from the Huggingface transformers library. Usually you will connect</span>
 <span class="sd">    subsequent components to the shared transformer using the</span>
@@ -361,8 +403,10 @@
         <span class="n">doc_extension_prediction</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">set_extra_annotations</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">null_annotation_setter</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;classification_transformer&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;token_classification_transformer&quot;</span><span class="p">,</span>
         <span class="n">max_batch_items</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span> <span class="o">*</span> <span class="mi">32</span><span class="p">,</span>  <span class="c1"># Max size of padded batch</span>
+        <span class="n">predictions_to</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;pos&quot;</span><span class="p">,</span> <span class="s2">&quot;tag&quot;</span><span class="p">,</span> <span class="s2">&quot;ents&quot;</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">aggregation_strategy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;first&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">],</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize the transformer component.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
@@ -373,20 +417,25 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_extra_annotations</span> <span class="o">=</span> <span class="n">set_extra_annotations</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;max_batch_items&quot;</span><span class="p">:</span> <span class="n">max_batch_items</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">doc_extension_trf_data</span> <span class="o">=</span> <span class="n">doc_extension_trf_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doc_extension_prediction</span> <span class="o">=</span> <span class="n">doc_extension_prediction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_labels</span> <span class="o">=</span> <span class="n">labels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">predictions_to</span> <span class="o">=</span> <span class="n">predictions_to</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_strategy</span> <span class="o">=</span> <span class="n">aggregation_strategy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_initialized</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="n">install_extensions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_extension_trf_data</span><span class="p">)</span>
+        <span class="n">install_extensions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_extension_prediction</span><span class="p">)</span>
+        <span class="n">install_extensions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_extension_prediction</span> <span class="o">+</span> <span class="s2">&quot;_prob&quot;</span><span class="p">)</span>
 
-        <span class="n">install_classification_extensions</span><span class="p">(</span>
-            <span class="n">doc_extension_prediction</span><span class="p">,</span>
-            <span class="n">labels</span><span class="p">,</span>
-            <span class="n">doc_extension_trf_data</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="c1"># is there any argument for not doing this here?</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_initialized</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__initialize_component</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_trainable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="ClassificationTransformer.set_annotations"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component.ClassificationTransformer.set_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">set_annotations</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">set_annotations</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">docs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Doc</span><span class="p">],</span>
         <span class="n">predictions</span><span class="p">:</span> <span class="n">FullTransformerBatch</span><span class="p">,</span>
@@ -402,8 +451,85 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">doc_data</span> <span class="o">=</span> <span class="n">split_by_doc</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">doc</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span> <span class="n">doc_data</span><span class="p">):</span>
+            <span class="c1"># check if doc is data is empty</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_extension_trf_data</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_extra_annotations</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span></div>
+
+            <span class="n">iob_tags</span><span class="p">,</span> <span class="n">iob_prob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_to_token_predictions</span><span class="p">(</span>
+                <span class="n">data</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_strategy</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model_labels</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_extension_prediction</span><span class="p">,</span> <span class="n">iob_tags</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">_</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_extension_prediction</span><span class="si">}</span><span class="s2">_prob&quot;</span><span class="p">,</span> <span class="n">iob_prob</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;ents&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictions_to</span><span class="p">:</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="n">add_iob_tags</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">iob_tags</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;pos&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictions_to</span><span class="p">:</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="n">add_pos_tags</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">iob_tags</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s2">&quot;pos&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;tag&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictions_to</span><span class="p">:</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="n">add_pos_tags</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">iob_tags</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s2">&quot;tag&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_extra_annotations</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">convert_to_token_predictions</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">TransformerData</span><span class="p">,</span>
+        <span class="n">aggregation_strategy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;first&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">],</span>
+        <span class="n">labels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;Convert the transformer data to token predictions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (TransformerData): The transformer data.</span>
+<span class="sd">            aggregation_strategy (Literal[&quot;first&quot;, &quot;average&quot;, &quot;max&quot;]): The aggregation</span>
+<span class="sd">                strategy to use. Chosen to correspond to the aggregation strategies</span>
+<span class="sd">                used in the `TokenClassificationPipeline` in Huggingface:</span>
+<span class="sd">                https://huggingface.co/docs/transformers/v4.24.0/en/main_classes/pipelines#transformers.TokenClassificationPipeline.aggregation_strategy</span>
+<span class="sd">                “first”: Words will simply use the tag of the first token of the word</span>
+<span class="sd">                when there is ambiguity. “average”: Scores will be averaged first across</span>
+<span class="sd">                tokens, and then the maximum label is applied. “max”: Word entity will</span>
+<span class="sd">                simply be the token with the maximum score.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[List[str], List[dict]]: The token tags and a dict containing the</span>
+<span class="sd">                probabilites and corresponding labels.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">model_output</span><span class="p">:</span>  <span class="c1"># if data is empty e.g. due to empty string</span>
+            <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">aggregation_strategy</span> <span class="o">==</span> <span class="s2">&quot;first&quot;</span><span class="p">:</span>
+
+            <span class="k">def</span> <span class="nf">agg</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="n">aggregation_strategy</span> <span class="o">==</span> <span class="s2">&quot;average&quot;</span><span class="p">:</span>
+
+            <span class="k">def</span> <span class="nf">agg</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">aggregation_strategy</span> <span class="o">==</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span>
+
+            <span class="k">def</span> <span class="nf">agg</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Aggregation strategy </span><span class="si">{</span><span class="n">aggregation_strategy</span><span class="si">}</span><span class="s2"> is not supported.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">token_probabilities</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">token_tags</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">model_output</span><span class="o">.</span><span class="n">logits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">align</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">align</span><span class="p">:</span>
+            <span class="c1"># aggregate the logits for each token</span>
+            <span class="n">agg_token_logits</span> <span class="o">=</span> <span class="n">agg</span><span class="p">(</span><span class="n">logits</span><span class="p">[</span><span class="n">align</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]])</span>
+            <span class="n">token_probabilities_</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;prob&quot;</span><span class="p">:</span> <span class="n">softmax</span><span class="p">(</span><span class="n">agg_token_logits</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">decimals</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">labels</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">token_probabilities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token_probabilities_</span><span class="p">)</span>
+            <span class="n">token_tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">agg_token_logits</span><span class="p">)])</span>
+
+        <span class="k">return</span> <span class="n">token_tags</span><span class="p">,</span> <span class="n">token_probabilities</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">:</span> <span class="n">Doc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Doc</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Apply the pipe to one document. The document is modified in place,</span>
@@ -421,7 +547,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_annotations</span><span class="p">([</span><span class="n">doc</span><span class="p">],</span> <span class="n">outputs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">doc</span>
 
-<div class="viewcode-block" id="ClassificationTransformer.pipe"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component.ClassificationTransformer.pipe">[docs]</a>    <span class="k">def</span> <span class="nf">pipe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Doc</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Doc</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">pipe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Doc</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Doc</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Apply the pipe to a stream of documents. This usually happens under</span>
 <span class="sd">        the hood when the nlp object is called on a text and all components are</span>
 <span class="sd">        applied to the Doc.</span>
@@ -439,9 +565,9 @@
             <span class="k">for</span> <span class="n">indices</span> <span class="ow">in</span> <span class="n">batch_by_length</span><span class="p">(</span><span class="n">outer_batch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;max_batch_items&quot;</span><span class="p">]):</span>
                 <span class="n">subbatch</span> <span class="o">=</span> <span class="p">[</span><span class="n">outer_batch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_annotations</span><span class="p">(</span><span class="n">subbatch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">subbatch</span><span class="p">))</span>
-            <span class="k">yield from</span> <span class="n">outer_batch</span></div>
+            <span class="k">yield from</span> <span class="n">outer_batch</span>
 
-<div class="viewcode-block" id="ClassificationTransformer.predict"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component.ClassificationTransformer.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Doc</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FullTransformerBatch</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Doc</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FullTransformerBatch</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Apply the pipeline&#39;s model to a batch of docs, without modifying</span>
 <span class="sd">        them. Returns the extracted features as the FullTransformerBatch</span>
 <span class="sd">        dataclass.</span>
@@ -456,9 +582,42 @@
             <span class="n">activations</span> <span class="o">=</span> <span class="n">FullTransformerBatch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">activations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">activations</span></div>
+        <span class="k">return</span> <span class="n">activations</span>
 
-<div class="viewcode-block" id="ClassificationTransformer.initialize"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component.ClassificationTransformer.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">__initialize_component</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the component. This avoid the need to call</span>
+<span class="sd">        nlp.initialize().</span>
+
+<span class="sd">        For related issue see:</span>
+<span class="sd">        https://github.com/explosion/spaCy/issues/7027</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_initialized</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+
+        <span class="c1"># extract the labels from the model config</span>
+        <span class="n">hf_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shims</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_model</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># extract hf_model.config.label2id.items()</span>
+            <span class="c1"># convert to sorted list</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_labels</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">tag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">hf_model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">label2id</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="p">]</span>
+
+        <span class="c1"># infer the predictions_to attribute</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictions_to</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">predictions_to</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># check if labels are IOB tags</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">is_iob_tag</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_labels</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">predictions_to</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ents&quot;</span><span class="p">)</span>
+            <span class="c1"># check if labels are POS tags</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">label</span> <span class="ow">in</span> <span class="n">UPOS_TAGS</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_labels</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">predictions_to</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;pos&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_initialized</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">get_examples</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Example</span><span class="p">]],</span>
         <span class="o">*</span><span class="p">,</span>
@@ -467,14 +626,11 @@
         <span class="sd">&quot;&quot;&quot;Initialize the pipe for training, using data examples if available.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            get_examples (Callable[[], Iterable[Example]]): Optional function that</span>
-<span class="sd">                returns gold-standard Example objects.</span>
 <span class="sd">            nlp (Language): The current nlp object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">validate_get_examples</span><span class="p">(</span><span class="n">get_examples</span><span class="p">,</span> <span class="s2">&quot;Transformer.initialize&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__initialize_component</span><span class="p">()</span>
 
-<div class="viewcode-block" id="ClassificationTransformer.to_disk"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component.ClassificationTransformer.to_disk">[docs]</a>    <span class="k">def</span> <span class="nf">to_disk</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">to_disk</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Serialize the pipe to disk.</span>
@@ -487,11 +643,11 @@
         <span class="n">serialize</span><span class="p">[</span><span class="s2">&quot;cfg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">srsly</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">)</span>
         <span class="n">serialize</span><span class="p">[</span><span class="s2">&quot;vocab&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">to_disk</span>
         <span class="n">serialize</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to_disk</span>
-        <span class="n">util</span><span class="o">.</span><span class="n">to_disk</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">serialize</span><span class="p">,</span> <span class="n">exclude</span><span class="p">)</span></div>
+        <span class="n">util</span><span class="o">.</span><span class="n">to_disk</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">serialize</span><span class="p">,</span> <span class="n">exclude</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ClassificationTransformer.from_disk"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component.ClassificationTransformer.from_disk">[docs]</a>    <span class="k">def</span> <span class="nf">from_disk</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">from_disk</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ClassificationTransformer&quot;</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;TokenClassificationTransformer&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Load the pipe from disk.</span>
 
 <span class="sd">        Args:</span>
@@ -515,60 +671,25 @@
             <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">load_model</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">util</span><span class="o">.</span><span class="n">from_disk</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">deserialize</span><span class="p">,</span> <span class="n">exclude</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span>
 
 
-<div class="viewcode-block" id="install_extensions"><a class="viewcode-back" href="../../wrap.pipeline_component.html#spacy_wrap.pipeline_component.install_extensions">[docs]</a><span class="k">def</span> <span class="nf">install_extensions</span><span class="p">(</span><span class="n">doc_ext_attr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">install_extensions</span><span class="p">(</span><span class="n">doc_ext_attr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">Doc</span><span class="o">.</span><span class="n">has_extension</span><span class="p">(</span><span class="n">doc_ext_attr</span><span class="p">):</span>
-        <span class="n">Doc</span><span class="o">.</span><span class="n">set_extension</span><span class="p">(</span><span class="n">doc_ext_attr</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+        <span class="n">Doc</span><span class="o">.</span><span class="n">set_extension</span><span class="p">(</span><span class="n">doc_ext_attr</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">install_classification_extensions</span><span class="p">(</span>
-    <span class="n">doc_extension_prediction</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">labels</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
-    <span class="n">doc_extension</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<span class="p">):</span>
-    <span class="n">prob_getter</span><span class="p">,</span> <span class="n">label_getter</span> <span class="o">=</span> <span class="n">make_classification_getter</span><span class="p">(</span>
-        <span class="n">doc_extension_prediction</span><span class="p">,</span>
-        <span class="n">labels</span><span class="p">,</span>
-        <span class="n">doc_extension</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">Doc</span><span class="o">.</span><span class="n">has_extension</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doc_extension_prediction</span><span class="si">}</span><span class="s2">_prob&quot;</span><span class="p">):</span>
-        <span class="n">Doc</span><span class="o">.</span><span class="n">set_extension</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doc_extension_prediction</span><span class="si">}</span><span class="s2">_prob&quot;</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="n">prob_getter</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">Doc</span><span class="o">.</span><span class="n">has_extension</span><span class="p">(</span><span class="n">doc_extension_prediction</span><span class="p">):</span>
-        <span class="n">Doc</span><span class="o">.</span><span class="n">set_extension</span><span class="p">(</span><span class="n">doc_extension_prediction</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="n">label_getter</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">is_iob_tag</span><span class="p">(</span><span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Check if a label is an IOB tag.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        label (str): The label to check.</span>
 
-<span class="k">def</span> <span class="nf">make_classification_getter</span><span class="p">(</span>
-    <span class="n">doc_extension_prediction</span><span class="p">,</span>
-    <span class="n">labels</span><span class="p">,</span>
-    <span class="n">doc_extension_trf_data</span><span class="p">,</span>
-<span class="p">):</span>
-    <span class="k">def</span> <span class="nf">prob_getter</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="n">trf_data</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">_</span><span class="p">,</span> <span class="n">doc_extension_trf_data</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">trf_data</span><span class="o">.</span><span class="n">tensors</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">{</span>
-                <span class="s2">&quot;prob&quot;</span><span class="p">:</span> <span class="n">softmax</span><span class="p">(</span><span class="n">trf_data</span><span class="o">.</span><span class="n">tensors</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">decimals</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
-                <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="n">labels</span><span class="p">,</span>
-            <span class="p">}</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;The tensors from the transformer forward pass is empty this is likely&quot;</span>
-                <span class="o">+</span> <span class="s2">&quot; caused by an empty input string. Thus the model will return None&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="p">{</span>
-                <span class="s2">&quot;prob&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="n">labels</span><span class="p">,</span>
-            <span class="p">}</span>
-
-    <span class="k">def</span> <span class="nf">label_getter</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="n">prob</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">_</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doc_extension_prediction</span><span class="si">}</span><span class="s2">_prob&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">prob</span><span class="p">[</span><span class="s2">&quot;prob&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">labels</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">prob</span><span class="p">[</span><span class="s2">&quot;prob&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">argmax</span><span class="p">())]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
-
-    <span class="k">return</span> <span class="n">prob_getter</span><span class="p">,</span> <span class="n">label_getter</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        (bool): True if the label is an IOB tag.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">label_</span> <span class="o">=</span> <span class="n">label</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">label_</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;i-&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">label_</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;b-&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">label_</span> <span class="o">==</span> <span class="s2">&quot;o&quot;</span>
 </pre></div>
         </article>
       </div>
