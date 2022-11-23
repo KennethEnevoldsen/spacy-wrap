@@ -128,7 +128,7 @@ def init(model: Model, X=None, Y=None):
         name,
         tok_cfg,
         trf_cfg,
-        model_cls=AutoModelForSequenceClassification,
+        model_cls=model.layers[0].shims[0].model_cls,
     )
     model.attrs["set_transformer"](model, hf_model)
     tokenizer = model.tokenizer

@@ -20,16 +20,16 @@ get_loss and and update functions.
 """
 
 from pathlib import Path
-from typing import Callable, Iterable, Iterator, List, Literal, Optional, Union
+from typing import Callable, Iterable, Iterator, List, Literal, Optional, Tuple, Union
 
+import numpy as np
 import srsly
-import torch
 from spacy import Errors, util
 from spacy.language import Language
 from spacy.pipeline.pipe import deserialize_config
 from spacy.pipeline.trainable_pipe import TrainablePipe
 from spacy.tokens import Doc
-from spacy.training import Example, validate_get_examples
+from spacy.training import Example
 from spacy.util import minibatch
 from spacy.vocab import Vocab  # pylint: disable=no-name-in-module
 from spacy_transformers.annotation_setters import null_annotation_setter
@@ -37,15 +37,16 @@ from spacy_transformers.data_classes import FullTransformerBatch, TransformerDat
 from spacy_transformers.util import batch_by_length
 from thinc.api import Config, Model
 
-from .util import UPOS_TAGS, add_iob_tags, add_pos_tags, split_by_doc
+from .util import UPOS_TAGS, add_iob_tags, add_pos_tags, softmax, split_by_doc
 
 DEFAULT_CONFIG_STR = """
 [token_classification_transformer]
 max_batch_items = 4096
 doc_extension_trf_data = "tok_clf_trf_data"
 doc_extension_prediction = "tok_clf_predictions"
-predictions_to = []
+predictions_to = null
 labels = null
+aggregation_strategy = "average"
 
 [token_classification_transformer.set_extra_annotations]
 @annotation_setters = "spacy-transformers.null_annotation_setter.v1"
@@ -120,6 +121,7 @@ def make_token_classification_transformer(
         model=model,
         set_extra_annotations=set_extra_annotations,
         max_batch_items=max_batch_items,
+        aggregation_strategy=aggregation_strategy,
         name=name,
         labels=labels,
         doc_extension_trf_data=doc_extension_trf_data,
@@ -165,6 +167,7 @@ class TokenClassificationTransformer(TrainablePipe):
         name: str = "token_classification_transformer",
         max_batch_items: int = 128 * 32,  # Max size of padded batch
         predictions_to: Optional[List[Literal["pos", "tag", "ents"]]] = None,
+        aggregation_strategy: Literal["first", "average", "max"],
     ):
         """Initialize the transformer component."""
         self.name = name
@@ -178,9 +181,16 @@ class TokenClassificationTransformer(TrainablePipe):
         self.doc_extension_prediction = doc_extension_prediction
         self.model_labels = labels
         self.predictions_to = predictions_to
+        self.aggregation_strategy = aggregation_strategy
+        self.is_initialized = False
 
         install_extensions(self.doc_extension_trf_data)
         install_extensions(self.doc_extension_prediction)
+        install_extensions(self.doc_extension_prediction + "_prob")
+
+        # is there any argument for not doing this here?
+        if not self.is_initialized:
+            self.__initialize_component()
 
     @property
     def is_trainable(self) -> bool:
@@ -202,8 +212,10 @@ class TokenClassificationTransformer(TrainablePipe):
         """
         doc_data = split_by_doc(predictions)
         for doc, data in zip(docs, doc_data):
+            # check if doc is data is empty
             setattr(doc._, self.doc_extension_trf_data, data)
-            iob_prob, iob_tags = self.convert_to_token_predictions(
+
+            iob_tags, iob_prob = self.convert_to_token_predictions(
                 data,
                 self.aggregation_strategy,
                 self.model_labels,
@@ -224,7 +236,7 @@ class TokenClassificationTransformer(TrainablePipe):
         data: TransformerData,
         aggregation_strategy: Literal["first", "average", "max"],
         labels: List[str],
-    ) -> TransformerData:
+    ) -> Tuple[List[str], List[dict]]:
         """Convert the transformer data to token predictions.
 
         Args:
@@ -239,48 +251,46 @@ class TokenClassificationTransformer(TrainablePipe):
                 simply be the token with the maximum score.
 
         Returns:
-            TransformerData: The transformer data with token predictions.
+            Tuple[List[str], List[dict]]: The token tags and a dict containing the
+                probabilites and corresponding labels.
         """
-        token_logits = {}
-
-        for token_id in data.align:
-            if token_id in token_logits:
-                token_logits[token_id].append(data.logits[token_id])
-            else:
-                token_logits[token_id] = [data.logits[token_id]]
+        if not data.model_output:  # if data is empty e.g. due to empty string
+            return [], []
 
         if aggregation_strategy == "first":
-            token_logits = {
-                token_id: logits[0] for token_id, logits in token_logits.items()
-            }
+
+            def agg(x):
+                return x[0]
+
         elif aggregation_strategy == "average":
-            token_logits = {
-                token_id: torch.mean(logits, axis=0)
-                for token_id, logits in token_logits.items()
-            }
+
+            def agg(x):
+                return x.mean(axis=0)
+
         elif aggregation_strategy == "max":
-            token_logits = {
-                token_id: torch.max(logits, axis=0)
-                for token_id, logits in token_logits.items()
-            }
+
+            def agg(x):
+                return x.max(axis=0)
+
         else:
             raise ValueError(
                 f"Aggregation strategy {aggregation_strategy} is not supported.",
             )
 
-        # convert to labels and probabilities
-        token_predictions = {}
-        token_probabilities = {}
-        for token_id, logits in token_logits.items():
-            token_predictions[token_id] = labels[logits.argmax()]
-            token_probabilities[token_id] = logits.softmax().tolist()
+        token_probabilities = []
+        token_tags = []
+        logits = data.model_output.logits[0]
+        for align in data.align:
+            # aggregate the logits for each token
+            agg_token_logits = agg(logits[align.data[:, 0]])
+            token_probabilities_ = {
+                "prob": softmax(agg_token_logits).round(decimals=3),
+                "label": labels,
+            }
+            token_probabilities.append(token_probabilities_)
+            token_tags.append(labels[np.argmax(agg_token_logits)])
 
-        # convert to list
-        token_predictions = [
-            token_predictions[token_id] for token_id in range(len(data.tokens))
-        ]
-        iob = [token_probabilities[token_id] for token_id in range(len(data.tokens))]
-        return token_predictions, iob
+        return token_tags, token_probabilities
 
     def __call__(self, doc: Doc) -> Doc:
         """Apply the pipe to one document. The document is modified in place,
@@ -335,6 +345,39 @@ class TokenClassificationTransformer(TrainablePipe):
             activations = self.model.predict(docs)
         return activations
 
+    def __initialize_component(self):
+        """Initialize the component. This avoid the need to call
+        nlp.initialize().
+
+        For related issue see:
+        https://github.com/explosion/spaCy/issues/7027
+        """
+        if self.is_initialized:
+            return
+        self.model.initialize()
+
+        # extract the labels from the model config
+        hf_model = self.model.layers[0].shims[0]._model
+        if self.model_labels is None:
+            # extract hf_model.config.label2id.items()
+            # convert to sorted list
+            self.model_labels = [
+                tag[0]
+                for tag in sorted(hf_model.config.label2id.items(), key=lambda x: x[1])
+            ]
+
+        # infer the predictions_to attribute
+        if self.predictions_to is None:
+            self.predictions_to = []
+            # check if labels are IOB tags
+            if all(is_iob_tag(label) for label in self.model_labels):
+                self.predictions_to.append("ents")
+            # check if labels are POS tags
+            if all(label in UPOS_TAGS for label in self.model_labels):
+                self.predictions_to.append("pos")
+
+        self.is_initialized = True
+
     def initialize(
         self,
         get_examples: Callable[[], Iterable[Example]],
@@ -344,31 +387,9 @@ class TokenClassificationTransformer(TrainablePipe):
         """Initialize the pipe for training, using data examples if available.
 
         Args:
-            get_examples (Callable[[], Iterable[Example]]): Optional function that
-                returns gold-standard Example objects.
             nlp (Language): The current nlp object.
         """
-        validate_get_examples(get_examples, "Transformer.initialize")
-        self.model.initialize()
-
-        # extract hf model
-        hf_model = self.model.layers[0].shims[0]._model
-        if self.lables is None:
-            # extract hf_model.config.label2id.items()
-            # convert to sorted list
-            self.model_labels = [
-                tag[0]
-                for tag in sorted(hf_model.config.label2id.items(), key=lambda x: x[1])
-            ]
-
-        if self.predictions_to is None:
-            self.predictions_to = []
-            # check if labels are IOB tags
-            if all(is_iob_tag(label) for label in self.model_labels):
-                self.predictions_to.append("ents")
-            # check if labels are POS tags
-            if all(label in UPOS_TAGS for label in self.model_labels):
-                self.predictions_to.append("pos")
+        self.__initialize_component()
 
     def to_disk(
         self, path: Union[str, Path], *, exclude: Iterable[str] = tuple()

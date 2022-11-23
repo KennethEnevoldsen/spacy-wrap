@@ -44,11 +44,11 @@ EXAMPLES.append(
             },
         },
         (
-            "Se realizó estudio analítico destacando incremento de niveles de PTH y vitamina D (103,7 pg/ml y 272 ng/ml, respectivamente), atribuidos al exceso de suplementación de vitamina D.",
+            "Se realizó estudio analítico destacando incremento de niveles de PTH y vitamina D (103,7 pg/ml y 272 ng/ml, respectivamente), atribuidos al exceso de suplementación de vitamina D .",
             [
-                ("PTH", (3, 4), "PROTEINAS"),
-                ("vitamina D", (5, 6), "NORMALIZABLES"),
-                ("vitamina D", (7, 8), "NORMALIZABLES"),
+                ("PTH", (9, 10), "PROTEINAS"),
+                ("vitamina D", (11, 13), "NORMALIZABLES"),
+                ("vitamina D", (33, 35), "NORMALIZABLES"),
             ],
         ),
     ),
@@ -60,14 +60,19 @@ class TestTokenClassificationTransformer:
     def test_forward(self, config: dict, example: tuple):
         """tests if that the forward pass work as intended."""
 
-        nlp = spacy.blank("en")
+        nlp = spacy.blank("es")
         nlp.add_pipe("token_classification_transformer", config=config)
-        nlp.initialize()
 
         text, expected = example
         doc = nlp(text)
 
-        assert doc._.tok_clf_trf_data
+        trf_data_ext = (
+            config["doc_extension_trf_data"]
+            if "doc_extension_trf_data" in config
+            else "tok_clf_trf_data"
+        )
+
+        assert getattr(doc._, trf_data_ext)
         assert len(doc.ents) == len(expected)
 
         for ent, (text, (start, end), label) in zip(doc.ents, expected):
@@ -81,7 +86,6 @@ class TestTokenClassificationTransformer:
 
         nlp = spacy.blank("en")
         nlp.add_pipe("token_classification_transformer", config=EXAMPLES[0][0])
-        nlp.initialize()
 
         transformer = nlp.get_pipe("token_classification_transformer")
 

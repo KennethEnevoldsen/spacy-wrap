@@ -29,7 +29,7 @@ from spacy.language import Language
 from spacy.pipeline.pipe import deserialize_config
 from spacy.pipeline.trainable_pipe import TrainablePipe
 from spacy.tokens import Doc
-from spacy.training import Example, validate_get_examples
+from spacy.training import Example
 from spacy.util import minibatch
 from spacy.vocab import Vocab
 from spacy_transformers.annotation_setters import null_annotation_setter
@@ -163,10 +163,13 @@ class SequenceClassificationTransformer(TrainablePipe):
         self.model_labels = labels
         self.doc_extension_prediction = doc_extension_prediction
         self.assign_to_cats = assign_to_cats
+        self.is_initialized = False
 
         install_extensions(self.doc_extension_trf_data)
         install_extensions(self.doc_extension_prediction)
         install_extensions(f"{self.doc_extension_prediction}_prob")
+
+        self.__initialize_component()
 
     @property
     def is_trainable(self) -> bool:
@@ -272,6 +275,28 @@ class SequenceClassificationTransformer(TrainablePipe):
             activations = self.model.predict(docs)
         return activations
 
+    def __initialize_component(self) -> None:
+        """Initialize the component. This avoid the need to call
+        nlp.initialize().
+
+        For related issue see:
+        https://github.com/explosion/spaCy/issues/7027
+        """
+        if self.is_initialized:
+            return
+        self.model.initialize()
+
+        # extract hf model
+        hf_model = self.model.layers[0].shims[0]._model
+        if self.model_labels is None:
+            # extract hf_model.config.label2id.items()
+            # convert to sorted list
+            self.model_labels = [
+                tag[0]
+                for tag in sorted(hf_model.config.label2id.items(), key=lambda x: x[1])
+            ]
+        self.is_initialized = True
+
     def initialize(
         self,
         get_examples: Callable[[], Iterable[Example]],
@@ -285,18 +310,7 @@ class SequenceClassificationTransformer(TrainablePipe):
                 returns gold-standard Example objects.
             nlp (Language): The current nlp object.
         """
-        validate_get_examples(get_examples, "Transformer.initialize")
-        self.model.initialize()
-
-        # extract hf model
-        hf_model = self.model.layers[0].shims[0]._model
-        if self.model_labels is None:
-            # extract hf_model.config.label2id.items()
-            # convert to sorted list
-            self.model_labels = [
-                tag[0]
-                for tag in sorted(hf_model.config.label2id.items(), key=lambda x: x[1])
-            ]
+        self.__initialize_component()
 
     def to_disk(
         self, path: Union[str, Path], *, exclude: Iterable[str] = tuple()

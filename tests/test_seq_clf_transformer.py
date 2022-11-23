@@ -52,7 +52,6 @@ class TestSequenceClassificationTransformer:
 
         nlp = spacy.blank("en")
         nlp.add_pipe("sequence_classification_transformer", config=config)
-        nlp.initialize()
 
         for text, label in examples:
             doc = nlp(text)
@@ -91,7 +90,6 @@ class TestSequenceClassificationTransformer:
             },
         }
         nlp.add_pipe("sequence_classification_transformer", config=config)
-        nlp.initialize()
 
         transformer = nlp.get_pipe("sequence_classification_transformer")
 
