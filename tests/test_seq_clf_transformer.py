@@ -4,6 +4,8 @@ import shutil
 import pytest
 import spacy
 
+import spacy_wrap  # noqa F401
+
 EXAMPLES = []
 EXAMPLES.append(
     (
