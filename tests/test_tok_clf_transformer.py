@@ -6,8 +6,8 @@ import spacy
 
 import spacy_wrap  # noqa F401
 
-EXAMPLES = []
-EXAMPLES.append(
+EXAMPLES_NER = []
+EXAMPLES_NER.append(
     (
         {
             "doc_extension_trf_data": "tok_clf_trf_data",
@@ -24,7 +24,7 @@ EXAMPLES.append(
         ),
     ),
 )
-EXAMPLES.append(
+EXAMPLES_NER.append(
     (
         {
             "doc_extension_trf_data": "tok_clf_trf_data",
@@ -38,7 +38,7 @@ EXAMPLES.append(
         ("", []),
     ),
 )
-EXAMPLES.append(
+EXAMPLES_NER.append(
     (
         {
             "model": {
@@ -56,11 +56,22 @@ EXAMPLES.append(
     ),
 )
 
+EXAMPLES_POS = []
+EXAMPLES_POS.append(
+    (
+        {"model": {"name": "vblagoje/bert-english-uncased-finetuned-pos"}},
+        (
+            "My name is Wolfgang and I live in Berlin",
+            ["PRON", "NOUN", "AUX", "PROPN", "CCONJ", "PRON", "VERB", "ADP", "PROPN"],
+        ),
+    ),
+)
+
 
 class TestTokenClassificationTransformer:
-    @pytest.mark.parametrize("config, example", EXAMPLES)
-    def test_forward(self, config: dict, example: tuple):
-        """tests if that the forward pass work as intended."""
+    @pytest.mark.parametrize("config, example", EXAMPLES_NER)
+    def test_forward_ner(self, config: dict, example: tuple):
+        """tests if that the forward pass work as intended for NER models."""
 
         nlp = spacy.blank("es")
         nlp.add_pipe("token_classification_transformer", config=config)
@@ -83,11 +94,23 @@ class TestTokenClassificationTransformer:
             assert ent.end == end
             assert ent.label_ == label
 
+    @pytest.mark.parametrize("config, example", EXAMPLES_POS)
+    def test_forward_pos(self, config: dict, example: tuple):
+        """tests if that the forward pass work as intended for POS models."""
+
+        nlp = spacy.blank("en")
+        nlp.add_pipe("token_classification_transformer", config=config)
+        text, expected = example
+        doc = nlp(text)
+
+        for token, label in zip(doc, expected):
+            assert token.pos_ == label
+
     def test_to_and_from_disk(self):
         """tests if the pipeline can be serialized to disk."""
 
         nlp = spacy.blank("en")
-        nlp.add_pipe("token_classification_transformer", config=EXAMPLES[0][0])
+        nlp.add_pipe("token_classification_transformer", config=EXAMPLES_NER[0][0])
 
         transformer = nlp.get_pipe("token_classification_transformer")
 
