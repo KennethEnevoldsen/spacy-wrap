@@ -255,7 +255,7 @@ class TokenClassificationTransformer(TrainablePipe):
         self.set_extra_annotations(docs, predictions)
 
     @staticmethod
-    def convert_to_token_predictions(
+    def convert_to_token_predictions(  # noqa: C901
         data: TransformerData,
         aggregation_strategy: Literal["first", "average", "max"],
         labels: List[str],
@@ -303,9 +303,49 @@ class TokenClassificationTransformer(TrainablePipe):
         token_probabilities = []
         token_tags = []
         logits = data.model_output.logits[0]
-        for align in data.align:
-            # aggregate the logits for each token
-            agg_token_logits = agg(logits[align.data[:, 0]])
+        for i, align in enumerate(data.align):
+            if align.data:
+                # aggregate the logits for each token
+                agg_token_logits = agg(logits[align.data[:, 0]])
+            else:
+                # if align.data is empty that means that there is likely an UNK
+                # token in the input. We can estimate the range based on the previous
+                # and next token. if that fails, we raise an error.
+                if (i + 1 < len(data.align) and not data.align[i + 1].data) or (
+                    i > 0 and not data.align[i - 1].data
+                ):
+                    raise ValueError(
+                        "Unexpected empty align data. This is likely caused by "
+                        + "repeating UNK tokens. Please create an issue on the "
+                        + "spacy-wrap repository.",
+                    )
+
+                prev_tok = max(data.align[i - 1].data[:, 0]) if i > 0 else None
+                next_tok = (
+                    min(data.align[i + 1].data[:, 0]) if i < len(data.align) else None
+                )
+
+                if (
+                    prev_tok is not None
+                    and next_tok is not None
+                    and next_tok > prev_tok + 1
+                ):
+                    agg_token_logits = agg(logits[prev_tok + 1 : next_tok])
+                elif (
+                    next_tok is None
+                    and prev_tok is not None
+                    and prev_tok + 1 < len(logits)
+                ):
+                    agg_token_logits = agg(logits[prev_tok + 1 :])
+                elif prev_tok is None and next_tok is not None and next_tok > 0:
+                    agg_token_logits = agg(logits[:next_tok])
+                else:
+                    raise ValueError(
+                        "Unexpected empty align data. This is likely caused by "
+                        + "repeating UNK tokens. Please create an issue on the "
+                        + "spacy-wrap repository.",
+                    )
+
             token_probabilities_ = {
                 "prob": softmax(agg_token_logits).round(decimals=3),
                 "label": labels,
