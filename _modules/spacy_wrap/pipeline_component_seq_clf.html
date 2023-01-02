@@ -269,9 +269,9 @@
 <span class="s2">[sequence_classification_transformer.model]</span>
 <span class="s2">@architectures = &quot;spacy-wrap.SequenceClassificationTransformerModel.v1&quot;</span>
 <span class="s2">tokenizer_config = {&quot;use_fast&quot;: true}</span>
-<span class="s2">transformer_config = </span><span class="si">{}</span><span class="s2"></span>
+<span class="s2">transformer_config = </span><span class="si">{}</span>
 <span class="s2">mixed_precision = false</span>
-<span class="s2">grad_scaler_config = </span><span class="si">{}</span><span class="s2"></span>
+<span class="s2">grad_scaler_config = </span><span class="si">{}</span>
 
 <span class="s2">[sequence_classification_transformer.model.get_spans]</span>
 <span class="s2">@span_getters = &quot;spacy-transformers.strided_spans.v1&quot;</span>
@@ -297,7 +297,7 @@
     <span class="n">labels</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">assign_to_cats</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Construct a SequenceClassificationTransformer component, which lets you</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct a SequenceClassificationTransformer component, which lets you</span>
 <span class="sd">    plug a model from the Huggingface transformers library into spaCy so you</span>
 <span class="sd">    can use it in your pipeline. The component will add a Doc extension with</span>
 <span class="sd">    the name specified in the config/arguments, which you can use to access the</span>
@@ -364,7 +364,7 @@
 
 
 <span class="k">class</span> <span class="nc">SequenceClassificationTransformer</span><span class="p">(</span><span class="n">TrainablePipe</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;spaCy pipeline component that provides access to a transformer model</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;spaCy pipeline component that provides access to a transformer model</span>
 <span class="sd">    from the Huggingface transformers library. Usually you will connect</span>
 <span class="sd">    subsequent components to the shared transformer using the</span>
 <span class="sd">    TransformerListener layer. This works similarly to spaCy&#39;s Tok2Vec</span>
@@ -400,7 +400,7 @@
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sequence_classification_transformer&quot;</span><span class="p">,</span>
         <span class="n">max_batch_items</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span> <span class="o">*</span> <span class="mi">32</span><span class="p">,</span>  <span class="c1"># Max size of padded batch</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initialize the transformer component.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the transformer component.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span> <span class="o">=</span> <span class="n">vocab</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
@@ -451,7 +451,7 @@
         <span class="n">docs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Doc</span><span class="p">],</span>
         <span class="n">predictions</span><span class="p">:</span> <span class="n">FullTransformerBatch</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Assign the extracted features to the Doc objects. By default, the</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assign the extracted features to the Doc objects. By default, the</span>
 <span class="sd">        TransformerData object is written to the doc._.{doc_extension_trf_data}</span>
 <span class="sd">        attribute. Your set_extra_annotations callback is then called, if</span>
 <span class="sd">        provided.</span>
@@ -474,7 +474,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_extra_annotations</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">:</span> <span class="n">Doc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Doc</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Apply the pipe to one document. The document is modified in place,</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the pipe to one document. The document is modified in place,</span>
 <span class="sd">        and returned. This usually happens under the hood when the nlp object</span>
 <span class="sd">        is called on a text and all components are applied to the Doc.</span>
 
@@ -489,7 +489,7 @@
         <span class="k">return</span> <span class="n">doc</span>
 
     <span class="k">def</span> <span class="nf">pipe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Doc</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Doc</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Apply the pipe to a stream of documents. This usually happens under</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the pipe to a stream of documents. This usually happens under</span>
 <span class="sd">        the hood when the nlp object is called on a text and all components are</span>
 <span class="sd">        applied to the Doc.</span>
 
@@ -508,7 +508,7 @@
             <span class="k">yield from</span> <span class="n">outer_batch</span>
 
     <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Doc</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FullTransformerBatch</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Apply the pipeline&#39;s model to a batch of docs, without modifying</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the pipeline&#39;s model to a batch of docs, without modifying</span>
 <span class="sd">        them. Returns the extracted features as the FullTransformerBatch</span>
 <span class="sd">        dataclass.</span>
 
@@ -525,7 +525,7 @@
         <span class="k">return</span> <span class="n">activations</span>
 
     <span class="k">def</span> <span class="nf">__initialize_component</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Initialize the component. This avoid the need to call</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the component. This avoid the need to call</span>
 <span class="sd">        nlp.initialize().</span>
 
 <span class="sd">        For related issue see:</span>
@@ -552,7 +552,7 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">nlp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Language</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initialize the pipe for training, using data examples if available.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the pipe for training, using data examples if available.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            get_examples (Callable[[], Iterable[Example]]): Optional function that</span>
@@ -564,7 +564,7 @@
     <span class="k">def</span> <span class="nf">to_disk</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Serialize the pipe to disk.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Serialize the pipe to disk.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            path (str / Path): Path to a directory.</span>
@@ -579,7 +579,7 @@
     <span class="k">def</span> <span class="nf">from_disk</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">exclude</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SequenceClassificationTransformer&quot;</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Load the pipe from disk.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load the pipe from disk.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            path (str / Path): Path to a directory.</span>

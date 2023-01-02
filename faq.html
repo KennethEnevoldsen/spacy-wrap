@@ -256,15 +256,15 @@
 you’ll usually want to clone the repository and build the package from the
 source. This will also install the required development dependencies
 and test utilities defined in the <a class="reference external" href="https://github.com/KennethEnevoldsen/spacy-wrap/blob/master/requirements.txt">requirements.txt</a>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -r requirements.txt
-pip install -e .
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
 
-python -m pytest
+python<span class="w"> </span>-m<span class="w"> </span>pytest
 </pre></div>
 </div>
 <p>which will run all the test in the <cite>tests</cite> folder.</p>
 <p>Specific tests can be run using:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m pytest tests/desired_test.py
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>tests/desired_test.py
 </pre></div>
 </div>
 </section>
@@ -275,12 +275,12 @@ documentation. It uses the <a class="reference external" href="https://github.co
 with custom styling.</p>
 <p>To make the documentation you can run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># install sphinx, themes and extensions</span>
-pip install -r requirements.txt
-pip install -e .
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
 
 <span class="c1"># generate html from documentations</span>
 
-make -C docs html
+make<span class="w"> </span>-C<span class="w"> </span>docs<span class="w"> </span>html
 </pre></div>
 </div>
 </section>
