@@ -20,3 +20,6 @@ test/*
 
 # virtual env
 spacy_wrap_venv1/*
+
+# ignore tmp files
+tmp*.py
