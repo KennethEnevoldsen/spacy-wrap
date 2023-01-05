@@ -251,7 +251,7 @@ class SequenceClassificationTransformer(TrainablePipe):
             setattr(doc._, f"{self.doc_extension_prediction}_prob", probs)
             label = self.label_getter(doc)
             setattr(doc._, self.doc_extension_prediction, label)
-            if self.assign_to_cats:
+            if self.assign_to_cats and label is not None:
                 for prob, label in zip(probs["prob"], probs["labels"]):
                     doc.cats[label] = prob
 

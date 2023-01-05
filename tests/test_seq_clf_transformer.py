@@ -14,7 +14,7 @@ EXAMPLES.append(
             "doc_extension_prediction": "hate_speech",
             "labels": ["Not hate Speech", "Hate speech"],
             "model": {
-                "name": "DaNLP/da-bert-hatespeech-detection",
+                "name": "alexandrainst/da-hatespeech-detection-base",
             },
         },
         [("Senile gamle idiot", "Hate speech"), ("Jeg er glad", "Not hate Speech")],
@@ -24,10 +24,14 @@ EXAMPLES.append(
     (
         {
             "model": {
-                "name": "DaNLP/da-bert-hatespeech-detection",
+                "name": "alexandrainst/da-hatespeech-detection-base",
             },
         },
-        [("Senile gamle idiot", "offensive"), ("Jeg er glad", "not offensive")],
+        [
+            ("Senile gamle idiot", "offensive"),
+            ("Jeg er glad", "not offensive"),
+            ("", None),
+        ],
     ),
 )
 EXAMPLES.append(
@@ -76,7 +80,8 @@ class TestSequenceClassificationTransformer:
             assert isinstance(prob, dict)
 
             if "assign_to_cats" not in config or config["assign_to_cats"]:
-                assert max(doc.cats, key=doc.cats.get) == label
+                if label:
+                    assert max(doc.cats, key=doc.cats.get) == label
             else:
                 assert doc.cats == {}
 
@@ -88,7 +93,7 @@ class TestSequenceClassificationTransformer:
             "doc_extension_prediction": "hate_speech",
             "labels": ["Not hate Speech", "Hate speech"],
             "model": {
-                "name": "DaNLP/da-bert-hatespeech-detection",
+                "name": "alexandrainst/da-hatespeech-detection-base",
             },
         }
         nlp.add_pipe("sequence_classification_transformer", config=config)
