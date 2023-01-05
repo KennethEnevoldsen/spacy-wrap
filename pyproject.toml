@@ -79,6 +79,7 @@ file = "LICENSE"
 name = "MIT"
 
 [project.scripts]
+
 sequence_classification_transformer =  "spacy_wrap.pipeline_component_seq_clf:make_sequence_classification_transformer"
 token_classification_transformer = "spacy_wrap.pipeline_component_tok_clf:make_token_classification_transformer"
 SequenceClassificationTransformerModel_v1 = "spacy_wrap:architectures.create_SequenceClassificationTransformerModel_v1"
