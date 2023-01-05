@@ -66,6 +66,248 @@ stride = 96
 DEFAULT_CONFIG = Config().from_str(DEFAULT_CONFIG_STR)
 
 
+class SequenceClassificationTransformer(TrainablePipe):
+    """spaCy pipeline component that provides access to a transformer model
+    from the Huggingface transformers library. Usually you will connect
+    subsequent components to the shared transformer using the
+    TransformerListener layer. This works similarly to spaCy's Tok2Vec
+    component and Tok2VecListener sublayer. The activations from the
+    transformer are saved in the doc._.{doc_extension_trf_data} extension
+    attribute. You can also provide a callback to set additional annotations.
+
+    Args:
+        vocab (Vocab): The Vocab object for the pipeline.
+        model (Model[List[Doc], FullTransformerBatch]): A thinc Model object wrapping
+            the transformer. Usually you will want to use the TransformerModel
+            layer for this.
+        set_extra_annotations (Callable[[List[Doc], FullTransformerBatch], None]): A
+            callback to set additional information onto the batch of `Doc` objects.
+            The doc._.{doc_extension_trf_data} attribute is set prior to calling the
+            callback as well as doc._.{doc_extension_prediction} and
+            doc._.{doc_extension_prediction}_prob. By default, no additional annotations
+            are set.
+        labels (List[str]): A list of labels which the transformer model outputs, should
+            be ordered.
+    """
+
+    def __initialize_component(self) -> None:
+        """Initialize the component. This avoid the need to call
+        nlp.initialize().
+
+        For related issue see:
+        https://github.com/explosion/spaCy/issues/7027
+        """
+        if self.is_initialized:  # type: ignore
+            return
+        self.model.initialize()
+
+        # extract hf model
+        hf_model = self.model.layers[0].shims[0]._model
+        if self.model_labels is None:  # type: ignore
+            # extract hf_model.config.label2id.items()
+            # convert to sorted list
+            self.model_labels = [
+                tag[0]
+                for tag in sorted(hf_model.config.label2id.items(), key=lambda x: x[1])
+            ]
+        self.is_initialized = True
+
+    def __init__(
+        self,
+        vocab: Vocab,
+        model: Model[List[Doc], FullTransformerBatch],
+        labels: Optional[List[str]],
+        assign_to_cats: bool,
+        doc_extension_trf_data: str,
+        doc_extension_prediction: str,
+        set_extra_annotations: Callable = null_annotation_setter,
+        *,
+        name: str = "sequence_classification_transformer",
+        max_batch_items: int = 128 * 32,  # Max size of padded batch
+    ):
+        """Initialize the transformer component."""
+        self.name = name
+        self.vocab = vocab
+        self.model = model
+        if not isinstance(self.model, Model):
+            raise ValueError(f"Expected Thinc Model, got: {type(self.model)}")
+        self.set_extra_annotations = set_extra_annotations
+        self.cfg = {"max_batch_items": max_batch_items}
+        self.doc_extension_trf_data = doc_extension_trf_data
+        self.model_labels = labels  # type: ignore
+        self.doc_extension_prediction = doc_extension_prediction
+        self.assign_to_cats = assign_to_cats
+        self.is_initialized = False
+
+        install_extensions(self.doc_extension_trf_data)
+        install_extensions(self.doc_extension_prediction)
+        install_extensions(f"{self.doc_extension_prediction}_prob")
+
+        self.__initialize_component()
+
+    @property
+    def is_trainable(self) -> bool:
+        return False
+
+    def prob_getter(self, doc) -> dict:
+        trf_data = getattr(doc._, self.doc_extension_trf_data)
+        if trf_data.tensors:
+            return {
+                "prob": softmax(trf_data.tensors[0][0]).round(decimals=3),
+                "labels": self.model_labels,
+            }
+        warnings.warn(
+            "The tensors from the transformer forward pass is empty this is likely"
+            + " caused by an empty input string. Thus the model will return None",
+        )
+        return {
+            "prob": None,
+            "labels": self.model_labels,
+        }
+
+    def label_getter(self, doc) -> Optional[str]:
+        prob = getattr(doc._, f"{self.doc_extension_prediction}_prob")
+        if prob["prob"] is not None:
+            return self.model_labels[int(prob["prob"].argmax())]
+        return None
+
+    def set_annotations(
+        self,
+        docs: Iterable[Doc],
+        predictions: FullTransformerBatch,
+    ) -> None:
+        """Assign the extracted features to the Doc objects. By default, the
+        TransformerData object is written to the doc._.{doc_extension_trf_data}
+        attribute. Your set_extra_annotations callback is then called, if
+        provided.
+
+        Args:
+            docs (Iterable[Doc]): The documents to modify.
+            predictions: (FullTransformerBatch): A batch of activations.
+        """
+        doc_data = split_by_doc(predictions)
+        for doc, data in zip(docs, doc_data):
+            setattr(doc._, self.doc_extension_trf_data, data)
+            probs = self.prob_getter(doc)
+            setattr(doc._, f"{self.doc_extension_prediction}_prob", probs)
+            label = self.label_getter(doc)
+            setattr(doc._, self.doc_extension_prediction, label)
+            if self.assign_to_cats:
+                for prob, label in zip(probs["prob"], probs["labels"]):
+                    doc.cats[label] = prob
+
+        self.set_extra_annotations(docs, predictions)
+
+    def pipe(self, stream: Iterable[Doc], *, batch_size: int = 128) -> Iterator[Doc]:
+        """Apply the pipe to a stream of documents. This usually happens under
+        the hood when the nlp object is called on a text and all components are
+        applied to the Doc.
+
+        Args:
+            stream (Iterable[Doc]): A stream of documents.
+            batch_size (int): The number of documents to buffer.
+
+        Yield:
+            (Doc): Processed documents in order.
+        """
+        for outer_batch in minibatch(stream, batch_size):
+            outer_batch = list(outer_batch)
+            for indices in batch_by_length(outer_batch, self.cfg["max_batch_items"]):
+                subbatch = [outer_batch[i] for i in indices]
+                self.set_annotations(subbatch, self.predict(subbatch))
+            yield from outer_batch
+
+    def predict(self, docs: Iterable[Doc]) -> FullTransformerBatch:
+        """Apply the pipeline's model to a batch of docs, without modifying
+        them. Returns the extracted features as the FullTransformerBatch
+        dataclass.
+
+        Args:
+            docs (Iterable[Doc]): The documents to predict.
+        Returns:
+            (FullTransformerBatch): The extracted features.
+        """
+        if not any(len(doc) for doc in docs):
+            # Handle cases where there are no tokens in any docs.
+            activations = FullTransformerBatch.empty(len(docs))  # type: ignore
+        else:
+            activations = self.model.predict(docs)
+        return activations
+
+    def initialize(
+        self,
+        get_examples: Callable[[], Iterable[Example]],
+        *,
+        nlp: Optional[Language] = None,
+    ):
+        """Initialize the pipe for training, using data examples if available.
+
+        Args:
+            get_examples (Callable[[], Iterable[Example]]): Optional function that
+                returns gold-standard Example objects.
+            nlp (Language): The current nlp object.
+        """
+        self.__initialize_component()
+
+    def to_disk(
+        self, path: Union[str, Path], *, exclude: Iterable[str] = tuple()
+    ) -> None:
+        """Serialize the pipe to disk.
+
+        Args:
+            path (str / Path): Path to a directory.
+            exclude (Iterable[str]): String names of serialization fields to exclude.
+        """
+        serialize = {}
+        serialize["cfg"] = lambda p: srsly.write_json(p, self.cfg)
+        serialize["vocab"] = self.vocab.to_disk
+        serialize["model"] = self.model.to_disk
+        util.to_disk(path, serialize, exclude)
+
+    def from_disk(
+        self, path: Union[str, Path], *, exclude: Iterable[str] = tuple()
+    ) -> "SequenceClassificationTransformer":
+        """Load the pipe from disk.
+
+        Args:
+            path (str / Path): Path to a directory.
+            exclude (Iterable[str]): String names of serialization fields to exclude.
+
+        Returns:
+            (Transformer): The loaded object.
+        """
+
+        def load_model(p):
+            try:
+                with open(p, "rb") as mfile:
+                    self.model.from_bytes(mfile.read())
+            except AttributeError:
+                raise ValueError(Errors.E149) from None
+
+        deserialize = {
+            "vocab": self.vocab.from_disk,
+            "cfg": lambda p: self.cfg.update(deserialize_config(p)),
+            "model": load_model,
+        }
+        util.from_disk(path, deserialize, exclude)
+        return self
+
+    def __call__(self, doc: Doc) -> Doc:
+        """Apply the pipe to one document. The document is modified in place,
+        and returned. This usually happens under the hood when the nlp object
+        is called on a text and all components are applied to the Doc.
+
+        Args:
+            docs (Doc): The Doc to process.
+
+        Returns:
+            (Doc): The processed Doc.
+        """
+        outputs = self.predict([doc])
+        self.set_annotations([doc], outputs)
+        return doc
+
+
 @Language.factory(
     "sequence_classification_transformer",
     default_config=DEFAULT_CONFIG["sequence_classification_transformer"],
@@ -132,7 +374,7 @@ def make_sequence_classification_transformer(
         >>> doc = nlp("spaCy is a wonderful tool")
         >>> doc.cats
         {'NEGATIVE': 0.001, 'POSITIVE': 0.999}
-    """
+    """  # noqa: E501
     clf_trf = SequenceClassificationTransformer(
         vocab=nlp.vocab,
         model=model,
@@ -145,245 +387,3 @@ def make_sequence_classification_transformer(
         assign_to_cats=assign_to_cats,
     )
     return clf_trf
-
-
-class SequenceClassificationTransformer(TrainablePipe):
-    """spaCy pipeline component that provides access to a transformer model
-    from the Huggingface transformers library. Usually you will connect
-    subsequent components to the shared transformer using the
-    TransformerListener layer. This works similarly to spaCy's Tok2Vec
-    component and Tok2VecListener sublayer. The activations from the
-    transformer are saved in the doc._.{doc_extension_trf_data} extension
-    attribute. You can also provide a callback to set additional annotations.
-
-    Args:
-        vocab (Vocab): The Vocab object for the pipeline.
-        model (Model[List[Doc], FullTransformerBatch]): A thinc Model object wrapping
-            the transformer. Usually you will want to use the TransformerModel
-            layer for this.
-        set_extra_annotations (Callable[[List[Doc], FullTransformerBatch], None]): A
-            callback to set additional information onto the batch of `Doc` objects.
-            The doc._.{doc_extension_trf_data} attribute is set prior to calling the
-            callback as well as doc._.{doc_extension_prediction} and
-            doc._.{doc_extension_prediction}_prob. By default, no additional annotations
-            are set.
-        labels (List[str]): A list of labels which the transformer model outputs, should
-            be ordered.
-    """
-
-    def __init__(
-        self,
-        vocab: Vocab,
-        model: Model[List[Doc], FullTransformerBatch],
-        labels: List[str],
-        assign_to_cats: bool,
-        doc_extension_trf_data: str,
-        doc_extension_prediction: str,
-        set_extra_annotations: Callable = null_annotation_setter,
-        *,
-        name: str = "sequence_classification_transformer",
-        max_batch_items: int = 128 * 32,  # Max size of padded batch
-    ):
-        """Initialize the transformer component."""
-        self.name = name
-        self.vocab = vocab
-        self.model = model
-        if not isinstance(self.model, Model):
-            raise ValueError(f"Expected Thinc Model, got: {type(self.model)}")
-        self.set_extra_annotations = set_extra_annotations
-        self.cfg = {"max_batch_items": max_batch_items}
-        self.doc_extension_trf_data = doc_extension_trf_data
-        self.model_labels = labels
-        self.doc_extension_prediction = doc_extension_prediction
-        self.assign_to_cats = assign_to_cats
-        self.is_initialized = False
-
-        install_extensions(self.doc_extension_trf_data)
-        install_extensions(self.doc_extension_prediction)
-        install_extensions(f"{self.doc_extension_prediction}_prob")
-
-        self.__initialize_component()
-
-    @property
-    def is_trainable(self) -> bool:
-        return False
-
-    def prob_getter(self, doc) -> dict:
-        trf_data = getattr(doc._, self.doc_extension_trf_data)
-        if trf_data.tensors:
-            return {
-                "prob": softmax(trf_data.tensors[0][0]).round(decimals=3),
-                "labels": self.model_labels,
-            }
-        warnings.warn(
-            "The tensors from the transformer forward pass is empty this is likely"
-            + " caused by an empty input string. Thus the model will return None",
-        )
-        return {
-            "prob": None,
-            "labels": self.model_labels,
-        }
-
-    def label_getter(self, doc) -> Optional[str]:
-        prob = getattr(doc._, f"{self.doc_extension_prediction}_prob")
-        if prob["prob"] is not None:
-            return self.model_labels[int(prob["prob"].argmax())]
-        return None
-
-    def set_annotations(
-        self,
-        docs: Iterable[Doc],
-        predictions: FullTransformerBatch,
-    ) -> None:
-        """Assign the extracted features to the Doc objects. By default, the
-        TransformerData object is written to the doc._.{doc_extension_trf_data}
-        attribute. Your set_extra_annotations callback is then called, if
-        provided.
-
-        Args:
-            docs (Iterable[Doc]): The documents to modify.
-            predictions: (FullTransformerBatch): A batch of activations.
-        """
-        doc_data = split_by_doc(predictions)
-        for doc, data in zip(docs, doc_data):
-            setattr(doc._, self.doc_extension_trf_data, data)
-            probs = self.prob_getter(doc)
-            setattr(doc._, f"{self.doc_extension_prediction}_prob", probs)
-            label = self.label_getter(doc)
-            setattr(doc._, self.doc_extension_prediction, label)
-            if self.assign_to_cats:
-                for prob, label in zip(probs["prob"], probs["labels"]):
-                    doc.cats[label] = prob
-
-        self.set_extra_annotations(docs, predictions)
-
-    def __call__(self, doc: Doc) -> Doc:
-        """Apply the pipe to one document. The document is modified in place,
-        and returned. This usually happens under the hood when the nlp object
-        is called on a text and all components are applied to the Doc.
-
-        Args:
-            docs (Doc): The Doc to process.
-
-        Returns:
-            (Doc): The processed Doc.
-        """
-        outputs = self.predict([doc])
-        self.set_annotations([doc], outputs)
-        return doc
-
-    def pipe(self, stream: Iterable[Doc], *, batch_size: int = 128) -> Iterator[Doc]:
-        """Apply the pipe to a stream of documents. This usually happens under
-        the hood when the nlp object is called on a text and all components are
-        applied to the Doc.
-
-        Args:
-            stream (Iterable[Doc]): A stream of documents.
-            batch_size (int): The number of documents to buffer.
-
-        Yield:
-            (Doc): Processed documents in order.
-        """
-        for outer_batch in minibatch(stream, batch_size):
-            outer_batch = list(outer_batch)
-            for indices in batch_by_length(outer_batch, self.cfg["max_batch_items"]):
-                subbatch = [outer_batch[i] for i in indices]
-                self.set_annotations(subbatch, self.predict(subbatch))
-            yield from outer_batch
-
-    def predict(self, docs: Iterable[Doc]) -> FullTransformerBatch:
-        """Apply the pipeline's model to a batch of docs, without modifying
-        them. Returns the extracted features as the FullTransformerBatch
-        dataclass.
-
-        Args:
-            docs (Iterable[Doc]): The documents to predict.
-        Returns:
-            (FullTransformerBatch): The extracted features.
-        """
-        if not any(len(doc) for doc in docs):
-            # Handle cases where there are no tokens in any docs.
-            activations = FullTransformerBatch.empty(len(docs))
-        else:
-            activations = self.model.predict(docs)
-        return activations
-
-    def __initialize_component(self) -> None:
-        """Initialize the component. This avoid the need to call
-        nlp.initialize().
-
-        For related issue see:
-        https://github.com/explosion/spaCy/issues/7027
-        """
-        if self.is_initialized:
-            return
-        self.model.initialize()
-
-        # extract hf model
-        hf_model = self.model.layers[0].shims[0]._model
-        if self.model_labels is None:
-            # extract hf_model.config.label2id.items()
-            # convert to sorted list
-            self.model_labels = [
-                tag[0]
-                for tag in sorted(hf_model.config.label2id.items(), key=lambda x: x[1])
-            ]
-        self.is_initialized = True
-
-    def initialize(
-        self,
-        get_examples: Callable[[], Iterable[Example]],
-        *,
-        nlp: Optional[Language] = None,
-    ):
-        """Initialize the pipe for training, using data examples if available.
-
-        Args:
-            get_examples (Callable[[], Iterable[Example]]): Optional function that
-                returns gold-standard Example objects.
-            nlp (Language): The current nlp object.
-        """
-        self.__initialize_component()
-
-    def to_disk(
-        self, path: Union[str, Path], *, exclude: Iterable[str] = tuple()
-    ) -> None:
-        """Serialize the pipe to disk.
-
-        Args:
-            path (str / Path): Path to a directory.
-            exclude (Iterable[str]): String names of serialization fields to exclude.
-        """
-        serialize = {}
-        serialize["cfg"] = lambda p: srsly.write_json(p, self.cfg)
-        serialize["vocab"] = self.vocab.to_disk
-        serialize["model"] = self.model.to_disk
-        util.to_disk(path, serialize, exclude)
-
-    def from_disk(
-        self, path: Union[str, Path], *, exclude: Iterable[str] = tuple()
-    ) -> "SequenceClassificationTransformer":
-        """Load the pipe from disk.
-
-        Args:
-            path (str / Path): Path to a directory.
-            exclude (Iterable[str]): String names of serialization fields to exclude.
-
-        Returns:
-            (Transformer): The loaded object.
-        """
-
-        def load_model(p):
-            try:
-                with open(p, "rb") as mfile:
-                    self.model.from_bytes(mfile.read())
-            except AttributeError:
-                raise ValueError(Errors.E149) from None
-
-        deserialize = {
-            "vocab": self.vocab.from_disk,
-            "cfg": lambda p: self.cfg.update(deserialize_config(p)),
-            "model": load_model,
-        }
-        util.from_disk(path, deserialize, exclude)
-        return self

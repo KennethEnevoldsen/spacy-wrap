@@ -46,7 +46,7 @@ EXAMPLES_NER.append(
             },
         },
         (
-            "Se realizó estudio analítico destacando incremento de niveles de PTH y vitamina D (103,7 pg/ml y 272 ng/ml, respectivamente), atribuidos al exceso de suplementación de vitamina D .",
+            "Se realizó estudio analítico destacando incremento de niveles de PTH y vitamina D (103,7 pg/ml y 272 ng/ml, respectivamente), atribuidos al exceso de suplementación de vitamina D .",  # noqa: E501
             [
                 ("PTH", (9, 10), "PROTEINAS"),
                 ("vitamina D", (11, 13), "NORMALIZABLES"),

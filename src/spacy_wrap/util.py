@@ -122,9 +122,9 @@ def add_pos_tags(
     Returns:
         Doc: A doc with new pos tags
     """
-    extension = extension + "_"
+    doc_extension = extension + "_"
     for token, tag in zip(doc, pos):
-        setattr(token, extension, tag)
+        setattr(token, doc_extension, tag)
     return doc
 
 
