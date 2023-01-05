@@ -39,8 +39,7 @@ and test utilities defined in the `requirements.txt <https://github.com/KennethE
 
 .. code-block:: bash
 
-   pip install -r requirements.txt
-   pip install -e .
+   pip install -e ".[tests]"
 
    python -m pytest
 
@@ -67,8 +66,7 @@ To make the documentation you can run:
 .. code-block:: bash
 
    # install sphinx, themes and extensions
-   pip install -r requirements.txt
-   pip install -e .
+   pip install -e ".[docs]"
 
    # generate html from documentations
 
