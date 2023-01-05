@@ -7,3 +7,7 @@ from .pipeline_component_seq_clf import (  # noqa
     SequenceClassificationTransformer,
     make_sequence_classification_transformer,
 )
+from .pipeline_component_tok_clf import (  # noqa
+    TokenClassificationTransformer,
+    make_token_classification_transformer,
+)

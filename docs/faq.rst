@@ -34,13 +34,11 @@ How do I test the code and run the test suite?
 This package comes with an extensive test suite. In order to run the tests,
 you'll usually want to clone the repository and build the package from the
 source. This will also install the required development dependencies
-and test utilities defined in the `requirements.txt <https://github.com/KennethEnevoldsen/spacy-wrap/blob/master/requirements.txt>`__.
-
+and test utilities defined in the extras_require section of the :code:`pyproject.toml`.
 
 .. code-block:: bash
 
-   pip install -r requirements.txt
-   pip install -e .
+   pip install -e ".[tests]"
 
    python -m pytest
 
@@ -52,6 +50,14 @@ Specific tests can be run using:
 .. code-block:: bash
 
    python -m pytest tests/desired_test.py
+
+Does this package run on X?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This package is intended to run on all major OS, this includes Windows (latest version), MacOS (latest) and the latest version of Linux (Ubuntu). 
+Similarly it also tested on python 3.8, and 3.9.
+Please note these are only the systems this package is being actively tested on, if you run on a similar system (e.g. an earlier version of Linux) this package
+will likely run there as well, if not please create an issue.
 
 
 
@@ -67,8 +73,7 @@ To make the documentation you can run:
 .. code-block:: bash
 
    # install sphinx, themes and extensions
-   pip install -r requirements.txt
-   pip install -e .
+   pip install -e ".[docs]"
 
    # generate html from documentations
 

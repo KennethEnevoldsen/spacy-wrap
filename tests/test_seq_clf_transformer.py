@@ -3,7 +3,6 @@ import shutil
 
 import pytest
 import spacy
-
 import spacy_wrap  # noqa F401
 
 EXAMPLES = []
@@ -30,14 +29,14 @@ EXAMPLES.append(
         [
             ("Senile gamle idiot", "offensive"),
             ("Jeg er glad", "not offensive"),
-            ("", None),
+            ("", None),  # type: ignore
         ],
     ),
 )
 EXAMPLES.append(
     (
         {
-            "assign_to_cats": False,
+            "assign_to_cats": False,  # type: ignore
             "model": {
                 "name": "distilbert-base-uncased-finetuned-sst-2-english",
             },
@@ -45,7 +44,7 @@ EXAMPLES.append(
         [
             ("I like you. I love you", "POSITIVE"),
             ("I hate you. I dislike you", "NEGATIVE"),
-            ("", None),
+            ("", None),  # type: ignore
         ],
     ),
 )

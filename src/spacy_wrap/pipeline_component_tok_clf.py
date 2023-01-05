@@ -67,122 +67,74 @@ stride = 96
 DEFAULT_CONFIG = Config().from_str(DEFAULT_CONFIG_STR)
 
 
-@Language.factory(
-    "token_classification_transformer",
-    default_config=DEFAULT_CONFIG["token_classification_transformer"],
-)
-def make_token_classification_transformer(
-    nlp: Language,
-    name: str,
-    model: Model[List[Doc], FullTransformerBatch],
-    set_extra_annotations: Callable[[List[Doc], FullTransformerBatch], None],
-    max_batch_items: int,
-    doc_extension_trf_data: str,
-    doc_extension_prediction: str,
-    aggregation_strategy: Literal["first", "average", "max"],
-    labels: Optional[List[str]] = None,
-    predictions_to: Optional[List[Literal["pos", "tag", "ents"]]] = None,
-) -> "TokenClassificationTransformer":
-    """Construct a ClassificationTransformer component, which lets you plug a
-    model from the Huggingface transformers library into spaCy so you can use
-    it in your pipeline. One or more subsequent spaCy components can use the
-    transformer outputs as features in its model, with gradients backpropagated
-    to the single shared weights.
+def install_extensions(doc_ext_attr) -> None:
+    if not Doc.has_extension(doc_ext_attr):
+        Doc.set_extension(doc_ext_attr, default=None)
+
+
+def is_iob_tag(label: str) -> bool:
+    """Check if a label is an IOB tag.
 
     Args:
-        nlp (Language): The current nlp object.
-        name (str): The name of the component instance.
-        model (Model[List[Doc], FullTransformerBatch]): A thinc Model object wrapping
-            the transformer. Usually you will want to use the ClassificationTransformer
-            layer for this.
-        set_extra_annotations (Callable[[List[Doc], FullTransformerBatch], None]): A
-            callback to set additional information onto the batch of `Doc` objects.
-            The doc._.{doc_extension_trf_data} attribute is set prior to calling the callback
-            as well as doc._.{doc_extension_prediction} and doc._.{doc_extension_prediction}_prob.
-            By default, no additional annotations are set.
-        max_batch_items (int): The maximum number of items to process in a batch.
-        doc_extension_trf_data (str): The name of the doc extension to store the
-            transformer data in.
-        doc_extension_prediction (str): The name of the doc extension to store the
-            predictions in.
-        aggregation_strategy (Literal["first", "average", "max"]): The aggregation
-            strategy to use. Chosen to correspond to the aggregation strategies
-            used in the `TokenClassificationPipeline` in Huggingface:
-            https://huggingface.co/docs/transformers/v4.24.0/en/main_classes/pipelines#transformers.TokenClassificationPipeline.aggregation_strategy
-            “first”: Words will simply use the tag of the first token of the word
-            when there is ambiguity. “average”: Scores will be averaged first across
-            tokens, and then the maximum label is applied. “max”: Word entity will
-            simply be the token with the maximum score.
-        labels (List[str]): A list of labels which the transformer model outputs, should
-            be ordered.
-        predictions_to (Optional[List[Literal["pos", "tag", "ents"]]]): A list of
-            attributes the predictions should be written to. Default to None. In which
-            case it is inferred from the labels. If the labels are UPOS tags, the
-            predictions will be written to the "pos" attribute. If the labels are
-            IOB tags, the predictions will be written to the "ents" attribute. "tag" is
-            not inferred from the labels, but can be added explicitly.
-            Note that if the "pos" attribute is set the labels must be UPOS tags and if
-            the "ents" attribute is set the labels must be IOB tags.
+        label (str): The label to check.
 
     Returns:
-        TokenClassificationTransformer: The constructed component.
-
-    Example:
-        >>> import spacy
-        >>> import spacy_wrap
-        >>>
-        >>> nlp = spacy.blank("en")
-        >>> nlp.add_pipe("token_classification_transformer", config={
-        ...     "model": {"name": "vblagoje/bert-english-uncased-finetuned-pos"}}
-        ... )
-        >>> doc = nlp("My name is Wolfgang and I live in Berlin")
-        >>> print([tok.pos_ for tok in doc])
-        ["PRON", "NOUN", "AUX", "PROPN", "CCONJ", "PRON", "VERB", "ADP", "PROPN"]
+        (bool): True if the label is an IOB tag.
     """
-    clf_trf = TokenClassificationTransformer(
-        vocab=nlp.vocab,
-        model=model,
-        set_extra_annotations=set_extra_annotations,
-        max_batch_items=max_batch_items,
-        aggregation_strategy=aggregation_strategy,
-        name=name,
-        labels=labels,
-        doc_extension_trf_data=doc_extension_trf_data,
-        doc_extension_prediction=doc_extension_prediction,
-        predictions_to=predictions_to,
-    )
-    return clf_trf
+    label_ = label.lower()
+    return label_.startswith("i-") or label_.startswith("b-") or label_ == "o"
 
 
 class TokenClassificationTransformer(TrainablePipe):
     """spaCy pipeline component that provides access to a transformer model
-    from the Huggingface transformers library. Usually you will connect
-    subsequent components to the shared transformer using the
-    TransformerListener layer. This works similarly to spaCy's Tok2Vec
-    component and Tok2VecListener sublayer. The activations from the
-    transformer are saved in the doc._.trf_data extension attribute. You can
-    also provide a callback to set additional annotations.
+    from the Huggingface transformers library.
 
-    Args:
-        vocab (Vocab): The Vocab object for the pipeline.
-        model (Model[List[Doc], FullTransformerBatch]): A thinc Model object wrapping
-            the transformer. Usually you will want to use the TransformerModel
-            layer for this.
-        set_extra_annotations (Callable[[List[Doc], FullTransformerBatch], None]): A
-            callback to set additional information onto the batch of `Doc` objects.
-            The doc._.{doc_extension_trf_data} attribute is set prior to calling the
-            callback as well as doc._.{doc_extension_prediction} and
-            doc._.{doc_extension_prediction}_prob. By default, no additional annotations
-            are set.
-        labels (List[str]): A list of labels which the transformer model outputs, should
-            be ordered.
+    Usually you will connect subsequent components to the shared
+    transformer using the TransformerListener layer. This works
+    similarly to spaCy's Tok2Vec component and Tok2VecListener sublayer.
+    The activations from the transformer are saved in the doc._.trf_data
+    extension attribute. You can also provide a callback to set
+    additional annotations.
     """
+
+    def __initialize_component(self):
+        """Initialize the component. This avoid the need to call
+        nlp.initialize().
+
+        For related issue see:
+        https://github.com/explosion/spaCy/issues/7027
+        """
+        if self.is_initialized:
+            return
+        self.model.initialize()
+
+        # extract the labels from the model config
+        hf_model = self.model.layers[0].shims[0]._model
+        if self.model_labels is None:
+            # extract hf_model.config.label2id.items()
+            # convert to sorted list
+            self.model_labels = [
+                tag[0]
+                for tag in sorted(hf_model.config.label2id.items(), key=lambda x: x[1])
+            ]
+
+        # infer the predictions_to attribute
+        if self.predictions_to is None:
+            self.predictions_to = []
+            # check if labels are IOB tags
+            if all(is_iob_tag(label) for label in self.model_labels):
+                self.predictions_to.append("ents")
+            # check if labels are POS tags
+            if all(label in UPOS_TAGS for label in self.model_labels):
+                self.predictions_to.append("pos")
+
+        self.is_initialized = True
 
     def __init__(
         self,
         vocab: Vocab,
         model: Model[List[Doc], FullTransformerBatch],
-        labels: List[str],
+        labels: Optional[List[str]],
         doc_extension_trf_data: str,
         doc_extension_prediction: str,
         set_extra_annotations: Callable = null_annotation_setter,
@@ -192,7 +144,22 @@ class TokenClassificationTransformer(TrainablePipe):
         predictions_to: Optional[List[Literal["pos", "tag", "ents"]]] = None,
         aggregation_strategy: Literal["first", "average", "max"],
     ):
-        """Initialize the transformer component."""
+        """Initialize the transformer component.
+
+        Args:
+            vocab (Vocab): The Vocab object for the pipeline.
+            model (Model[List[Doc], FullTransformerBatch]): A thinc Model object
+                wrapping the transformer. Usually you will want to use the
+                TransformerModel layer for this.
+            set_extra_annotations (Callable[[List[Doc], FullTransformerBatch], None]): A
+                callback to set additional information onto the batch of `Doc` objects.
+                The doc._.{doc_extension_trf_data} attribute is set prior to calling the
+                callback as well as doc._.{doc_extension_prediction} and
+                doc._.{doc_extension_prediction}_prob. By default, no additional
+                    annotations are set.
+            labels (List[str]): A list of labels which the transformer model outputs,
+                should be ordered.
+        """
         self.name = name
         self.vocab = vocab
         self.model = model
@@ -315,22 +282,6 @@ class TokenClassificationTransformer(TrainablePipe):
 
         return token_tags, token_probabilities
 
-    def __call__(self, doc: Doc) -> Doc:
-        """Apply the pipe to one document. The document is modified in place,
-        and returned. This usually happens under the hood when the nlp object
-        is called on a text and all components are applied to the Doc.
-
-        Args:
-            docs (Doc): The Doc to process.
-
-        Returns:
-            (Doc): The processed Doc.
-        """
-        install_extensions(self.doc_extension_trf_data)
-        outputs = self.predict([doc])
-        self.set_annotations([doc], outputs)
-        return doc
-
     def pipe(self, stream: Iterable[Doc], *, batch_size: int = 128) -> Iterator[Doc]:
         """Apply the pipe to a stream of documents. This usually happens under
         the hood when the nlp object is called on a text and all components are
@@ -363,43 +314,10 @@ class TokenClassificationTransformer(TrainablePipe):
         """
         if not any(len(doc) for doc in docs):
             # Handle cases where there are no tokens in any docs.
-            activations = FullTransformerBatch.empty(len(docs))
+            activations = FullTransformerBatch.empty(len(docs))  # type: ignore
         else:
             activations = self.model.predict(docs)
         return activations
-
-    def __initialize_component(self):
-        """Initialize the component. This avoid the need to call
-        nlp.initialize().
-
-        For related issue see:
-        https://github.com/explosion/spaCy/issues/7027
-        """
-        if self.is_initialized:
-            return
-        self.model.initialize()
-
-        # extract the labels from the model config
-        hf_model = self.model.layers[0].shims[0]._model
-        if self.model_labels is None:
-            # extract hf_model.config.label2id.items()
-            # convert to sorted list
-            self.model_labels = [
-                tag[0]
-                for tag in sorted(hf_model.config.label2id.items(), key=lambda x: x[1])
-            ]
-
-        # infer the predictions_to attribute
-        if self.predictions_to is None:
-            self.predictions_to = []
-            # check if labels are IOB tags
-            if all(is_iob_tag(label) for label in self.model_labels):
-                self.predictions_to.append("ents")
-            # check if labels are POS tags
-            if all(label in UPOS_TAGS for label in self.model_labels):
-                self.predictions_to.append("pos")
-
-        self.is_initialized = True
 
     def initialize(
         self,
@@ -457,20 +375,106 @@ class TokenClassificationTransformer(TrainablePipe):
         util.from_disk(path, deserialize, exclude)
         return self
 
+    def __call__(self, doc: Doc) -> Doc:
+        """Apply the pipe to one document. The document is modified in place,
+        and returned. This usually happens under the hood when the nlp object
+        is called on a text and all components are applied to the Doc.
 
-def install_extensions(doc_ext_attr) -> None:
-    if not Doc.has_extension(doc_ext_attr):
-        Doc.set_extension(doc_ext_attr, default=None)
+        Args:
+            docs (Doc): The Doc to process.
+
+        Returns:
+            (Doc): The processed Doc.
+        """
+        install_extensions(self.doc_extension_trf_data)
+        outputs = self.predict([doc])
+        self.set_annotations([doc], outputs)
+        return doc
 
 
-def is_iob_tag(label: str) -> bool:
-    """Check if a label is an IOB tag.
+@Language.factory(
+    "token_classification_transformer",
+    default_config=DEFAULT_CONFIG["token_classification_transformer"],
+)
+def make_token_classification_transformer(
+    nlp: Language,
+    name: str,
+    model: Model[List[Doc], FullTransformerBatch],
+    set_extra_annotations: Callable[[List[Doc], FullTransformerBatch], None],
+    max_batch_items: int,
+    doc_extension_trf_data: str,
+    doc_extension_prediction: str,
+    aggregation_strategy: Literal["first", "average", "max"],
+    labels: Optional[List[str]] = None,
+    predictions_to: Optional[List[Literal["pos", "tag", "ents"]]] = None,
+) -> "TokenClassificationTransformer":
+    """Construct a ClassificationTransformer component, which lets you plug a
+    model from the Huggingface transformers library into spaCy so you can use
+    it in your pipeline. One or more subsequent spaCy components can use the
+    transformer outputs as features in its model, with gradients backpropagated
+    to the single shared weights.
 
     Args:
-        label (str): The label to check.
+        nlp (Language): The current nlp object.
+        name (str): The name of the component instance.
+        model (Model[List[Doc], FullTransformerBatch]): A thinc Model object wrapping
+            the transformer. Usually you will want to use the ClassificationTransformer
+            layer for this.
+        set_extra_annotations (Callable[[List[Doc], FullTransformerBatch], None]): A
+            callback to set additional information onto the batch of `Doc` objects.
+            The doc._.{doc_extension_trf_data} attribute is set prior to calling the
+            callback as well as doc._.{doc_extension_prediction} and
+            doc._.{doc_extension_prediction}_prob. By default, no additional annotations
+            are set.
+        max_batch_items (int): The maximum number of items to process in a batch.
+        doc_extension_trf_data (str): The name of the doc extension to store the
+            transformer data in.
+        doc_extension_prediction (str): The name of the doc extension to store the
+            predictions in.
+        aggregation_strategy (Literal["first", "average", "max"]): The aggregation
+            strategy to use. Chosen to correspond to the aggregation strategies
+            used in the `TokenClassificationPipeline` in Huggingface:
+            https://huggingface.co/docs/transformers/v4.24.0/en/main_classes/pipelines#transformers.TokenClassificationPipeline.aggregation_strategy
+            “first”: Words will simply use the tag of the first token of the word
+            when there is ambiguity. “average”: Scores will be averaged first across
+            tokens, and then the maximum label is applied. “max”: Word entity will
+            simply be the token with the maximum score.
+        labels (List[str]): A list of labels which the transformer model outputs, should
+            be ordered.
+        predictions_to (Optional[List[Literal["pos", "tag", "ents"]]]): A list of
+            attributes the predictions should be written to. Default to None. In which
+            case it is inferred from the labels. If the labels are UPOS tags, the
+            predictions will be written to the "pos" attribute. If the labels are
+            IOB tags, the predictions will be written to the "ents" attribute. "tag" is
+            not inferred from the labels, but can be added explicitly.
+            Note that if the "pos" attribute is set the labels must be UPOS tags and if
+            the "ents" attribute is set the labels must be IOB tags.
 
     Returns:
-        (bool): True if the label is an IOB tag.
-    """
-    label_ = label.lower()
-    return label_.startswith("i-") or label_.startswith("b-") or label_ == "o"
+        TokenClassificationTransformer: The constructed component.
+
+    Example:
+        >>> import spacy
+        >>> import spacy_wrap
+        >>>
+        >>> nlp = spacy.blank("en")
+        >>> nlp.add_pipe("token_classification_transformer", config={
+        ...     "model": {"name": "vblagoje/bert-english-uncased-finetuned-pos"}}
+        ... )
+        >>> doc = nlp("My name is Wolfgang and I live in Berlin")
+        >>> print([tok.pos_ for tok in doc])
+        ["PRON", "NOUN", "AUX", "PROPN", "CCONJ", "PRON", "VERB", "ADP", "PROPN"]
+    """  # noqa: E501
+    clf_trf = TokenClassificationTransformer(
+        vocab=nlp.vocab,
+        model=model,
+        set_extra_annotations=set_extra_annotations,
+        max_batch_items=max_batch_items,
+        aggregation_strategy=aggregation_strategy,
+        name=name,
+        labels=labels,
+        doc_extension_trf_data=doc_extension_trf_data,
+        doc_extension_prediction=doc_extension_prediction,
+        predictions_to=predictions_to,
+    )
+    return clf_trf

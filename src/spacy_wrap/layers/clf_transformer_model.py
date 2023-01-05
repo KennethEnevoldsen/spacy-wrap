@@ -33,6 +33,49 @@ from transformers import (
 )
 
 
+def init(model: Model, X=None, Y=None):
+    if model.attrs["has_transformer"]:
+        return
+    name = model.attrs["name"]
+    tok_cfg = model._init_tokenizer_config
+    trf_cfg = model._init_transformer_config
+    hf_model = huggingface_from_pretrained(
+        name,
+        tok_cfg,
+        trf_cfg,
+        model_cls=model.layers[0].shims[0].model_cls,
+    )
+    model.attrs["set_transformer"](model, hf_model)
+    tokenizer = model.tokenizer
+    # Call the model with a batch of inputs to infer the width
+    if X:
+        # If we're dealing with actual texts, do the work to setup the wordpieces
+        # batch properly
+        docs = X
+        get_spans = model.attrs["get_spans"]
+        nested_spans = get_spans(docs)
+        flat_spans = []
+        for doc_spans in nested_spans:
+            flat_spans.extend(doc_spans)
+        token_data = huggingface_tokenize(tokenizer, [span.text for span in flat_spans])
+        wordpieces = WordpieceBatch.from_batch_encoding(token_data)
+        align = get_alignment(
+            flat_spans,
+            wordpieces.strings,
+            tokenizer.all_special_tokens,
+        )
+        wordpieces, align = truncate_oversize_splits(
+            wordpieces,
+            align,
+            tokenizer.model_max_length,
+        )
+    else:
+        texts = ["hello world", "foo bar"]
+        token_data = huggingface_tokenize(tokenizer, texts)
+        wordpieces = WordpieceBatch.from_batch_encoding(token_data)
+    model.layers[0].initialize(X=wordpieces)
+
+
 class ClassificationTransformerModel(Model):
     """This is a variation of the TransformerModel from spacy-transformers with
     some utility regarding listeners removed."""
@@ -116,46 +159,3 @@ class ClassificationTransformerModel(Model):
         for name in self.grad_names:
             copied.set_grad(name, self.get_grad(name).copy())
         return copied
-
-
-def init(model: Model, X=None, Y=None):
-    if model.attrs["has_transformer"]:
-        return
-    name = model.attrs["name"]
-    tok_cfg = model._init_tokenizer_config
-    trf_cfg = model._init_transformer_config
-    hf_model = huggingface_from_pretrained(
-        name,
-        tok_cfg,
-        trf_cfg,
-        model_cls=model.layers[0].shims[0].model_cls,
-    )
-    model.attrs["set_transformer"](model, hf_model)
-    tokenizer = model.tokenizer
-    # Call the model with a batch of inputs to infer the width
-    if X:
-        # If we're dealing with actual texts, do the work to setup the wordpieces
-        # batch properly
-        docs = X
-        get_spans = model.attrs["get_spans"]
-        nested_spans = get_spans(docs)
-        flat_spans = []
-        for doc_spans in nested_spans:
-            flat_spans.extend(doc_spans)
-        token_data = huggingface_tokenize(tokenizer, [span.text for span in flat_spans])
-        wordpieces = WordpieceBatch.from_batch_encoding(token_data)
-        align = get_alignment(
-            flat_spans,
-            wordpieces.strings,
-            tokenizer.all_special_tokens,
-        )
-        wordpieces, align = truncate_oversize_splits(
-            wordpieces,
-            align,
-            tokenizer.model_max_length,
-        )
-    else:
-        texts = ["hello world", "foo bar"]
-        token_data = huggingface_tokenize(tokenizer, texts)
-        wordpieces = WordpieceBatch.from_batch_encoding(token_data)
-    model.layers[0].initialize(X=wordpieces)

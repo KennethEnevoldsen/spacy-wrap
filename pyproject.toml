@@ -1,0 +1,135 @@
+[project]
+name = "spacy_wrap"
+version = "1.2.1"
+description = "Wrappers for including pre-trained transformers in spaCy pipelines"
+authors = [{name = "Kenneth Enevoldsen", email = "kennethcenevoldsen@gmail.com"}]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+]
+
+keywords = [
+    "NLP",
+    "spaCy",
+    "text analysis",
+    "natural language processing",
+    "text mining",
+    "text analytics",
+]
+
+dependencies = [
+    "spacy_transformers>=1.1.8,<1.2.0",
+    "spacy>=3.2.1,<3.5.0",
+    "thinc>=8.0.13,<8.2.0",
+]
+
+requires-python = ">=3.8"
+
+[project.urls]
+homepage = "https://github.com/KennethEnevoldsen/spacy-wrap"
+repository = "https://github.com/KennethEnevoldsen/spacy-wrap"
+documentation = "https://kennethenevoldsen.github.io/spacy-wrap/"
+
+[project.optional-dependencies]
+style = [
+    "black==22.12.0",
+    "pre-commit>=2.20.0,<2.21.0",
+    "ruff==0.0.191",
+    "mypy==0.991"
+]
+tests = [
+    "pytest>=7.1.3,<7.3.0",
+    "pytest-cov>=3.0.0,<3.0.1",
+]
+docs = [
+    "sphinx>=5.3.0,<5.4.0",
+    "furo==2022.12.7",
+    "sphinx-copybutton>=0.5.1,<0.5.2",
+    "sphinxext-opengraph>=0.7.3,<0.7.4",
+    "sphinx_design>=0.3.0,<0.3.1",
+]
+cuda = ["cupy>=5.0.0b4"]
+cuda80 = ["cupy-cuda80>=5.0.0b4"]
+cuda90 = ["cupy-cuda90>=5.0.0b4"]
+cuda91 = ["cupy-cuda91>=5.0.0b4"]
+cuda92 = ["cupy-cuda92>=5.0.0b4"]
+cuda100 = ["cupy-cuda100>=5.0.0b4"]
+cuda101 = ["cupy-cuda101>=5.0.0b4"]
+cuda102 = ["cupy-cuda102>=5.0.0b4"]
+cuda110 = ["cupy-cuda110>=5.0.0b4"]
+cuda111 = ["cupy-cuda111>=5.0.0b4"]
+cuda112 = ["cupy-cuda112>=5.0.0b4"]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.license]
+file = "LICENSE"
+name = "MIT"
+
+[project.entry-points.spacy_factories]
+sequence_classification_transformer = "spacy_wrap.pipeline_component_seq_clf:make_sequence_classification_transformer"
+token_classification_transformer = "spacy_wrap.pipeline_component_tok_clf:make_token_classification_transformer"
+
+[project.entry-points.spacy_architectures]
+"SequenceClassificationTransformerModel.v1" = "spacy_wrap:architectures.create_SequenceClassificationTransformerModel_v1"
+"TokenClassificationTransformerModel.v1" = "spacy_wrap:architectures.create_TokenClassificationTransformerModel_v1"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[tool.coverage.run]
+omit = [
+    "**/tests/*",
+    "**/_vendorized/*",
+    "**/about.py",
+]
+
+exclude_lines = [
+    "pragma: no cover",
+    # Don't complain about missing debug-only code:
+    "def __unicode__",
+    "def __repr__",
+    "if self.debug",
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+]
+
+[tool.mypy]
+ignore_missing_imports = true
+no_implicit_optional = true
+
+
+[tool.semantic_release]
+branch = "main"
+version_variable = [
+    "pyproject.toml:version"
+]
+build_command = "python -m pip install build; python -m build"
+
+[tool.ruff]
+exclude = [
+    ".venv",
+    ".env",
+    ".git",
+    "__pycache__",
+]
