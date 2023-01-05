@@ -14,7 +14,6 @@ classifiers = [
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
 ]
@@ -34,7 +33,7 @@ dependencies = [
     "thinc>=8.0.13,<8.2.0",
 ]
 
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 
 [project.urls]
 homepage = "https://github.com/KennethEnevoldsen/spacy-wrap"

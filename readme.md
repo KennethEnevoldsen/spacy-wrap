@@ -2,12 +2,11 @@
 # spaCy-wrap: For Wrapping fine-tuned transformers in spaCy pipelines
 
 [![PyPI version](https://badge.fury.io/py/spacy-wrap.svg)](https://pypi.org/project/spacy-wrap/)
-[![python version](https://img.shields.io/badge/Python-%3E=3.7-blue)](https://github.com/kennethenevoldsen/spacy-wrap)
+[![python version](https://img.shields.io/badge/Python-%3E=3.8-blue)](https://github.com/kennethenevoldsen/spacy-wrap)
 [![Code style: black](https://img.shields.io/badge/Code%20Style-Black-black)](https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html)
-[![github actions pytest](https://github.com/kennethenevoldsen/spacy-wrap/actions/workflows/pytest-cov-comment.yml/badge.svg)](https://github.com/kennethenevoldsen/spacy-wrap/actions)
+[![github actions pytest](https://github.com/kennethenevoldsen/spacy-wrap/actions/workflows/tests.yml/badge.svg)](https://github.com/kennethenevoldsen/spacy-wrap/actions)
 [![github actions docs](https://github.com/kennethenevoldsen/spacy-wrap/actions/workflows/documentation.yml/badge.svg)](https://kennethenevoldsen.github.io/spacy-wrap/)
 ![github coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/KennethEnevoldsen/33fb85a2c440013df494c1fce884633c/raw/3813a0369fdd61b39a806b7b91839ff405ef809a/badge-spacy-wrap-coverage.json)
-[![CodeFactor](https://www.codefactor.io/repository/github/kennethenevoldsen/spacy-wrap/badge)](https://www.codefactor.io/repository/github/kennethenevoldsen/spacy-wrap)
 
 
 spaCy-wrap is a minimal library intended for wrapping fine-tuned transformers from the [Huggingface model hub](https://huggingface.co/models?pipeline_tag=text-classification&sort=downloads) in your spaCy pipeline allowing the inclusion of existing models within [SpaCy](https://spacy.io) workflows. 
