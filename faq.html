@@ -1,8 +1,8 @@
 <!doctype html>
-<html class="no-js">
+<html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <meta property="og:title" content="Frequently asked questions" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="faq.html" />
@@ -11,10 +11,10 @@
 <meta name="description" content="Citing spacy-wrap: If you wish this library in your research, please cite it using (Changing the version if relevant): Or if you prefer APA: How do I test the code and run the test suite?: This pac..." />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="News and Changelog" href="news.html" />
 
-    <link rel="shortcut icon" href="_static/favicon.ico"/><meta name="generator" content="sphinx-4.5.0, furo 2022.09.29"/>
+    <link rel="shortcut icon" href="_static/favicon.ico"/><!-- Generated with Sphinx 6.1.0 and Furo 2022.12.07 -->
         <title>Frequently asked questions - spacy-wrap 1.2.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
@@ -166,7 +166,7 @@
   
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
-  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -230,9 +230,9 @@
         </div>
         <article role="main">
           <section id="frequently-asked-questions">
-<h1>Frequently asked questions<a class="headerlink" href="#frequently-asked-questions" title="Permalink to this headline">#</a></h1>
+<h1>Frequently asked questions<a class="headerlink" href="#frequently-asked-questions" title="Permalink to this heading">#</a></h1>
 <section id="citing-spacy-wrap">
-<h2>Citing spacy-wrap<a class="headerlink" href="#citing-spacy-wrap" title="Permalink to this headline">#</a></h2>
+<h2>Citing spacy-wrap<a class="headerlink" href="#citing-spacy-wrap" title="Permalink to this heading">#</a></h2>
 <p>If you wish this library in your research, please cite it using (Changing the version if relevant):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@software</span><span class="p">{</span><span class="n">Enevoldsen_spaCy</span><span class="o">-</span><span class="n">wrap_For_Wrapping_2022</span><span class="p">,</span>
    <span class="n">author</span> <span class="o">=</span> <span class="p">{</span><span class="n">Enevoldsen</span><span class="p">,</span> <span class="n">Kenneth</span><span class="p">},</span>
@@ -251,13 +251,12 @@
 </div>
 </section>
 <section id="how-do-i-test-the-code-and-run-the-test-suite">
-<h2>How do I test the code and run the test suite?<a class="headerlink" href="#how-do-i-test-the-code-and-run-the-test-suite" title="Permalink to this headline">#</a></h2>
+<h2>How do I test the code and run the test suite?<a class="headerlink" href="#how-do-i-test-the-code-and-run-the-test-suite" title="Permalink to this heading">#</a></h2>
 <p>This package comes with an extensive test suite. In order to run the tests,
 you’ll usually want to clone the repository and build the package from the
 source. This will also install the required development dependencies
-and test utilities defined in the <a class="reference external" href="https://github.com/KennethEnevoldsen/spacy-wrap/blob/master/requirements.txt">requirements.txt</a>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
-pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+and test utilities defined in the extras_require section of the <code class="code docutils literal notranslate"><span class="pre">pyproject.toml</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[tests]&quot;</span>
 
 python<span class="w"> </span>-m<span class="w"> </span>pytest
 </pre></div>
@@ -267,16 +266,22 @@ python<span class="w"> </span>-m<span class="w"> </span>pytest
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>tests/desired_test.py
 </pre></div>
 </div>
+<section id="does-this-package-run-on-x">
+<h3>Does this package run on X?<a class="headerlink" href="#does-this-package-run-on-x" title="Permalink to this heading">#</a></h3>
+<p>This package is intended to run on all major OS, this includes Windows (latest version), MacOS (latest) and the latest version of Linux (Ubuntu).
+Similarly it also tested on python 3.8, and 3.9.
+Please note these are only the systems this package is being actively tested on, if you run on a similar system (e.g. an earlier version of Linux) this package
+will likely run there as well, if not please create an issue.</p>
+</section>
 </section>
 <section id="how-is-the-documentation-generated">
-<h2>How is the documentation generated?<a class="headerlink" href="#how-is-the-documentation-generated" title="Permalink to this headline">#</a></h2>
+<h2>How is the documentation generated?<a class="headerlink" href="#how-is-the-documentation-generated" title="Permalink to this heading">#</a></h2>
 <p>SpaCy-wrap uses <a class="reference external" href="https://www.sphinx-doc.org/en/master/index.html">sphinx</a> to generate
 documentation. It uses the <a class="reference external" href="https://github.com/pradyunsg/furo">Furo</a> theme
 with custom styling.</p>
 <p>To make the documentation you can run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># install sphinx, themes and extensions</span>
-pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
-pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[docs]&quot;</span>
 
 <span class="c1"># generate html from documentations</span>
 
@@ -342,7 +347,10 @@ make<span class="w"> </span>-C<span class="w"> </span>docs<span class="w"> </spa
             <ul>
 <li><a class="reference internal" href="#">Frequently asked questions</a><ul>
 <li><a class="reference internal" href="#citing-spacy-wrap">Citing spacy-wrap</a></li>
-<li><a class="reference internal" href="#how-do-i-test-the-code-and-run-the-test-suite">How do I test the code and run the test suite?</a></li>
+<li><a class="reference internal" href="#how-do-i-test-the-code-and-run-the-test-suite">How do I test the code and run the test suite?</a><ul>
+<li><a class="reference internal" href="#does-this-package-run-on-x">Does this package run on X?</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#how-is-the-documentation-generated">How is the documentation generated?</a></li>
 </ul>
 </li>
@@ -356,9 +364,8 @@ make<span class="w"> </span>-C<span class="w"> </span>docs<span class="w"> </spa
     </aside>
   </div>
 </div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/scripts/furo.js"></script>
     <script src="_static/clipboard.min.js"></script>
     <script src="_static/copybutton.js"></script>
