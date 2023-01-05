@@ -1,5 +1,5 @@
 [project]
-name = "spacy-wrap"
+name = "spacy_wrap"
 version = "1.2.1"
 description = "Wrappers for including pre-trained transformers in spaCy pipelines"
 authors = [{name = "Kenneth Enevoldsen", email = "kennethcenevoldsen@gmail.com"}]
@@ -78,11 +78,13 @@ content-type = "text/markdown"
 file = "LICENSE"
 name = "MIT"
 
-[project.scripts]
-sequence_classification_transformer =  "spacy_wrap.pipeline_component_seq_clf:make_sequence_classification_transformer"
+[project.entry-points.spacy_factories]
+sequence_classification_transformer = "spacy_wrap.pipeline_component_seq_clf:make_sequence_classification_transformer"
 token_classification_transformer = "spacy_wrap.pipeline_component_tok_clf:make_token_classification_transformer"
-SequenceClassificationTransformerModel_v1 = "spacy_wrap:architectures.create_SequenceClassificationTransformerModel_v1"
-TokenClassificationTransformerModel_v1 = "spacy_wrap:architectures.create_TokenClassificationTransformerModel_v1"
+
+[project.entry-points.spacy_architectures]
+"SequenceClassificationTransformerModel.v1" = "spacy_wrap:architectures.create_SequenceClassificationTransformerModel_v1"
+"TokenClassificationTransformerModel.v1" = "spacy_wrap:architectures.create_TokenClassificationTransformerModel_v1"
 
 [tool.setuptools.packages.find]
 where = ["src"]
