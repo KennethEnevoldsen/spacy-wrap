@@ -54,7 +54,6 @@ class TestSequenceClassificationTransformer:
     @pytest.mark.parametrize("config, examples", EXAMPLES)
     def test_forward(self, config: dict, examples: list):
         """tests if that the forward pass work as intended."""
-
         nlp = spacy.blank("en")
         nlp.add_pipe("sequence_classification_transformer", config=config)
 
