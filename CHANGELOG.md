@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v1.4.0 (2023-01-30)
+### Feature
+* Fixed indexerror for emojis in tokens models ([`4c6a64a`](https://github.com/KennethEnevoldsen/spacy-wrap/commit/4c6a64ab445bb4f8d59359ee2add64d83fd4fb70))
+
+### Documentation
+* Minor updates ([`057a47d`](https://github.com/KennethEnevoldsen/spacy-wrap/commit/057a47d553b2de04021e581dd2201c8c69d3d88d))
+
 ## v1.3.0 (2023-01-06)
 ### Feature
 * Token clf wrapper passes tests ([`d8519a3`](https://github.com/KennethEnevoldsen/spacy-wrap/commit/d8519a39217e6dfb1f157806719d4221b99a34d2))
