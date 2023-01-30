@@ -65,7 +65,7 @@ jobs:
       - name: Pytest coverage comment
         # only create the badge once and only if it is not a dependabot or pre-commit-ci
         # and only if it is a PR
-        if: ${{ (matrix.os == 'ubuntu-latest' && matrix.python-version == '3.9') && (github.actor != 'dependabot[bot]' || github.actor != 'pre-commit-ci[bot]' || github.event_name == 'pull_request') }}
+        if: ${{ (matrix.os == 'ubuntu-latest' && matrix.python-version == '3.9') && (github.actor != 'dependabot[bot]' || github.actor != 'pre-commit-ci[bot]' || github.event_name != 'push') }}
         id: coverage-comment
         uses: MishaKav/pytest-coverage-comment@v1.1.39
         with:
