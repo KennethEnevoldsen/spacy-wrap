@@ -51,6 +51,13 @@ Specific tests can be run using:
 
    python -m pytest tests/desired_test.py
 
+
+If you want to check code coverage you can run the following:
+
+.. code-block::
+
+   python -m pytest --cov=.
+
 Does this package run on X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
