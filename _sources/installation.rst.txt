@@ -12,7 +12,7 @@ There is no discrepancy between the latest version installed using pip or the ve
 Development Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To install TextDescriptives for development, clone the repository and install the
+To set up the development environment for this package, clone the repository and install the
 package using the following commands:
 
 .. code-block::
