@@ -24,6 +24,17 @@ EXAMPLES_NER.append(
         ),
     ),
 )
+
+EXAMPLES_NER.append(
+    (
+        {"model": {"name": "dslim/bert-base-NER"}},
+        (
+            "My name is Wolfgang 🚀🚀 🚀 and I live in Berlin.",
+            [("Wolfgang 🚀🚀 🚀", (3, 7), "PER"), ("Berlin", (11, 12), "LOC")],
+        ),
+    ),
+)
+
 EXAMPLES_NER.append(
     (
         {
