@@ -88,7 +88,6 @@ def add_iob_tags(doc: Doc, iob: List[str]) -> Doc:
     """
     ent = []
     for i, label in enumerate(iob):
-
         # turn IOB labels into spans
         if label == "O":
             continue
