@@ -1,6 +1,6 @@
 [project]
 name = "spacy_wrap"
-version = "1.4.0"
+version = "1.4.1"
 description = "Wrappers for including pre-trained transformers in spaCy pipelines"
 authors = [{name = "Kenneth Enevoldsen", email = "kennethcenevoldsen@gmail.com"}]
 classifiers = [

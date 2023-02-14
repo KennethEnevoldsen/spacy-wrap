@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.4.1 (2023-02-14)
+### Fix
+* Now properly handles sequences longer than window size ([`338117e`](https://github.com/KennethEnevoldsen/spacy-wrap/commit/338117ef265876410b10914b6438815b524a3f9a))
+
 ## v1.4.0 (2023-01-30)
 ### Feature
 * Fixed indexerror for emojis in tokens models ([`4c6a64a`](https://github.com/KennethEnevoldsen/spacy-wrap/commit/4c6a64ab445bb4f8d59359ee2add64d83fd4fb70))
