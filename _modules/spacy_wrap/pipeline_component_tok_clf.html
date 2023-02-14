@@ -280,6 +280,7 @@
 <span class="s2">stride = 96</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
+
 <span class="n">DEFAULT_CONFIG</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span><span class="o">.</span><span class="n">from_str</span><span class="p">(</span><span class="n">DEFAULT_CONFIG_STR</span><span class="p">)</span>
 
 
@@ -485,16 +486,34 @@
 
         <span class="n">token_probabilities</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">token_tags</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">logits</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">model_output</span><span class="o">.</span><span class="n">logits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># data.model_output is (n, window, n_labels), make it (n_wp_tokens, n_labels)</span>
+        <span class="c1"># where n is the number of times the doc is split into sub docs</span>
+        <span class="c1"># i.e. n = n_wp_tokens//window.</span>
+        <span class="c1"># Since it uses a strided window with overlap i.e. we might have</span>
+        <span class="c1"># 128 as the window but a stride of 96. This mean that we have to average over</span>
+        <span class="c1"># the overlapping tokens.</span>
+
+        <span class="n">logits</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">model_output</span><span class="o">.</span><span class="n">logits</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+            <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">model_output</span><span class="o">.</span><span class="n">logits</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+        <span class="p">)</span>
         <span class="k">for</span> <span class="n">align</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">align</span><span class="p">:</span>
             <span class="c1"># aggregate the logits for each token</span>
-            <span class="n">agg_token_logits</span> <span class="o">=</span> <span class="n">agg</span><span class="p">(</span><span class="n">logits</span><span class="p">[</span><span class="n">align</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]])</span>
-            <span class="n">token_probabilities_</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;prob&quot;</span><span class="p">:</span> <span class="n">softmax</span><span class="p">(</span><span class="n">agg_token_logits</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">decimals</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
-                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">labels</span><span class="p">,</span>
-            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">align</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+                <span class="n">agg_token_logits</span> <span class="o">=</span> <span class="n">agg</span><span class="p">(</span><span class="n">logits</span><span class="p">[</span><span class="n">align</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]])</span>
+                <span class="n">token_probabilities_</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;prob&quot;</span><span class="p">:</span> <span class="n">softmax</span><span class="p">(</span><span class="n">agg_token_logits</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">decimals</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
+                    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">labels</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">agg_token_logits</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">token_probabilities_</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;prob&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">labels</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">token_probabilities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token_probabilities_</span><span class="p">)</span>
-            <span class="n">token_tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">agg_token_logits</span><span class="p">)])</span>
+            <span class="n">token_tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">token_tags</span><span class="p">,</span> <span class="n">token_probabilities</span>
 
