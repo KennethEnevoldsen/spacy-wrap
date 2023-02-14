@@ -3,7 +3,6 @@ import shutil
 
 import pytest
 import spacy
-
 import spacy_wrap  # noqa F401
 
 EXAMPLES_NER = []
@@ -66,6 +65,52 @@ EXAMPLES_NER.append(
         ),
     ),
 )
+
+# Added to test samples longer than window size
+EXAMPLES_NER.append(
+    (
+        {
+            "model": {"name": "saattrupdan/nbailab-base-ner-scandi"},
+            "aggregation_strategy": "first",
+        },
+        (
+            """Se mor, den ligner en hund." Han skulle blive 72 år, inden han fik sit gennembrud hos det brede publikum med albummet "The Healer". Hans navn er John Lee Hooker, født 22. august 1917 i bluesmusikkens hjemstat Mississippi. Og nok fik han først det afgørende gennembrud i 1989, hvor han fik en Grammy for "The Healer", men elskere af eksempelvis Johnny Winter, Status Quo, Animals, Georgia Satellites, ZZ Top, The Black Crowes og Rolling Stones'guitarist Keith Richards kan roligt lige nu kaste sig i støvet og takke inderligt og intenst for, at John Lee Hooker kom til verden dengang i 1917. John Lee Hookers indflydelse på andre musikere som sanger og især som guitarist har været intet mindre end monumental. John Lee Hookers indflydelse på andre musikere som sanger og især som guitarist har været intet mindre end monumental. John Lee Hookers indflydelse på andre musikere som sanger og især som guitarist har været intet mindre end monumental. John Lee Hookers indflydelse på andre musikere som sanger og især som guitarist har været intet mindre end monumental. John Lee Hookers indflydelse på andre musikere som sanger og især som guitarist har været intet mindre end monumental. """,  # noqa: E501
+            [
+                ("The Healer", (27, 29), "MISC"),
+                ("John Lee Hooker", (34, 37), "PER"),
+                ("Mississippi", (46, 47), "LOC"),
+                ("Grammy", (63, 64), "MISC"),
+                ("The Healer", (66, 68), "MISC"),
+                ("Johnny Winter", (74, 76), "PER"),
+                ("Status Quo", (77, 79), "ORG"),
+                ("Animals", (80, 81), "ORG"),
+                ("Georgia Satellites", (82, 84), "ORG"),
+                ("ZZ Top", (85, 87), "ORG"),
+                ("The Black Crowes", (88, 91), "ORG"),
+                ("Rolling Stones'guitarist", (92, 94), "ORG"),
+                ("Keith Richards", (94, 96), "PER"),
+                ("John Lee Hooker", (112, 115), "PER"),
+                ("John Lee Hookers", (122, 125), "PER"),
+                ("John Lee Hookers", (142, 145), "PER"),
+                ("John Lee Hookers", (162, 165), "PER"),
+                ("John Lee Hookers", (182, 185), "PER"),
+                ("John Lee Hookers", (202, 205), "PER"),
+            ],
+        ),
+    ),
+)
+
+# previously caused an indexError due to the leading space.
+EXAMPLES_NER.append(
+    (
+        {"model": {"name": "saattrupdan/nbailab-base-ner-scandi"}},
+        (
+            " Hans navn er John Lee Hooker, født 22",
+            [("John Lee Hooker", (4, 7), "PER")],
+        ),
+    ),
+)
+
 
 EXAMPLES_POS = []
 EXAMPLES_POS.append(

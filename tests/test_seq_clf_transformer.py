@@ -3,6 +3,7 @@ import shutil
 
 import pytest
 import spacy
+
 import spacy_wrap  # noqa F401
 
 EXAMPLES = []
@@ -44,6 +45,8 @@ EXAMPLES.append(
         [
             ("I like you. I love you", "POSITIVE"),
             ("I hate you. I dislike you", "NEGATIVE"),
+            # test sample larger than window size:
+            ("I hate you. I dislike you " * 200, "NEGATIVE"),
             ("", None),  # type: ignore
         ],
     ),

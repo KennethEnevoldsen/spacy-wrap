@@ -89,7 +89,7 @@ def add_iob_tags(doc: Doc, iob: List[str]) -> Doc:
     ent = []
     for i, label in enumerate(iob):
         # turn IOB labels into spans
-        if label == "O":
+        if label == "O" or label is None:
             continue
         iob_, ent_type = label.split("-")
         if (i - 1 >= 0 and iob_ == "I" and iob[i - 1] == "O") or (
@@ -123,6 +123,8 @@ def add_pos_tags(
     """
     doc_extension = extension + "_"
     for token, tag in zip(doc, pos):
+        if tag is None:
+            tag = "X"
         setattr(token, doc_extension, tag)
     return doc
 

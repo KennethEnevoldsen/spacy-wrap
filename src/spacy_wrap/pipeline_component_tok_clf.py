@@ -64,6 +64,7 @@ window = 128
 stride = 96
 """
 
+
 DEFAULT_CONFIG = Config().from_str(DEFAULT_CONFIG_STR)
 
 
@@ -269,16 +270,34 @@ class TokenClassificationTransformer(TrainablePipe):
 
         token_probabilities = []
         token_tags = []
-        logits = data.model_output.logits[0]
+        # data.model_output is (n, window, n_labels), make it (n_wp_tokens, n_labels)
+        # where n is the number of times the doc is split into sub docs
+        # i.e. n = n_wp_tokens//window.
+        # Since it uses a strided window with overlap i.e. we might have
+        # 128 as the window but a stride of 96. This mean that we have to average over
+        # the overlapping tokens.
+
+        logits = data.model_output.logits.reshape(
+            -1,
+            data.model_output.logits.shape[-1],
+        )
         for align in data.align:
             # aggregate the logits for each token
-            agg_token_logits = agg(logits[align.data[:, 0]])
-            token_probabilities_ = {
-                "prob": softmax(agg_token_logits).round(decimals=3),
-                "label": labels,
-            }
+            if align.data.size:
+                agg_token_logits = agg(logits[align.data[:, 0]])
+                token_probabilities_ = {
+                    "prob": softmax(agg_token_logits).round(decimals=3),
+                    "label": labels,
+                }
+                label = labels[np.argmax(agg_token_logits)]
+            else:
+                token_probabilities_ = {
+                    "prob": np.nan,
+                    "label": labels,
+                }
+                label = None
             token_probabilities.append(token_probabilities_)
-            token_tags.append(labels[np.argmax(agg_token_logits)])
+            token_tags.append(label)
 
         return token_tags, token_probabilities
 
