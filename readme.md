@@ -121,21 +121,23 @@ import spacy
 import spacy_wrap
 nlp = spacy.blank("en")
 
-config = {"model": {"name": "vblagoje/bert-english-uncased-finetuned-pos"}}
+config = {"model": {"name": "vblagoje/bert-english-uncased-finetuned-pos"}, 
+          # "predictions_to": ["pos"]  # optional, can be "pos", "tag" or "ents"
+}
 
-nlp.add_pipe("token_classification_transformer", config=config)
+snlp.add_pipe("token_classification_transformer", config=config)
 
 text = "My name is Wolfgang and I live in Berlin"
 
 doc = nlp(text)
-doc._.tok_clf_predictions
-# ['O', 'O', 'O', 'B-PER', 'O', 'O', 'O', 'O', 'B-LOC', 'O']
+print(doc._.tok_clf_predictions)
+# ['PRON', 'NOUN', 'AUX', 'PROPN', 'CCONJ', 'PRON', 'VERB', 'ADP', 'PROPN']
 ```
 
 By default, spacy-wrap will automatically detect it the labels follow the universal POS tags as well. If so it will also assign it to the `token.pos`, similar regular spacy pipelines:
 
 ```python
-doc[0].pos_
+print(doc[0].pos_)
 # 'PRON'
 ```
 
@@ -148,7 +150,8 @@ import spacy_wrap
 nlp = spacy.blank("en")
 
 # specify model from the hub
-config = {"model": {"name": "dslim/bert-base-NER"}}
+config = {"model": {"name": "dslim/bert-base-NER"}, 
+          "predictions_to": ["ents"]} # forced to be named entity recognition, if left out it will be estimated from the labels
 
 # add it to the pipe
 nlp.add_pipe("token_classification_transformer", config=config)
