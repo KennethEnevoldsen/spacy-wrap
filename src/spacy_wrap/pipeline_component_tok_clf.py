@@ -87,7 +87,7 @@ def is_iob_tag(label: str) -> bool:
 
 
 class TokenClassificationTransformer(TrainablePipe):
-    """spaCy pipeline component that provides access to a transformer model
+    """SpaCy pipeline component that provides access to a transformer model
     from the Huggingface transformers library.
 
     Usually you will connect subsequent components to the shared

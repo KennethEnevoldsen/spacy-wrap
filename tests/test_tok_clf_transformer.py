@@ -127,7 +127,7 @@ EXAMPLES_POS.append(
 class TestTokenClassificationTransformer:
     @pytest.mark.parametrize("config, example", EXAMPLES_NER)
     def test_forward_ner(self, config: dict, example: tuple):
-        """tests if that the forward pass work as intended for NER models."""
+        """Tests if that the forward pass work as intended for NER models."""
         nlp = spacy.blank("es")
         nlp.add_pipe("token_classification_transformer", config=config)
 
@@ -151,7 +151,7 @@ class TestTokenClassificationTransformer:
 
     @pytest.mark.parametrize("config, example", EXAMPLES_POS)
     def test_forward_pos(self, config: dict, example: tuple):
-        """tests if that the forward pass work as intended for POS models."""
+        """Tests if that the forward pass work as intended for POS models."""
         nlp = spacy.blank("en")
         nlp.add_pipe("token_classification_transformer", config=config)
         text, expected = example
@@ -161,7 +161,7 @@ class TestTokenClassificationTransformer:
             assert token.pos_ == label
 
     def test_to_and_from_disk(self):
-        """tests if the pipeline can be serialized to disk."""
+        """Tests if the pipeline can be serialized to disk."""
         nlp = spacy.blank("en")
         nlp.add_pipe("token_classification_transformer", config=EXAMPLES_NER[0][0])
 

@@ -56,7 +56,7 @@ EXAMPLES.append(
 class TestSequenceClassificationTransformer:
     @pytest.mark.parametrize("config, examples", EXAMPLES)
     def test_forward(self, config: dict, examples: list):
-        """tests if that the forward pass work as intended."""
+        """Tests if that the forward pass work as intended."""
         nlp = spacy.blank("en")
         nlp.add_pipe("sequence_classification_transformer", config=config)
 
@@ -87,7 +87,7 @@ class TestSequenceClassificationTransformer:
                 assert doc.cats == {}
 
     def test_to_and_from_disk(self):
-        """tests if the pipeline can be serialized to disk."""
+        """Tests if the pipeline can be serialized to disk."""
         nlp = spacy.blank("da")
         config = {
             "doc_extension_trf_data": "clf_trf_data",
