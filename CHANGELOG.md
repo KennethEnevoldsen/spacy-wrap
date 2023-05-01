@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v1.4.2 (2023-05-01)
+### Fix
+* Relaxed upper bound of dev. dependencies ([`f9c8a87`](https://github.com/KennethEnevoldsen/spacy-wrap/commit/f9c8a878ef0d4a03019925bb97af658a4a2bf658))
+
+### Documentation
+* Update errors in example in readme ([`25063be`](https://github.com/KennethEnevoldsen/spacy-wrap/commit/25063bee591c70ce6b335e46acbef4ea8dea103b))
+
 ## v1.4.1 (2023-02-14)
 ### Fix
 * Now properly handles sequences longer than window size ([`338117e`](https://github.com/KennethEnevoldsen/spacy-wrap/commit/338117ef265876410b10914b6438815b524a3f9a))
