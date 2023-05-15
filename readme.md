@@ -13,6 +13,11 @@ spaCy-wrap is a minimal library intended for wrapping fine-tuned transformers fr
 
 As for as possible it follows a similar API as [spacy-transformers](https://github.com/explosion/spacy-transformers).
 
+**NOTE**: Since the release of spaCy-wrap, Explosion released the [spacy-huggingface-pipelines](https://github.com/explosion/spacy-huggingface-pipelines) it takes the approach of wrapping the Huggingface pipeline as opposed to the transformer. That means token aggregation and conversion into spans happens at
+the Huggingface pipeline, while in spaCy-wrap it happens at the logits of the model which can sometimes lead to unfortunate differences in results.
+I generally recommend using the spacy-huggingface-pipelines for most use cases, but if you need to use the transformer output more directly 
+spaCy-wrap can have its uses.
+
 ## Installation
 
 Installing spacy-wrap is simple using pip:
