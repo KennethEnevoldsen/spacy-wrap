@@ -211,6 +211,8 @@ class TokenClassificationTransformer(TrainablePipe):
                 self.aggregation_strategy,
                 self.model_labels,
             )
+            # ensure no Nones (if spacy has a token which does not correspond to any wp)
+            iob_tags = [tag if tag is not None else "O" for tag in iob_tags]
             setattr(doc._, self.doc_extension_prediction, iob_tags)
             setattr(doc._, f"{self.doc_extension_prediction}_prob", iob_prob)
             if "ents" in self.predictions_to:
