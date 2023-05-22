@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.4.3 (2023-05-22)
+### Fix
+* Ensure no Nones in iob tokens ([`8fa954a`](https://github.com/KennethEnevoldsen/spacy-wrap/commit/8fa954a70a1cb76ff350b6c32ea461fd85ad369b))
+
 ## v1.4.2 (2023-05-01)
 ### Fix
 * Relaxed upper bound of dev. dependencies ([`f9c8a87`](https://github.com/KennethEnevoldsen/spacy-wrap/commit/f9c8a878ef0d4a03019925bb97af658a4a2bf658))
