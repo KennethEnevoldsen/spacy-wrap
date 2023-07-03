@@ -354,7 +354,10 @@ class TokenClassificationTransformer(TrainablePipe):
         self.__initialize_component()
 
     def to_disk(
-        self, path: Union[str, Path], *, exclude: Iterable[str] = tuple()
+        self,
+        path: Union[str, Path],
+        *,
+        exclude: Iterable[str] = tuple(),
     ) -> None:
         """Serialize the pipe to disk.
 
@@ -369,7 +372,10 @@ class TokenClassificationTransformer(TrainablePipe):
         util.to_disk(path, serialize, exclude)
 
     def from_disk(
-        self, path: Union[str, Path], *, exclude: Iterable[str] = tuple()
+        self,
+        path: Union[str, Path],
+        *,
+        exclude: Iterable[str] = tuple(),
     ) -> "TokenClassificationTransformer":
         """Load the pipe from disk.
 
