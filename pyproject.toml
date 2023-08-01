@@ -28,7 +28,7 @@ keywords = [
 ]
 
 dependencies = [
-    "spacy_transformers>=1.2.1,<1.3.0",
+    "spacy_transformers>=1.2.1,<1.4.0",
     "spacy>=3.2.1,<3.6.0",
     "thinc>=8.0.13,<8.2.0",
 ]
