@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.4.4 (2023-08-01)
+
+### Fix
+
+* Relax upper bound on versions ([`1a7d301`](https://github.com/KennethEnevoldsen/spacy-wrap/commit/1a7d301311bcd605e54d21c2eff0d540018d204c))
+
 ## v1.4.3 (2023-05-22)
 ### Fix
 * Ensure no Nones in iob tokens ([`8fa954a`](https://github.com/KennethEnevoldsen/spacy-wrap/commit/8fa954a70a1cb76ff350b6c32ea461fd85ad369b))
