@@ -42,10 +42,10 @@ documentation = "https://kennethenevoldsen.github.io/spacy-wrap/"
 
 [project.optional-dependencies]
 style = [
-    "black==22.12.0",
+    "black>=22.12.0",
     "pre-commit>=2.20.0",
-    "ruff==0.0.263",
-    "mypy==0.991"
+    "ruff>=0.0.263",
+    "mypy>=0.991"
 ]
 tests = [
     "pytest>=7.1.3",
