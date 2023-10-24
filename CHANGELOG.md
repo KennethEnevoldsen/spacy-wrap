@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v1.4.5 (2023-10-24)
+
+### Fix
+
+* Updated pre-commit ([`5697399`](https://github.com/KennethEnevoldsen/spacy-wrap/commit/5697399aa451154899f24d108ded991b78ca922b))
+
 ## v1.4.4 (2023-08-01)
 
 ### Fix
