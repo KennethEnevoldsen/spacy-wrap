@@ -1,4 +1,5 @@
 """Test for the token classification transformer pipeline component."""
+
 import shutil
 
 import pytest

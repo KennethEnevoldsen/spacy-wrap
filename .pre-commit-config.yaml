@@ -8,7 +8,7 @@ repos:
       - id: pyupgrade
 
   - repo: https://github.com/bwhmather/ssort
-    rev: 0.12.2
+    rev: 0.12.3
     hooks:
       - id: ssort
 
@@ -24,7 +24,7 @@ repos:
         args: [--in-place]
 
   - repo: https://github.com/psf/black
-    rev: 23.12.1
+    rev: 24.1.1
     hooks:
       - id: black
         args: [--line-length, "88"]
