@@ -14,7 +14,6 @@ ClassificationTransformerModel instead of TransformerModel
 ClassificationTransformerModel instead of TransformerModel
 """
 
-
 from typing import Callable, List
 
 from spacy.tokens import Doc

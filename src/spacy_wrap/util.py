@@ -11,7 +11,6 @@ The following functions are copied/modified:
 - split_by_doc. Changed to fetch logits instead of token embeddings
 """
 
-
 from typing import List, Literal
 
 import numpy as np
