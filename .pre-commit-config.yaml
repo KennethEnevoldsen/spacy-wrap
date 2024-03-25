@@ -3,7 +3,7 @@ autoupdate: false
 
 repos:
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.1
+    rev: v3.15.2
     hooks:
       - id: pyupgrade
 
@@ -30,7 +30,7 @@ repos:
         args: [--line-length, "88"]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.3
+    rev: v0.3.4
     hooks:
       - id: ruff
 
